@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlashRL - Professor Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Playfair+Display:wght@700&display=swap');
+
+        body { 
+            font-family: 'Libre Baskerville', serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            background: #0a0a0a; 
+            color: #d1d1d1; 
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            color: #4caf50;
+            margin-bottom: 5px;
+            font-size: 2.5rem;
+        }
+
+        #professor-tag {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        #card-container { perspective: 1200px; width: 750px; height: 450px; }
+        
+        #card { 
+            width: 100%; 
+            height: 100%; 
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); 
+            transform-style: preserve-3d; 
+            cursor: pointer; 
+            position: relative; 
+        }
+        
+        #card.flipped { transform: rotateY(180deg); }
+        
+        .card-face { 
+            position: absolute; 
+            width: 100%; 
+            height: 100%; 
+            backface-visibility: hidden; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center; 
+            padding: 50px; 
+            box-sizing: border-box; 
+            border-radius: 4px; 
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8); 
+            text-align: center; 
+            border: 1px solid #222;
+        }
+        
+        .front { 
+            background: #141414; 
+            font-size: 1.6rem; 
+            color: #fff;
+            border-bottom: 3px solid #2e7d32;
+        }
+        
+        .back { 
+            background: #141414; 
+            transform: rotateY(180deg); 
+            color: #a5d6a7; 
+            font-size: 1.1rem; 
+            overflow-y: auto; 
+            text-align: left; 
+            line-height: 1.6;
+            justify-content: flex-start;
+            scrollbar-width: thin;
+            scrollbar-color: #333 #141414;
+        }
+
+        .back p { margin-top: 0; }
+
+        .controls { margin-top: 50px; display: flex; gap: 25px; align-items: center; }
+        
+        button { 
+            padding: 10px 20px; 
+            border: 1px solid #444; 
+            border-radius: 2px; 
+            background: transparent; 
+            color: #888; 
+            cursor: pointer; 
+            font-family: inherit;
+            font-size: 0.9rem; 
+            transition: all 0.2s; 
+        }
+        
+        button:hover { 
+            border-color: #4caf50; 
+            color: #fff; 
+            background: rgba(76, 175, 80, 0.1);
+        }
+        
+        #progress { color: #555; font-size: 0.8rem; margin-top: 15px; font-family: monospace; }
+
+        .topic-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 0.7rem;
+            color: #444;
+            font-style: italic;
+        }
+
+        .yana-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 0.65rem;
+            background: #2e7d32;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-family: sans-serif;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <h1>FlashRL</h1>
+    <div id="professor-tag">Restelli • Metelli • Papini</div>
+    
+    <div id="card-container">
+        <div id="card">
+            <div class="card-face front">
+                <div class="yana-badge" id="yana-badge">YANA VALIDATED</div>
+                <div class="topic-indicator" id="topic-front">Topic</div>
+                <div id="question-text">Loading deck...</div>
+            </div>
+            <div class="card-face back">
+                <div id="answer-text">...</div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="progress">0 / 0</div>
+    
+    <div class="controls">
+        <button id="prev">PREV</button>
+        <button id="shuffle">SHUFFLE</button>
+        <button id="next">NEXT</button>
+    </div>
+
+    <script>
+        const originalCards = [
+            // --- PROF. RESTELLI (Foundations, Finite MDPs) ---
+            {
+                "prof": "Restelli",
+                "topic": "Bellman Operator",
+                "question": "What is the Bellman operator T\u03c0 and its key properties?",
+                "answer": "The Bellman operator T\u03c0 is a mapping that defines the expected return for a fixed policy: (T\u03c0v)(s) = r(s, \u03c0(s)) + \u03b3 \u2211 P(s'|s, \u03c0(s))v(s'). <br><br><b>Key Properties:</b><br>1. <b>Monotonicity:</b> If u \u2264 v component-wise, then Tu \u2264 Tv.<br>2. <b>\u03b3-Contraction:</b> In the L\u221e norm, ||Tu - Tv||\u221e \u2264 \u03b3||u - v||\u221e. This ensures convergence to a unique fixed point (v\u03c0) by the Banach Theorem.",
+                "yana": true
+            },
+            {
+                "prof": "Restelli",
+                "topic": "Markov Property",
+                "question": "Explain the Markov Property and its implications for state representation.",
+                "answer": "The Markov property states: P(X_{t+1}|X_t, ..., X_0) = P(X_{t+1}|X_t). <br><br><b>Implication:</b> The current state must be a 'sufficient statistic' for the future. If a state is Markovian, we don't need history to act optimally. If the state is not Markovian (POMDP), we must use history or hidden states to regain predictability.",
+                "yana": true
+            },
+            {
+                "prof": "Restelli",
+                "topic": "Stationary Distribution",
+                "question": "What is the Stationary Distribution \u03bc and how is it lost/computed?",
+                "answer": "Defined by \u03bc = \u03bcP and \u2211\u03bc_i = 1. It represents the long-term relative frequency of state visits. <br><br><b>Information Loss:</b> When reached, the process is in 'equilibrium', meaning we can no longer infer the <b>initial state</b> from the current state distribution. <br><br><b>Existence:</b> Guaranteed for irreducible and aperiodic chains (Regular Processes).",
+                "yana": true
+            },
+            {
+                "prof": "Restelli",
+                "topic": "Bellman Convergence",
+                "question": "What is the convergence bound of the Bellman operator?",
+                "answer": "For the Bellman optimality operator T*, the distance between the current estimate v_k and the optimal v* is bounded by: ||v_k - v*||\u221e \u2264 \u03b3^k ||v_0 - v*||\u221e. This shows geometric convergence at a rate proportional to \u03b3.",
+                "yana": true
+            },
+            {
+                "prof": "Restelli",
+                "topic": "State Types",
+                "question": "What are the different types of states in a Markov Chain?",
+                "answer": "1. <b>Transient:</b> There is a non-zero probability of never returning to this state.<br>2. <b>Recurrent:</b> The probability of returning to this state is 1.<br>3. <b>Absorbing:</b> Once entered, the process cannot leave (P(s|s) = 1).",
+                "yana": true
+            },
+
+            // --- PROF. METELLI (Continuous RL, TD, Deep RL) ---
+            {
+                "prof": "Metelli",
+                "topic": "Convergence",
+                "question": "Explain the Projected Bellman Equation (PBE).",
+                "answer": "When using linear function approximation (v \u2248 \u03a6w), the Bellman update T\u03c0 \u03a6w may lie outside the representable subspace. The PBE finds the point where the <b>projection</b> (\u03a0) of the Bellman update back onto the subspace equals the current estimate: \u03a6w = \u03a0 T\u03c0 \u03a6w. This is the fixed point found by TD methods with linear approximation.",
+                "yana": true
+            },
+            {
+                "prof": "Metelli",
+                "topic": "Temporal Difference",
+                "question": "To what does TD(0) converge and how does it decompose error?",
+                "answer": "TD(0) converges to the fixed point of the PBE. <br><br><b>Error Decomposition:</b> The TD error can be decomposed into: 1. <b>Approximation Error</b> (distance to the subspace) and 2. <b>Estimation Error</b> (noise from sampling). TD is biased due to bootstrapping but has lower variance than Monte Carlo.",
+                "yana": true
+            },
+            {
+                "prof": "Metelli",
+                "topic": "Deep RL",
+                "question": "How does DQN mitigate instability? (Experience Replay & Target Nets)",
+                "answer": "1. <b>Experience Replay:</b> Stores (s,a,r,s') in a buffer. Random sampling breaks the temporal correlation of sequential data, making samples look i.i.d.<br>2. <b>Target Network:</b> Uses a separate network (with weights \u03b8-) to compute targets. \u03b8- is only updated occasionally, stabilizing the 'moving target' problem in the Bellman update.",
+                "yana": true
+            },
+            {
+                "prof": "Metelli",
+                "topic": "Deep RL",
+                "question": "Explain Double DQN and Overestimation Bias.",
+                "answer": "Standard Q-Learning selects and evaluates actions using the same weights: Q(s, argmax Q). Since estimates are noisy, the 'max' picks up positive noise. <br><br><b>Double DQN:</b> Uses the online network to <b>select</b> the action and the target network to <b>evaluate</b> it: Q_target(s, argmax Q_online). This decouples selection from evaluation and reduces overestimation.",
+                "yana": true
+            },
+            {
+                "prof": "Metelli",
+                "topic": "Systems",
+                "question": "What is an open-loop policy/system?",
+                "answer": "An open-loop policy \u03c0(t) depends only on time (or initial state), not on the intermediate states encountered during execution. In contrast, a closed-loop policy \u03c0(s) reacts to the current state, providing robustness to stochasticity.",
+                "yana": true
+            },
+
+            // --- PROF. PAPINI (Policy Gradients, SAC, Advanced) ---
+            {
+                "prof": "Papini",
+                "topic": "Parametric Policies",
+                "question": "Why use parametric policies over value-based methods?",
+                "answer": "1. <b>Continuity:</b> Can handle continuous action spaces natively.<br>2. <b>Stochasticity:</b> Can naturally represent stochastic optimal policies (e.g., in Rock-Paper-Scissors).<br>3. <b>Simplicity:</b> Often, the policy is simpler to approximate than the value function.",
+                "yana": true
+            },
+            {
+                "prof": "Papini",
+                "topic": "Policy Gradient",
+                "question": "Why does Policy Gradient suffer from high variance?",
+                "answer": "Policy gradients rely on Monte Carlo returns G_t = \u2211\u03b3^k r_{t+k}. Since G_t depends on a long sequence of stochastic actions and transitions, it has massive variance, leading to noisy updates and slow convergence.",
+                "yana": true
+            },
+            {
+                "prof": "Papini",
+                "topic": "Variance Reduction",
+                "question": "Explain the role of Baselines in variance reduction.",
+                "answer": "We use \u2207log \u03c0(G_t - b(s)). The baseline b(s) reduces variance by centering the return. <br><br><b>State-only Baseline:</b> If b(s) depends only on state (like V(s)), it reduces variance without introducing bias because E[\u2207log \u03c0 \u22c5 b(s)] = 0. If it depended on actions, it would introduce bias.",
+                "yana": true
+            },
+            {
+                "prof": "Papini",
+                "topic": "Soft Actor-Critic",
+                "question": "What is the detailed objective of Soft Actor-Critic (SAC)?",
+                "answer": "SAC maximizes Reward + Entropy: J(\u03c0) = \u2211 E[r(s,a) + \u03b1 H(\u03c0(\u22c5|s))]. <br><br>\u03b1 is the temperature parameter controlling the exploration-exploitation trade-off. High entropy prevents premature convergence to a single mode and helps the agent recover from environment changes.",
+                "yana": true
+            },
+            {
+                "prof": "Papini",
+                "topic": "Bias vs Variance",
+                "question": "What happens if a baseline introduces bias?",
+                "answer": "If a baseline depends on the current action, the expectation of the gradient update is no longer equal to the true policy gradient. This bias can cause the algorithm to converge to a sub-optimal policy or even diverge, even if variance is extremely low.",
+                "yana": true
+            },
+
+            // --- SYNTHESIZED / ADDITIONAL RELEVANT INFO ---
+            {
+                "prof": "Restelli",
+                "topic": "Finite MDPs",
+                "question": "Difference between Policy Iteration and Value Iteration?",
+                "answer": "<b>Policy Iteration:</b> Alternates between Policy Evaluation (finding v\u03c0) and Policy Improvement (acting greedily w.r.t v\u03c0). Converges in finite steps for finite MDPs.<br><b>Value Iteration:</b> Directly applies the Bellman Optimality Operator T* until v converges to v*. It is effectively Policy Iteration with only one sweep of evaluation per step.",
+                "yana": false
+            },
+            {
+                "prof": "Metelli",
+                "topic": "Exploration",
+                "question": "Optimism in the Face of Uncertainty (OFU)?",
+                "answer": "A principle where an agent assigns higher values to states/actions it is uncertain about. This encourages exploration of unknown areas. Example: UCB1 in Bandits or R-MAX in MDPs.",
+                "yana": false
+            },
+            {
+                "prof": "Papini",
+                "topic": "Policy Gradients",
+                "question": "REINFORCE vs Actor-Critic?",
+                "answer": "<b>REINFORCE:</b> Pure Monte Carlo; uses the full return G_t to update the policy. High variance, no bias.<br><b>Actor-Critic:</b> Uses a critic (Value Function) to compute a TD-like signal (e.g., Advantage) for the update. Lower variance but introduces bias due to bootstrapping.",
+                "yana": false
+            }
+        ];
+
+        let cards = [];
+        let index = 0;
+
+        function shuffleDeck() {
+            cards = [...originalCards];
+            for (let i = cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cards[i], cards[j]] = [cards[j], cards[i]];
+            }
+            index = 0;
+            render();
+        }
+
+        function render() {
+            if (cards.length === 0) return;
+            const card = cards[index];
+            document.getElementById('professor-tag').innerText = `Examiner: Prof. ${card.prof}`;
+            document.getElementById('topic-front').innerText = card.topic;
+            document.getElementById('question-text').innerText = card.question;
+            document.getElementById('answer-text').innerHTML = `<p>${card.answer}</p>`;
+            document.getElementById('progress').innerText = `${index + 1} / ${cards.length}`;
+            document.getElementById('card').classList.remove('flipped');
+            
+            // Show/Hide Yana Badge
+            document.getElementById('yana-badge').style.display = card.yana ? 'block' : 'none';
+        }
+
+        document.getElementById('card').onclick = () => {
+            document.getElementById('card').classList.toggle('flipped');
+        };
+
+        document.getElementById('next').onclick = (e) => {
+            e.stopPropagation();
+            index = (index + 1) % cards.length;
+            render();
+        };
+
+        document.getElementById('prev').onclick = (e) => {
+            e.stopPropagation();
+            index = (index - 1 + cards.length) % cards.length;
+            render();
+        };
+
+        document.getElementById('shuffle').onclick = (e) => {
+            e.stopPropagation();
+            shuffleDeck();
+        };
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') document.getElementById('card').click();
+            if (e.code === 'ArrowRight') document.getElementById('next').click();
+            if (e.code === 'ArrowLeft') document.getElementById('prev').click();
+            if (e.code === 'KeyR') shuffleDeck();
+        });
+
+        shuffleDeck();
+    </script>
+</body>
+</html>

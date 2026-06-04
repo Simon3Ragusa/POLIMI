@@ -1,0 +1,28 @@
+\section{Deep Reinforcement Learning}
+
+\subsection{DQN: Bridging Deep Learning and RL}
+Deep Q-Networks (DQN) use a neural network to approximate $Q(s, a)$. To ensure stability, DQN introduces two critical mechanisms:
+\begin{itemize}
+    \item \textbf{Experience Replay:} Stores transitions $(s, a, r, s')$ in a buffer and samples i.i.d. batches for training. This breaks temporal correlations and improves sample efficiency.
+    \item \textbf{Target Network:} Uses a separate, slowly-updated network ($\theta^-$) to compute targets $y_t = r + \gamma \max_{a'} Q(s', a'; \theta^-)$, preventing the "moving target" instability.
+\end{itemize}
+
+\subsection{Double DQN and Dueling Architectures}
+\begin{itemize}
+    \item \textbf{Double DQN:} Fixes the \textbf{Maximization Bias} (overestimation of values) by decoupling action selection (online weights $\theta$) from action evaluation (target weights $\theta^-$): $y_t = r + \gamma Q(s', \text{argmax}_{a'} Q(s', a'; \theta); \theta^-)$.
+    \item \textbf{Dueling DQN:} Decomposes $Q(s, a) = V(s) + A(s, a)$. The advantage $A(s, a)$ is centered (usually by subtracting the mean) to ensure identifiability. This improves learning for states where action choice is less critical.
+\end{itemize}
+
+\subsection{A2C: Synchronous Advantage Actor-Critic}
+\textbf{Advantage Actor-Critic (A2C)} is the synchronous version of A3C. It maintains a policy (Actor) and a value function (Critic).
+\begin{itemize}
+    \item \textbf{Update Rule:} The Actor is updated using the policy gradient weighted by the advantage: $\nabla_\theta \ln \pi(a|s) A(s, a)$. 
+    \item \textbf{Advantage Function:} $A(s, a) = Q(s, a) - V(s)$. In practice, we use the TD error $\delta_t = r + \gamma V(s') - V(s)$ as an unbiased estimate of the advantage.
+    \item \textbf{A2C vs A3C:} A2C waits for all workers to finish their segment before performing a batch update, often proving more efficient on GPUs than the asynchronous A3C.
+\end{itemize}
+
+\subsection{Advanced Methods: SAC and TD3}
+\begin{itemize}
+    \item \textbf{Soft Actor-Critic (SAC):} An off-policy method that optimizes a Maximum Entropy objective: $J(\pi) = \mathbb{E} [ \sum r_t + \alpha H(\pi(\cdot | S_t)) ]$. This encourages exploration and robustness.
+    \item \textbf{TD3 (Twin Delayed DDPG):} Improves DDPG by adding Clipped Double-Q learning, Target Policy Smoothing, and Delayed Policy Updates to mitigate overestimation and variance.
+\end{itemize}

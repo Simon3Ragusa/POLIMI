@@ -1,0 +1,90 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{pdflscape}
+
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}[{\titlerule[0.5pt]}]
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+
+\title{\textbf{Reinforcement Learning Oral Exam Cheatsheet}}
+\author{Master's Degree in Computer Science and Engineering}
+\date{Academic Year 2025/2026}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\input{chapters/ch1_intro.tex}
+\newpage
+\input{chapters/ch2_mdp.tex}
+\newpage
+\input{chapters/ch3_dp.tex}
+\newpage
+\input{chapters/ch4_tabular.tex}
+\newpage
+\input{chapters/ch5_fa.tex}
+\newpage
+\input{chapters/ch6_dqn.tex}
+\newpage
+\input{chapters/ch7_pg.tex}
+\newpage
+\input{chapters/ch8_deep.tex}
+\newpage
+\input{chapters/ch9_practical.tex}
+
+\newpage
+\begin{landscape}
+\section{Comprehensive Algorithm Comparison}
+
+\begin{center}
+\small
+\renewcommand{\arraystretch}{1.5}
+\begin{longtable}{>{\bfseries}p{2.8cm} p{1.8cm} p{1.8cm} p{2.2cm} p{4cm} p{6cm}}
+\toprule
+Algorithm & Model & Policy & Update Type & Update Target & Key Features/Limitations \\ \midrule
+Value Iteration & Based & Off & Bootstrapping & $R + \gamma \max_{a'} V(S')$ & Exact; Requires $P$ and $R$; Bellman Optimality. \\
+Policy Iteration & Based & On & Bootstrapping & $v_\pi$ (Evaluation) & Two-step dance; Policy Improvement Theorem. \\ \midrule
+MC Prediction & Free & On & Sampling & $G_t$ (Full Return) & Unbiased; High variance; Requires episodic tasks. \\
+TD(0) & Free & On & Bootstrapping & $R + \gamma V(S')$ & Biased; Low variance; Online step-by-step learning. \\
+TD($\lambda$) & Free & On & Hybrid & $\lambda$-return & Unifies MC/TD; Forward vs Backward views (traces). \\ \midrule
+SARSA & Free & On & Bootstrapping & $R + \gamma Q(S', A')$ & Learns the current behavior policy; Conservative/Safe. \\
+Q-Learning & Free & Off & Bootstrapping & $R + \gamma \max_{a'} Q(S', a')$ & Learns the optimal policy directly; Maximization bias. \\
+Exp. SARSA & Free & On/Off & Expectation & $R + \gamma \sum_a \pi(a|S') Q'$ & Lower variance than SARSA; Computationally heavier. \\
+Double Q & Free & Off & Decoupled & $R + \gamma Q_2(S', \text{argmax} Q_1)$ & Specifically designed to fix Maximization Bias. \\ \midrule
+DQN & Free & Off & Deep RL & $R + \gamma \max Q_{target}$ & Uses Experience Replay and Target Networks for stability. \\
+Dueling DQN & Free & Off & Deep RL & $V(s) + \text{Advantage}$ & Separates state value from action advantage. \\
+Dyna-Q & Integrated & On/Off & Planning & Real + Simulated & Integrated architecture: Learn from real, plan with model. \\ \midrule
+REINFORCE & Free & On & Policy Grad & $G_t \nabla \ln \pi$ & Simple MC gradient; High variance (needs baseline). \\
+A2C / A3C & Free & On & Actor-Critic & $\delta_t \nabla \ln \pi$ & Bootstrapping reduces variance; Online updates. \\
+PPO & Free & On (approx) & Trust Region & Clipped Objective & Clipped ratio prevents destructive updates; Stable. \\
+DDPG & Free & Off & Actor-Critic & $\nabla_a Q \nabla_\theta \mu$ & Continuous actions; Deterministic actor; Sensitive. \\
+TD3 & Free & Off & Actor-Critic & Clipped Double Q & Double-Q + Target Smoothing + Delayed Updates. \\
+SAC & Free & Off & Max Entropy & Entropy + Reward & Off-policy; Automated exploration; Highly robust. \\ \bottomrule
+\end{longtable}
+\end{center}
+\end{landscape}
+
+\appendix
+\section{Non-Mandatory Topics (Starred)}
+
+\subsection{Information-Theoretic RL}
+\textit{Detailed derivation of the entropy bonus in policy gradients.}
+
+\subsection{Multi-Agent RL (MARL)}
+\textit{Markov Games and Nash Equilibria in RL.}
+
+\subsection{Hierarchical Reinforcement Learning}
+\textit{Options framework and temporal abstraction.}
+
+\end{document}

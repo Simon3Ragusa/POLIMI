@@ -1,0 +1,25 @@
+\section{Dynamic Programming (DP)}
+
+\subsection{Policy Evaluation: Assessing a Fixed Strategy}
+Dynamic Programming (DP) provides the theoretical foundation for solving MDPs assuming we have a perfect model of the environment ($P$ and $R$). The first task is often \textit{Policy Evaluation}: determining the value function $v_\pi$ for a given policy. 
+
+This is implemented by iteratively applying the Bellman Expectation backup. We start with an arbitrary value function $v_0$ and repeatedly update it until the change between successive iterations is negligible ($\max_s |v_{k+1}(s) - v_k(s)| < \epsilon$). Because the Bellman operator is a contraction, this process is guaranteed to converge to the true $v_\pi$.
+
+\subsection{Policy Iteration: The Two-Step Dance}
+To find the optimal policy, we can use \textbf{Policy Iteration}. This method alternates between two phases:
+\begin{enumerate}
+    \item \textbf{Evaluation:} Compute the value function $v_\pi$ for the current policy $\pi$.
+    \item \textbf{Improvement:} Update the policy to be greedy with respect to $v_\pi$ (i.e., $\pi'(s) = \text{argmax}_a q_\pi(s, a)$).
+\end{enumerate}
+The \textbf{Policy Improvement Theorem} guarantees that this new policy $\pi'$ will be better than or equal to $\pi$. If the policy does not change during the improvement step, we have reached the optimal policy $\pi_*$. While theoretically elegant, this process can be slow because each evaluation step requires multiple sweeps through the state space.
+
+\subsection{Value Iteration: Cutting to the Chase}
+\textbf{Value Iteration} streamlines this by merging evaluation and improvement. Instead of waiting for the value function to fully converge for a fixed policy, we perform a single sweep where we directly apply the Bellman Optimality Equation:
+\[ v_{k+1}(s) = \max_a [ R_s^a + \gamma \sum_{s'} P_{ss'}^a v_k(s') ] \]
+This effectively performs one step of evaluation and one step of improvement simultaneously. Once the value function converges to $v_*$, the optimal policy is simply the greedy one.
+
+\subsection{Generalized Policy Iteration (GPI)}
+In a broader sense, almost all RL algorithms can be seen as instances of \textbf{Generalized Policy Iteration (GPI)}. This concept describes the interaction between a "valuation" process (making the value function consistent with the policy) and an "improvement" process (making the policy greedy with respect to the value function). These two processes pull in different directions, but together they "pinch" the solution towards the optimal $v_*$ and $\pi_*$.
+
+\subsection{The Reality of DP}
+Despite its strong guarantees, DP has significant drawbacks. It requires a perfect model of the environment, which is rarely available in practice. Furthermore, it suffers from the \textbf{Curse of Dimensionality}, as the computational cost per sweep ($O(A \cdot S^2)$) becomes prohibitive when the number of states is large. To mitigate this, we can use \textit{Asynchronous DP}, which updates states in a flexible order (like prioritized sweeping), or move towards \textit{Model-Free} methods that learn from experience.

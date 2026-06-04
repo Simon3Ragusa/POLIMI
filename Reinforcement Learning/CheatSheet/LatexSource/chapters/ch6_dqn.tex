@@ -1,0 +1,26 @@
+\section{Deep Q-Learning and Model-Based RL}
+
+\subsection{DQN: Scaling up with Neural Networks}
+The \textbf{Deep Q-Network (DQN)} was a landmark algorithm that successfully combined Q-learning with Deep Neural Networks. To overcome the instabilities of the "Deadly Triad," DQN introduced two crucial mechanisms:
+\begin{enumerate}
+    \item \textbf{Experience Replay:} Instead of updating the network with the latest transition, the agent stores its experiences in a buffer and samples mini-batches uniformly. This breaks the temporal correlation between successive steps and allows for data reuse.
+    \item \textbf{Target Networks:} DQN uses two networks. The "online" network is updated constantly, while a "target" network with frozen weights is used to compute the Q-learning targets. This prevents the target from "moving" too quickly, which would otherwise cause oscillations or divergence.
+\end{enumerate}
+
+\subsection{Evolving the DQN Architecture}
+Since the original DQN, several improvements have become standard:
+\begin{itemize}
+    \item \textbf{Double DQN:} Addresses the \textit{Maximization Bias}. It uses the online network to select the best action and the target network to evaluate its value.
+    \item \textbf{Dueling DQN:} Instead of estimating $Q(s, a)$ directly, the network architecture is split into two streams: one for the state-value $V(s)$ and one for the action advantage $A(s, a)$. This allows the agent to learn which states are valuable without having to learn the effect of every action in that state.
+    \item \textbf{Prioritized Experience Replay (PER):} Instead of sampling uniformly, PER samples transitions that have a high TD-error, assuming they contain more "surprising" or useful information for learning.
+\end{itemize}
+
+\subsection{Model-Based RL: Planning and Learning}
+While Model-Free RL learns from raw experience, \textbf{Model-Based RL} attempts to learn the environment's dynamics ($P$ and $R$). If the agent has a model, it can "think" before it acts—a process we call \textbf{Planning}.
+The \textbf{Dyna-Q} architecture provides a beautiful integration of both. The agent uses real experience to update its value function (\textit{Learning}) and to improve its model. Simultaneously, it uses its model to generate simulated experiences (\textit{Planning}) to further refine its value function.
+
+\subsection{Simulation-Based Search and MCTS}
+For extremely complex games (like Go), we use \textbf{Monte Carlo Tree Search (MCTS)}. Unlike global planning, MCTS performs \textit{local} planning by building a search tree from the current state. It uses four steps: selection (using a tree policy like UCT), expansion, simulation (rollout), and backup. This allowed AlphaGo to evaluate moves without needing to explore the entire state space.
+
+In continuous environments, we encounter the problem of infinite branching. Techniques like \textbf{Progressive Widening} are used here to dynamically control how many new actions or next-states are added to the search tree as more simulations are performed.
+ Greenland

@@ -1,0 +1,23 @@
+\section{Model-Free Prediction and Control}
+
+\subsection{Learning from Experience: Monte Carlo (MC)}
+When we lack a model of the environment, we must learn directly from experience. The most straightforward approach is \textbf{Monte Carlo (MC)} prediction. MC methods work by averaging the returns ($G_t$) observed after visiting a state. A critical requirement for MC is that the task must be \textit{episodic}, as we must wait until the end of an episode to calculate the total return.
+
+While MC is \textbf{unbiased} (it converges to the true value function), it suffers from \textbf{high variance} because the return depends on many random actions and transitions throughout the episode. We distinguish between \textit{First-visit MC} (only averaging the first time a state is hit in an episode) and \textit{Every-visit MC} (averaging every visit), though both converge to the same value.
+
+\subsection{Bridging the Gap: Temporal-Difference (TD) Learning}
+\textbf{Temporal-Difference (TD)} learning combines the sampling of MC with the bootstrapping of DP. Unlike MC, TD can update its estimates after every single step ($S_t, A_t, R_{t+1}, S_{t+1}$) without waiting for the episode to end.
+\[ V(S_t) \leftarrow V(S_t) + \alpha [ \underbrace{R_{t+1} + \gamma V(S_{t+1})}_{\text{TD Target}} - V(S_t) ] \]
+The term in the brackets is the \textbf{TD Error} ($\delta_t$), which represents the surprise or discrepancy between our previous estimate and the new information. TD has \textbf{lower variance} than MC because it only depends on one random step, but it is \textbf{biased} in the early stages because it relies on its own potentially incorrect guesses (bootstrapping).
+
+\subsection{The Control Problem: SARSA vs. Q-Learning}
+To move from prediction to control, we apply the principles of GPI to action-values ($Q$).
+\begin{itemize}
+    \item \textbf{SARSA (On-policy):} This algorithm updates its $Q$-values based on the action actually taken by the current policy: $Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha [R_{t+1} + \gamma Q(S_{t+1}, A_{t+1}) - Q(S_t, A_t)]$. It is called SARSA because it uses the tuple $(S, A, R, S', A')$. SARSA is "safe" because it accounts for the exploration the agent is currently doing.
+    \item \textbf{Q-Learning (Off-policy):} Q-learning is perhaps the most famous RL algorithm. It updates its $Q$-values assuming it will take the \textit{best} possible action in the next state, regardless of what the exploration policy actually does: $Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha [R_{t+1} + \gamma \max_{a'} Q(S_{t+1}, a') - Q(S_t, A_t)]$. This allows it to learn the optimal policy while still exploring. However, it can suffer from \textit{Maximization Bias}, where it overestimates values because of the $\max$ operator.
+\end{itemize}
+
+\subsection{The Spectrum: n-step TD and Eligibility Traces}
+We can view MC and TD as two ends of a spectrum. \textbf{n-step TD} updates the value function based on a sequence of $n$ rewards and the estimated value of the state $n$ steps later. 
+
+A more elegant way to unify these is through \textbf{TD($\lambda$)} and \textbf{Eligibility Traces}. An eligibility trace is a memory mechanism that keeps track of which states were recently visited. When a reward is received, we update all states that are "eligible" based on their trace. This allows for more efficient credit assignment and provides a smooth bridge between TD(0) (immediate updates) and MC (updates at the end of the episode).

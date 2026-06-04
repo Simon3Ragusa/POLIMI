@@ -1,0 +1,36 @@
+\section{Markov Decision Processes (MDPs)}
+
+\subsection{Modeling the Environment: Stochastic Processes}
+A \textbf{Stochastic Process} is an indexed collection of random variables $\{X_t\}$. In RL, we typically deal with discrete-time cases where at each step $t$, the system is in one of a finite number of states. 
+\begin{itemize}
+    \item \textbf{The Markov Property:} A process is Markovian if the future is independent of the past given the present: $\mathbb{P}[X_{t+1} | X_t, \dots, X_0] = \mathbb{P}[X_{t+1} | X_t]$. The current state is a \textit{sufficient statistic} for the future.
+    \item \textbf{Transition Matrix:} A Markov Process is defined by $\langle \mathcal{S}, \mathcal{P}, \mu \rangle$, where $\mathcal{P}$ is the transition probability matrix $P_{ss'} = \mathbb{P}[S_{t+1}=s' | S_t=s]$ and $\mu$ is the initial distribution.
+\end{itemize}
+
+\subsection{Classification of States and Processes}
+Understanding state properties is fundamental for convergence analysis:
+\begin{itemize}
+    \item \textbf{State Accessibility:} State $j$ is accessible from $i$ if $P_{ij}^{(n)} > 0$ for some $n \ge 0$. If $i$ and $j$ are mutually accessible, they \textit{communicate}.
+    \item \textbf{Recurrent vs. Transient:} A state is \textbf{recurrent} if the probability of eventually returning to it is 1; otherwise, it is \textbf{transient}.
+    \item \textbf{Ergodic State:} A state that is positive recurrent and aperiodic.
+    \item \textbf{Absorbing State:} A state $j$ where $P_{jj} = 1$.
+    \item \textbf{Ergodic (Irreducible) Process:} A process where it is possible to go from every state to every other state.
+\end{itemize}
+
+\subsection{Stationary Distribution}
+The \textbf{Stationary Distribution} $\pi$ is a probability distribution that remains invariant under the transition matrix: $\pi = \pi P$. It represents the long-term relative frequency of state visits. For a regular (ergodic) Markov chain, a unique stationary distribution always exists and the process converges to it regardless of the initial distribution $\mu$.
+
+\subsection{Value Functions and the Bellman Intuition}
+An MDP extends Markov Processes by adding actions and rewards: $\langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma \rangle$.
+\begin{itemize}
+    \item \textbf{Bellman Expectation Equation:} 
+    \[ v_\pi(s) = \sum_{a \in \mathcal{A}} \pi(a|s) \left( R_s^a + \gamma \sum_{s' \in \mathcal{S}} P_{ss'}^a v_\pi(s') \right) \]
+    \item \textbf{Bellman Optimality Equation:} 
+    \[ v_*(s) = \max_{a \in \mathcal{A}} \left( R_s^a + \gamma \sum_{s' \in \mathcal{S}} P_{ss'}^a v_*(s') \right) \]
+\end{itemize}
+
+\subsection{Theoretical Guarantees: Contractions}
+The \textbf{Bellman Operator} $T^\pi$ is a $\gamma$-contraction mapping in the $L_\infty$ norm. This ensures:
+1. Convergence to a unique fixed point (the true value function).
+2. Convergence is geometric at a rate proportional to $\gamma$.
+3. The fixed point $v_\pi$ (or $v_*$) is independent of the initial estimate $v_0$.

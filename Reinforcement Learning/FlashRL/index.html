@@ -164,36 +164,50 @@
                 "prof": "Restelli",
                 "topic": "Bellman Operator",
                 "question": "What is the Bellman operator T\u03c0 and its key properties?",
-                "answer": "The Bellman operator T\u03c0 is a mapping that defines the expected return for a fixed policy: (T\u03c0v)(s) = r(s, \u03c0(s)) + \u03b3 \u2211 P(s'|s, \u03c0(s))v(s'). <br><br><b>Key Properties:</b><br>1. <b>Monotonicity:</b> If u \u2264 v component-wise, then Tu \u2264 Tv.<br>2. <b>\u03b3-Contraction:</b> In the L\u221e norm, ||Tu - Tv||\u221e \u2264 \u03b3||u - v||\u221e. This ensures convergence to a unique fixed point (v\u03c0) by the Banach Theorem.",
+                "answer": "The Bellman operator T\u03c0 is a mapping that defines the expected return for a fixed policy: (T\u03c0v)(s) = r(s, \u03c0(s)) + \u03b3 \u2211 P(s'|s, \u03c0(s))v(s'). <br><br><b>Key Properties:</b><br>1. <b>Monotonicity:</b> If u \u2264 v component-wise, then Tu \u2264 Tv.<br>2. <b>\u03b3-Contraction:</b> In the L\u221e norm, ||Tu - Tv||\u221e \u2264 \u03b3||u - v||\u221e. This ensures convergence to a unique fixed point (v\u03c0) by the Banach Theorem.<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 2_rl_phd_mdp (Properties of Bellman Operators)</i></span>",
                 "yana": true
             },
             {
                 "prof": "Restelli",
                 "topic": "Markov Property",
                 "question": "Explain the Markov Property and its implications for state representation.",
-                "answer": "The Markov property states: P(X_{t+1}|X_t, ..., X_0) = P(X_{t+1}|X_t). <br><br><b>Implication:</b> The current state must be a 'sufficient statistic' for the future. If a state is Markovian, we don't need history to act optimally. If the state is not Markovian (POMDP), we must use history or hidden states to regain predictability.",
+                "answer": "The Markov property states: P(X_{t+1}|X_t, ..., X_0) = P(X_{t+1}|X_t). <br><br><b>Implication:</b> The current state must be a 'sufficient statistic' for the future. If a state is Markovian, we don't need history to act optimally. If the state is not Markovian (POMDP), we must use history or hidden states to regain predictability.<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 2_rl_phd_mdp (Stochastic Processes)</i></span>",
                 "yana": true
             },
             {
                 "prof": "Restelli",
                 "topic": "Stationary Distribution",
                 "question": "What is the Stationary Distribution \u03bc and how is it lost/computed?",
-                "answer": "Defined by \u03bc = \u03bcP and \u2211\u03bc_i = 1. It represents the long-term relative frequency of state visits. <br><br><b>Information Loss:</b> When reached, the process is in 'equilibrium', meaning we can no longer infer the <b>initial state</b> from the current state distribution. <br><br><b>Existence:</b> Guaranteed for irreducible and aperiodic chains (Regular Processes).",
+                "answer": "Defined by \u03bc = \u03bcP and \u2211\u03bc_i = 1. It represents the long-term relative frequency of state visits. <br><br><b>Information Loss:</b> When reached, the process is in 'equilibrium', meaning we can no longer infer the <b>initial state</b> from the current state distribution. <br><br><b>Existence:</b> Guaranteed for irreducible and aperiodic chains (Regular Processes).<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 2_rl_phd_mdp (Stationary distribution)</i></span>",
                 "yana": true
             },
             {
                 "prof": "Restelli",
                 "topic": "Bellman Convergence",
                 "question": "What is the convergence bound of the Bellman operator?",
-                "answer": "For the Bellman optimality operator T*, the distance between the current estimate v_k and the optimal v* is bounded by: ||v_k - v*||\u221e \u2264 \u03b3^k ||v_0 - v*||\u221e. This shows geometric convergence at a rate proportional to \u03b3.",
+                "answer": "For the Bellman optimality operator T*, the distance between the current estimate v_k and the optimal v* is bounded by: ||v_k - v*||\u221e \u2264 \u03b3^k ||v_0 - v*||\u221e. This shows geometric convergence at a rate proportional to \u03b3.<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 2_rl_phd_mdp (Properties of Bellman Operators)</i></span>",
                 "yana": true
             },
             {
                 "prof": "Restelli",
                 "topic": "State Types",
                 "question": "What are the different types of states in a Markov Chain?",
-                "answer": "1. <b>Transient:</b> There is a non-zero probability of never returning to this state.<br>2. <b>Recurrent:</b> The probability of returning to this state is 1.<br>3. <b>Absorbing:</b> Once entered, the process cannot leave (P(s|s) = 1).",
+                "answer": "1. <b>Transient:</b> There is a non-zero probability of never returning to this state.<br>2. <b>Recurrent:</b> The probability of returning to this state is 1.<br>3. <b>Absorbing:</b> Once entered, the process cannot leave (P(s|s) = 1).<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 2_rl_phd_mdp (Markov Processes)</i></span>",
                 "yana": true
+            },
+            {
+                "prof": "Restelli",
+                "topic": "Bellman Optimality",
+                "question": "What is the Bellman Optimality Equation?",
+                "answer": "It expresses the value of a state under an optimal policy as the expected return from the best possible action: v*(s) = max_a [r(s,a) + \u03b3 \u2211 P(s'|s,a)v*(s')]. It is non-linear and has no closed-form solution in general.<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 2_rl_phd_mdp (Bellman Optimality Equations)</i></span>",
+                "yana": false
+            },
+            {
+                "prof": "Restelli",
+                "topic": "Finite MDPs",
+                "question": "Difference between Policy Iteration and Value Iteration?",
+                "answer": "<b>Policy Iteration:</b> Alternates between Policy Evaluation (finding v\u03c0) and Policy Improvement (acting greedily w.r.t v\u03c0). Converges in finite steps for finite MDPs.<br><b>Value Iteration:</b> Directly applies the Bellman Optimality Operator T* until v converges to v*. It is effectively Policy Iteration with only one sweep of evaluation per step.<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 3_rl_phd_dp (Dynamic Programming)</i></span>",
+                "yana": false
             },
 
             // --- PROF. METELLI (Continuous RL, TD, Deep RL) ---
@@ -201,35 +215,49 @@
                 "prof": "Metelli",
                 "topic": "Convergence",
                 "question": "Explain the Projected Bellman Equation (PBE).",
-                "answer": "When using linear function approximation (v \u2248 \u03a6w), the Bellman update T\u03c0 \u03a6w may lie outside the representable subspace. The PBE finds the point where the <b>projection</b> (\u03a0) of the Bellman update back onto the subspace equals the current estimate: \u03a6w = \u03a0 T\u03c0 \u03a6w. This is the fixed point found by TD methods with linear approximation.",
+                "answer": "When using linear function approximation (v \u2248 \u03a6w), the Bellman update T\u03c0 \u03a6w may lie outside the representable subspace. The PBE finds the point where the <b>projection</b> (\u03a0) of the Bellman update back onto the subspace equals the current estimate: \u03a6w = \u03a0 T\u03c0 \u03a6w. This is the fixed point found by TD methods with linear approximation.<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 5_rl_phd_rl_continuous (Projected Bellman Equation)</i></span>",
                 "yana": true
             },
             {
                 "prof": "Metelli",
                 "topic": "Temporal Difference",
                 "question": "To what does TD(0) converge and how does it decompose error?",
-                "answer": "TD(0) converges to the fixed point of the PBE. <br><br><b>Error Decomposition:</b> The TD error can be decomposed into: 1. <b>Approximation Error</b> (distance to the subspace) and 2. <b>Estimation Error</b> (noise from sampling). TD is biased due to bootstrapping but has lower variance than Monte Carlo.",
+                "answer": "TD(0) converges to the fixed point of the PBE. <br><br><b>Error Decomposition:</b> The TD error can be decomposed into: 1. <b>Approximation Error</b> (distance to the subspace) and 2. <b>Estimation Error</b> (noise from sampling). TD is biased due to bootstrapping but has lower variance than Monte Carlo.<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 4_rl_phd_rl_finite (Temporal-Difference Learning)</i></span>",
                 "yana": true
             },
             {
                 "prof": "Metelli",
                 "topic": "Deep RL",
                 "question": "How does DQN mitigate instability? (Experience Replay & Target Nets)",
-                "answer": "1. <b>Experience Replay:</b> Stores (s,a,r,s') in a buffer. Random sampling breaks the temporal correlation of sequential data, making samples look i.i.d.<br>2. <b>Target Network:</b> Uses a separate network (with weights \u03b8-) to compute targets. \u03b8- is only updated occasionally, stabilizing the 'moving target' problem in the Bellman update.",
+                "answer": "1. <b>Experience Replay:</b> Stores (s,a,r,s') in a buffer. Random sampling breaks the temporal correlation of sequential data, making samples look i.i.d.<br>2. <b>Target Network:</b> Uses a separate network (with weights \u03b8-) to compute targets. \u03b8- is only updated occasionally, stabilizing the 'moving target' problem in the Bellman update.<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 8_rl_deep (Deep Q-Networks (DQN))</i></span>",
                 "yana": true
             },
             {
                 "prof": "Metelli",
                 "topic": "Deep RL",
                 "question": "Explain Double DQN and Overestimation Bias.",
-                "answer": "Standard Q-Learning selects and evaluates actions using the same weights: Q(s, argmax Q). Since estimates are noisy, the 'max' picks up positive noise. <br><br><b>Double DQN:</b> Uses the online network to <b>select</b> the action and the target network to <b>evaluate</b> it: Q_target(s, argmax Q_online). This decouples selection from evaluation and reduces overestimation.",
+                "answer": "Standard Q-Learning selects and evaluates actions using the same weights: Q(s, argmax Q). Since estimates are noisy, the 'max' picks up positive noise. <br><br><b>Double DQN:</b> Uses the online network to <b>select</b> the action and the target network to <b>evaluate</b> it: Q_target(s, argmax Q_online). This decouples selection from evaluation and reduces overestimation.<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 8_rl_deep (Double DQN)</i></span>",
                 "yana": true
             },
             {
                 "prof": "Metelli",
                 "topic": "Systems",
                 "question": "What is an open-loop policy/system?",
-                "answer": "An open-loop policy \u03c0(t) depends only on time (or initial state), not on the intermediate states encountered during execution. In contrast, a closed-loop policy \u03c0(s) reacts to the current state, providing robustness to stochasticity.",
+                "answer": "An open-loop policy \u03c0(t) depends only on time (or initial state), not on the intermediate states encountered during execution. In contrast, a closed-loop policy \u03c0(s) reacts to the current state, providing robustness to stochasticity.<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 6_rl_dqn_model_based (Open Loop Planning)</i></span>",
+                "yana": true
+            },
+            {
+                "prof": "Metelli",
+                "topic": "TD Methods",
+                "question": "What is the difference between On-policy and Off-policy learning? (SARSA vs Q-Learning)",
+                "answer": "<b>On-policy (SARSA)</b> estimates the value of the policy currently being followed, including its exploration steps. <b>Off-policy (Q-Learning)</b> estimates the value of a target policy (usually optimal greedy) while following a different behavior policy.<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 4_rl_phd_rl_finite (Q-learning vs SARSA)</i></span>",
+                "yana": true
+            },
+            {
+                "prof": "Metelli",
+                "topic": "TD Methods",
+                "question": "What are the convergence guarantees for SARSA?",
+                "answer": "SARSA converges to Q* if two conditions are met: 1. The policy is <b>GLIE</b> (Greedy in the Limit with Infinite Exploration). 2. The step-size sequence \u03b1_t satisfies the Robbins-Monro conditions (\u2211 \u03b1_t = \u221e and \u2211 \u03b1_t^2 < \u221e).<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 4_rl_phd_rl_finite (Convergence of SARSA)</i></span>",
                 "yana": true
             },
 
@@ -238,58 +266,42 @@
                 "prof": "Papini",
                 "topic": "Parametric Policies",
                 "question": "Why use parametric policies over value-based methods?",
-                "answer": "1. <b>Continuity:</b> Can handle continuous action spaces natively.<br>2. <b>Stochasticity:</b> Can naturally represent stochastic optimal policies (e.g., in Rock-Paper-Scissors).<br>3. <b>Simplicity:</b> Often, the policy is simpler to approximate than the value function.",
+                "answer": "1. <b>Continuity:</b> Can handle continuous action spaces natively.<br>2. <b>Stochasticity:</b> Can naturally represent stochastic optimal policies (e.g., in Rock-Paper-Scissors).<br>3. <b>Simplicity:</b> Often, the policy is simpler to approximate than the value function.<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 7_rl_policy_gradient (Policy-Based Reinforcement Learning)</i></span>",
                 "yana": true
             },
             {
                 "prof": "Papini",
                 "topic": "Policy Gradient",
                 "question": "Why does Policy Gradient suffer from high variance?",
-                "answer": "Policy gradients rely on Monte Carlo returns G_t = \u2211\u03b3^k r_{t+k}. Since G_t depends on a long sequence of stochastic actions and transitions, it has massive variance, leading to noisy updates and slow convergence.",
+                "answer": "Policy gradients rely on Monte Carlo returns G_t = \u2211\u03b3^k r_{t+k}. Since G_t depends on a long sequence of stochastic actions and transitions, it has massive variance, leading to noisy updates and slow convergence.<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 7_rl_policy_gradient (Policy Gradients)</i></span>",
                 "yana": true
             },
             {
                 "prof": "Papini",
                 "topic": "Variance Reduction",
                 "question": "Explain the role of Baselines in variance reduction.",
-                "answer": "We use \u2207log \u03c0(G_t - b(s)). The baseline b(s) reduces variance by centering the return. <br><br><b>State-only Baseline:</b> If b(s) depends only on state (like V(s)), it reduces variance without introducing bias because E[\u2207log \u03c0 \u22c5 b(s)] = 0. If it depended on actions, it would introduce bias.",
+                "answer": "We use \u2207log \u03c0(G_t - b(s)). The baseline b(s) reduces variance by centering the return. <br><br><b>State-only Baseline:</b> If b(s) depends only on state (like V(s)), it reduces variance without introducing bias because E[\u2207log \u03c0 \u22c5 b(s)] = 0. If it depended on actions, it would introduce bias.<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 7_rl_policy_gradient (Baselines)</i></span>",
                 "yana": true
             },
             {
                 "prof": "Papini",
                 "topic": "Soft Actor-Critic",
                 "question": "What is the detailed objective of Soft Actor-Critic (SAC)?",
-                "answer": "SAC maximizes Reward + Entropy: J(\u03c0) = \u2211 E[r(s,a) + \u03b1 H(\u03c0(\u22c5|s))]. <br><br>\u03b1 is the temperature parameter controlling the exploration-exploitation trade-off. High entropy prevents premature convergence to a single mode and helps the agent recover from environment changes.",
+                "answer": "SAC maximizes Reward + Entropy: J(\u03c0) = \u2211 E[r(s,a) + \u03b1 H(\u03c0(\u22c5|s))]. <br><br>\u03b1 is the temperature parameter controlling the exploration-exploitation trade-off. High entropy prevents premature convergence to a single mode and helps the agent recover from environment changes.<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 8_rl_deep (Soft Actor-Critic)</i></span>",
                 "yana": true
             },
             {
                 "prof": "Papini",
-                "topic": "Bias vs Variance",
-                "question": "What happens if a baseline introduces bias?",
-                "answer": "If a baseline depends on the current action, the expectation of the gradient update is no longer equal to the true policy gradient. This bias can cause the algorithm to converge to a sub-optimal policy or even diverge, even if variance is extremely low.",
+                "topic": "Policy Gradient",
+                "question": "How does G(PO)MDP mitigate the variance of REINFORCE?",
+                "answer": "It reduces variance by exploiting causality. Instead of multiplying the full return G_t by the policy gradient at each step, it only considers rewards that occur *after* the action. This removes future-independent terms that have zero expectation but high variance.<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 7_rl_policy_gradient (G(PO)MDP)</i></span>",
                 "yana": true
-            },
-
-            // --- SYNTHESIZED / ADDITIONAL RELEVANT INFO ---
-            {
-                "prof": "Restelli",
-                "topic": "Finite MDPs",
-                "question": "Difference between Policy Iteration and Value Iteration?",
-                "answer": "<b>Policy Iteration:</b> Alternates between Policy Evaluation (finding v\u03c0) and Policy Improvement (acting greedily w.r.t v\u03c0). Converges in finite steps for finite MDPs.<br><b>Value Iteration:</b> Directly applies the Bellman Optimality Operator T* until v converges to v*. It is effectively Policy Iteration with only one sweep of evaluation per step.",
-                "yana": false
-            },
-            {
-                "prof": "Metelli",
-                "topic": "Exploration",
-                "question": "Optimism in the Face of Uncertainty (OFU)?",
-                "answer": "A principle where an agent assigns higher values to states/actions it is uncertain about. This encourages exploration of unknown areas. Example: UCB1 in Bandits or R-MAX in MDPs.",
-                "yana": false
             },
             {
                 "prof": "Papini",
-                "topic": "Policy Gradients",
-                "question": "REINFORCE vs Actor-Critic?",
-                "answer": "<b>REINFORCE:</b> Pure Monte Carlo; uses the full return G_t to update the policy. High variance, no bias.<br><b>Actor-Critic:</b> Uses a critic (Value Function) to compute a TD-like signal (e.g., Advantage) for the update. Lower variance but introduces bias due to bootstrapping.",
+                "topic": "Deep Deterministic PG",
+                "question": "What is DDPG and what kind of problems does it solve?",
+                "answer": "DDPG is an off-policy, model-free actor-critic algorithm using deterministic policy gradients. It is designed for environments with continuous action spaces where Q-learning (which requires a max over actions) is intractable.<br><br><span style='color:#888; font-size:0.85em'><i>Source: Deck 8_rl_deep (DDPG)</i></span>",
                 "yana": false
             }
         ];

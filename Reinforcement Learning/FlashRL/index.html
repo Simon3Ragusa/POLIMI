@@ -354,28 +354,11 @@
             shuffleDeck();
         };
 
-        // References Modal Logic
-        document.getElementById('show-refs').onclick = (e) => {
-            e.stopPropagation();
-            document.getElementById('refs-modal').style.display = 'flex';
-        };
-
-        document.getElementById('close-refs').onclick = () => {
-            document.getElementById('refs-modal').style.display = 'none';
-        };
-
-        window.onclick = (e) => {
-            if (e.target == document.getElementById('refs-modal')) {
-                document.getElementById('refs-modal').style.display = 'none';
-            }
-        };
-
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') document.getElementById('card').click();
             if (e.code === 'ArrowRight') document.getElementById('next').click();
             if (e.code === 'ArrowLeft') document.getElementById('prev').click();
             if (e.code === 'KeyR') shuffleDeck();
-            if (e.code === 'Escape') document.getElementById('close-refs').click();
         });
 
         shuffleDeck();

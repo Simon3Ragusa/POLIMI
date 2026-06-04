@@ -7,6 +7,14 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Playfair+Display:wght@700&display=swap');
 
+        :root {
+            --primary-color: #4caf50;
+            --bg-dark: #0a0a0a;
+            --card-bg: #141414;
+            --text-main: #d1d1d1;
+            --text-accent: #a5d6a7;
+        }
+
         body { 
             font-family: 'Libre Baskerville', serif; 
             display: flex; 
@@ -15,15 +23,18 @@
             justify-content: center; 
             min-height: 100vh; 
             margin: 0; 
-            background: #0a0a0a; 
-            color: #d1d1d1; 
+            background: var(--bg-dark); 
+            color: var(--text-main); 
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         h1 {
             font-family: 'Playfair Display', serif;
-            color: #4caf50;
+            color: var(--primary-color);
             margin-bottom: 5px;
             font-size: 2.5rem;
+            text-align: center;
         }
 
         #professor-tag {
@@ -32,9 +43,15 @@
             margin-bottom: 20px;
             letter-spacing: 3px;
             text-transform: uppercase;
+            text-align: center;
         }
 
-        #card-container { perspective: 1200px; width: 750px; height: 450px; }
+        #card-container { 
+            perspective: 1200px; 
+            width: 750px; 
+            height: 450px; 
+            max-width: 95vw;
+        }
         
         #card { 
             width: 100%; 
@@ -52,89 +69,119 @@
             width: 100%; 
             height: 100%; 
             backface-visibility: hidden; 
-            display: flex; 
-            flex-direction: column;
-            align-items: center; 
-            justify-content: center; 
-            padding: 50px; 
+            padding: 40px; 
             box-sizing: border-box; 
-            border-radius: 4px; 
+            border-radius: 8px; 
             box-shadow: 0 15px 50px rgba(0,0,0,0.8); 
             text-align: center; 
             border: 1px solid #222;
+            overflow-y: auto;
         }
         
         .front { 
-            background: #141414; 
-            font-size: 1.6rem; 
+            background: var(--card-bg); 
+            font-size: 1.5rem; 
             color: #fff;
-            border-bottom: 3px solid #2e7d32;
+            border-bottom: 4px solid #2e7d32;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
         
         .back { 
-            background: #141414; 
+            background: var(--card-bg); 
             transform: rotateY(180deg); 
-            color: #a5d6a7; 
+            color: var(--text-accent); 
             font-size: 1.1rem; 
-            overflow-y: auto; 
             text-align: left; 
             line-height: 1.6;
-            justify-content: flex-start;
             scrollbar-width: thin;
-            scrollbar-color: #333 #141414;
+            scrollbar-color: #333 var(--card-bg);
         }
 
         .back p { margin-top: 0; }
 
-        .controls { margin-top: 50px; display: flex; gap: 25px; align-items: center; }
+        .controls { 
+            margin-top: 40px; 
+            display: flex; 
+            gap: 15px; 
+            align-items: center; 
+            flex-wrap: wrap;
+            justify-content: center;
+        }
         
         button { 
-            padding: 10px 20px; 
+            padding: 12px 24px; 
             border: 1px solid #444; 
-            border-radius: 2px; 
+            border-radius: 4px; 
             background: transparent; 
             color: #888; 
             cursor: pointer; 
             font-family: inherit;
-            font-size: 0.9rem; 
+            font-size: 1rem; 
             transition: all 0.2s; 
+            min-width: 100px;
         }
         
         button:hover { 
-            border-color: #4caf50; 
+            border-color: var(--primary-color); 
             color: #fff; 
             background: rgba(76, 175, 80, 0.1);
         }
         
-        #progress { color: #555; font-size: 0.8rem; margin-top: 15px; font-family: monospace; }
+        #progress { 
+            color: #555; 
+            font-size: 0.9rem; 
+            margin-top: 15px; 
+            font-family: monospace; 
+        }
 
         .topic-indicator {
             position: absolute;
-            top: 20px;
+            top: 15px;
             right: 20px;
-            font-size: 0.7rem;
-            color: #444;
+            font-size: 0.75rem;
+            color: #666;
             font-style: italic;
         }
 
         .yana-badge {
             position: absolute;
-            top: 20px;
+            top: 15px;
             left: 20px;
             font-size: 0.65rem;
             background: #2e7d32;
             color: #fff;
-            padding: 2px 8px;
-            border-radius: 10px;
+            padding: 2px 10px;
+            border-radius: 12px;
             font-family: sans-serif;
             font-weight: bold;
             letter-spacing: 1px;
+        }
+
+        /* Mobile Specific Adjustments */
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            #card-container { height: 400px; }
+            .card-face { padding: 25px; }
+            .front { font-size: 1.2rem; }
+            .back { font-size: 0.95rem; }
+            button { 
+                padding: 15px 30px; 
+                font-size: 1.1rem; 
+                flex: 1 1 auto;
+                max-width: 150px;
+            }
+            .controls { gap: 10px; width: 100%; max-width: 400px; }
+            .yana-badge { top: 10px; left: 10px; font-size: 0.6rem; }
+            .topic-indicator { top: 10px; right: 10px; font-size: 0.65rem; }
         }
     </style>
 </head>
 <body>
     <h1>FlashRL</h1>
-    <div id="professor-tag">Restelli • Metelli • Papini</div>
+    <div id="professor-tag">Examiner: Loading...</div>
     
     <div id="card-container">
         <div id="card">
@@ -159,151 +206,531 @@
 
     <script>
         const originalCards = [
-            // --- PROF. RESTELLI (Foundations, Finite MDPs) ---
-            {
-                "prof": "Restelli",
-                "topic": "Bellman Operator",
-                "question": "What is the Bellman operator T\u03c0 and its key properties?",
-                "answer": "The Bellman operator T\u03c0 is a mapping that defines the expected return for a fixed policy: (T\u03c0v)(s) = r(s, \u03c0(s)) + \u03b3 \u2211 P(s'|s, \u03c0(s))v(s'). <br><br><b>Key Properties:</b><br>1. <b>Monotonicity:</b> If u \u2264 v component-wise, then Tu \u2264 Tv.<br>2. <b>\u03b3-Contraction:</b> In the L\u221e norm, ||Tu - Tv||\u221e \u2264 \u03b3||u - v||\u221e. This ensures convergence to a unique fixed point (v\u03c0) by the Banach Theorem.",
-                "yana": true
-            },
-            {
-                "prof": "Restelli",
-                "topic": "Markov Property",
-                "question": "Explain the Markov Property and its implications for state representation.",
-                "answer": "The Markov property states: P(X_{t+1}|X_t, ..., X_0) = P(X_{t+1}|X_t). <br><br><b>Implication:</b> The current state must be a 'sufficient statistic' for the future. If a state is Markovian, we don't need history to act optimally. If the state is not Markovian (POMDP), we must use history or hidden states to regain predictability.",
-                "yana": true
-            },
-            {
-                "prof": "Restelli",
-                "topic": "Stationary Distribution",
-                "question": "What is the Stationary Distribution \u03bc and how is it lost/computed?",
-                "answer": "Defined by \u03bc = \u03bcP and \u2211\u03bc_i = 1. It represents the long-term relative frequency of state visits. <br><br><b>Information Loss:</b> When reached, the process is in 'equilibrium', meaning we can no longer infer the <b>initial state</b> from the current state distribution. <br><br><b>Existence:</b> Guaranteed for irreducible and aperiodic chains (Regular Processes).",
-                "yana": true
-            },
-            {
-                "prof": "Restelli",
-                "topic": "Bellman Convergence",
-                "question": "What is the convergence bound of the Bellman operator?",
-                "answer": "For the Bellman optimality operator T*, the distance between the current estimate v_k and the optimal v* is bounded by: ||v_k - v*||\u221e \u2264 \u03b3^k ||v_0 - v*||\u221e. This shows geometric convergence at a rate proportional to \u03b3.",
-                "yana": true
-            },
-            {
-                "prof": "Restelli",
-                "topic": "State Types",
-                "question": "What are the different types of states in a Markov Chain?",
-                "answer": "1. <b>Transient:</b> There is a non-zero probability of never returning to this state.<br>2. <b>Recurrent:</b> The probability of returning to this state is 1.<br>3. <b>Absorbing:</b> Once entered, the process cannot leave (P(s|s) = 1).",
-                "yana": true
-            },
-            {
-                "prof": "Restelli",
-                "topic": "Bellman Optimality",
-                "question": "What is the Bellman Optimality Equation?",
-                "answer": "It expresses the value of a state under an optimal policy as the expected return from the best possible action: v*(s) = max_a [r(s,a) + \u03b3 \u2211 P(s'|s,a)v*(s')]. It is non-linear and has no closed-form solution in general.",
-                "yana": false
-            },
-            {
-                "prof": "Restelli",
-                "topic": "Finite MDPs",
-                "question": "Difference between Policy Iteration and Value Iteration?",
-                "answer": "<b>Policy Iteration:</b> Alternates between Policy Evaluation (finding v\u03c0) and Policy Improvement (acting greedily w.r.t v\u03c0). Converges in finite steps for finite MDPs.<br><b>Value Iteration:</b> Directly applies the Bellman Optimality Operator T* until v converges to v*. It is effectively Policy Iteration with only one sweep of evaluation per step.",
-                "yana": false
-            },
-
-            // --- PROF. METELLI (Continuous RL, TD, Deep RL) ---
-            {
-                "prof": "Metelli",
-                "topic": "Convergence",
-                "question": "Explain the Projected Bellman Error (PBE).",
-                "answer": "When using function approximation, we cannot satisfy the Bellman equation exactly. The **Projected Bellman Error (PBE)** measures the difference between our current value function approximation and the projection of the Bellman update back onto our representable subspace: ||\u03a6w - \u03a0 T\u03c0 \u03a6w||. Minimizing this error leads to the fixed-point solutions found by TD methods.",
-                "yana": true
-            },
-            {
-                "prof": "Metelli",
-                "topic": "Temporal Difference",
-                "question": "To what does TD(0) converge and how does it decompose error?",
-                "answer": "TD(0) converges to the fixed point of the PBE. <br><br><b>Error Decomposition:</b> The TD error can be decomposed into: 1. <b>Approximation Error</b> (distance to the subspace) and 2. <b>Estimation Error</b> (noise from sampling). TD is biased due to bootstrapping but has lower variance than Monte Carlo.",
-                "yana": true
-            },
-            {
-                "prof": "Metelli",
-                "topic": "Deep RL",
-                "question": "How does DQN mitigate instability? (Experience Replay & Target Nets)",
-                "answer": "1. <b>Experience Replay:</b> Stores (s,a,r,s') in a buffer. Random sampling breaks the temporal correlation of sequential data, making samples look i.i.d.<br>2. <b>Target Network:</b> Uses a separate network (with weights \u03b8-) to compute targets. \u03b8- is only updated occasionally, stabilizing the 'moving target' problem in the Bellman update.",
-                "yana": true
-            },
-            {
-                "prof": "Metelli",
-                "topic": "Deep RL",
-                "question": "Explain Double DQN and the Overestimation Bias.",
-                "answer": "Standard Q-Learning selects and evaluates actions using the same weights: Q(s, argmax Q). Since estimates are noisy, the 'max' picks up positive noise. <br><br><b>Double DQN:</b> Uses the online network to <b>select</b> the action and the target network to <b>evaluate</b> it: Q_target(s, argmax Q_online). This decouples selection from evaluation and reduces overestimation.",
-                "yana": true
-            },
-            {
-                "prof": "Metelli",
-                "topic": "Systems",
-                "question": "What is an open-loop policy/system?",
-                "answer": "An open-loop policy \u03c0(t) depends only on time (or initial state), not on the intermediate states encountered during execution. In contrast, a closed-loop policy \u03c0(s) reacts to the current state, providing robustness to stochasticity.",
-                "yana": true
-            },
-            {
-                "prof": "Metelli",
-                "topic": "TD Methods",
-                "question": "What is the difference between On-policy and Off-policy learning? (SARSA vs Q-Learning)",
-                "answer": "<b>On-policy (SARSA)</b> estimates the value of the policy currently being followed, including its exploration steps. <b>Off-policy (Q-Learning)</b> estimates the value of a target policy (usually optimal greedy) while following a different behavior policy.",
-                "yana": true
-            },
-            {
-                "prof": "Metelli",
-                "topic": "TD Methods",
-                "question": "What are the convergence guarantees for SARSA?",
-                "answer": "SARSA converges to Q* if two conditions are met: 1. The policy is <b>GLIE</b> (Greedy in the Limit with Infinite Exploration). 2. The step-size sequence \u03b1_t satisfies the Robbins-Monro conditions (\u2211 \u03b1_t = \u221e and \u2211 \u03b1_t^2 < \u221e).",
-                "yana": true
-            },
-
-            // --- PROF. PAPINI (Policy Gradients, SAC, Advanced) ---
-            {
-                "prof": "Papini",
-                "topic": "Parametric Policies",
-                "question": "Why use parametric policies over value-based methods?",
-                "answer": "1. <b>Continuity:</b> Can handle continuous action spaces natively.<br>2. <b>Stochasticity:</b> Can naturally represent stochastic optimal policies (e.g., in Rock-Paper-Scissors).<br>3. <b>Simplicity:</b> Often, the policy is simpler to approximate than the value function.",
-                "yana": true
-            },
-            {
-                "prof": "Papini",
-                "topic": "Policy Gradient",
-                "question": "Why does Policy Gradient suffer from high variance?",
-                "answer": "Policy gradients rely on Monte Carlo returns G_t = \u2211\u03b3^k r_{t+k}. Since G_t depends on a long sequence of stochastic actions and transitions, it has massive variance, leading to noisy updates and slow convergence.",
-                "yana": true
-            },
-            {
-                "prof": "Papini",
-                "topic": "Variance Reduction",
-                "question": "Explain the role of Baselines in variance reduction.",
-                "answer": "We use \u2207log \u03c0(G_t - b(s)). The baseline b(s) reduces variance by centering the return. <br><br><b>State-only Baseline:</b> If b(s) depends only on state (like V(s)), it reduces variance without introducing bias because E[\u2207log \u03c0 \u22c5 b(s)] = 0. If it depended on actions, it would introduce bias.",
-                "yana": true
-            },
-            {
-                "prof": "Papini",
-                "topic": "Soft Actor-Critic",
-                "question": "What is the detailed objective of Soft Actor-Critic (SAC)?",
-                "answer": "SAC maximizes Reward + Entropy: J(\u03c0) = \u2211 E[r(s,a) + \u03b1 H(\u03c0(\u22c5|s))]. <br><br>\u03b1 is the temperature parameter controlling the exploration-exploitation trade-off. High entropy prevents premature convergence to a single mode and helps the agent recover from environment changes.",
-                "yana": true
-            },
-            {
-                "prof": "Papini",
-                "topic": "Policy Gradient",
-                "question": "How does G(PO)MDP mitigate the variance of REINFORCE?",
-                "answer": "It reduces variance by exploiting causality. Instead of multiplying the full return G_t by the policy gradient at each step, it only considers rewards that occur *after* the action. This removes future-independent terms that have zero expectation but high variance.",
-                "yana": true
-            },
-            {
-                "prof": "Papini",
-                "topic": "Deep Deterministic PG",
-                "question": "What is DDPG and what kind of problems does it solve?",
-                "answer": "DDPG is an off-policy, model-free actor-critic algorithm using deterministic policy gradients. It is designed for environments with continuous action spaces where Q-learning (which requires a max over actions) is intractable.",
-                "yana": false
-            }
+          {
+            "prof": "Restelli",
+            "topic": "MDP basics",
+            "question": "Bellman Operator (T^\\pi)",
+            "answer": "A linear operator that maps a value function to a new one by performing a one-step backup: <br>(T^\\pi v)(s) = \\sum_a \\pi(a|s) [R(s,a) + \\gamma \\sum_{s'} P(s'|s,a)v(s')].<br>Its fixed point is the unique value function v_\\pi.",
+            "yana": false
+          },
+          {
+            "prof": "Restelli",
+            "topic": "MDP basics",
+            "question": "Markov Property",
+            "answer": "The property stating that the future is independent of the past given the present: <br>P(S_{t+1} | S_t, ..., S_0) = P(S_{t+1} | S_t). <br>The current state is a <b>sufficient statistic</b> for the future.",
+            "yana": false
+          },
+          {
+            "prof": "Restelli",
+            "topic": "Markov Chains",
+            "question": "Stationary Distribution",
+            "answer": "A distribution \\pi over states such that \\pi^T P = \\pi^T. <br>In an <b>ergodic</b> Markov Chain, the process converges to this unique distribution regardless of the initial state.",
+            "yana": false
+          },
+          {
+            "prof": "Restelli",
+            "topic": "Bellman Operators",
+            "question": "Bellman Convergence",
+            "answer": "The Bellman Expectation and Optimality operators are <b>\\gamma-contractions</b> in the L_\\infty norm. <br>By the Banach Fixed-Point Theorem, they converge to a unique fixed point at a geometric rate.",
+            "yana": false
+          },
+          {
+            "prof": "Restelli",
+            "topic": "Markov Chains",
+            "question": "State Types (Recurrent vs Transient)",
+            "answer": "A state is <b>recurrent</b> if the probability of returning to it is 1. <br>It is <b>transient</b> if there is a non-zero probability of never returning. Recurrent states visited infinitely often.",
+            "yana": false
+          },
+          {
+            "prof": "Restelli",
+            "topic": "Bellman Operators",
+            "question": "Bellman Optimality Equation",
+            "answer": "The non-linear equation for the optimal value function v_*: <br>v_*(s) = \\max_a [R(s,a) + \\gamma \\sum_{s'} P(s'|s,a)v_*(s')]. <br>The greedy policy with respect to v_* is optimal.",
+            "yana": false
+          },
+          {
+            "prof": "Restelli",
+            "topic": "MDP basics",
+            "question": "Finite MDPs",
+            "answer": "An MDP with finite state space S and action space A. <br>In finite MDPs, there always exists at least one <b>optimal stationary deterministic policy</b>.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "Function Approximation",
+            "question": "Projected Bellman Error (PBE)",
+            "answer": "The distance between the current value function and the <b>projection</b> of the Bellman backup onto the subspace spanned by the features: <br>PBE(w) = ||\\Phi w - \\Pi T^\\pi (\\Phi w)||_D^2.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "TD learning",
+            "question": "Temporal Difference (TD) Learning",
+            "answer": "A model-free method that updates estimates based on other learned estimates (<b>bootstrapping</b>): <br>V(S) \\leftarrow V(S) + \\alpha [R + \\gamma V(S') - V(S)]. <br>Reduces variance but introduces bias.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "Deep RL",
+            "question": "DQN Instability",
+            "answer": "Caused by the <b>Deadly Triad</b>: 1) Function Approximation, 2) Bootstrapping, 3) Off-policy learning. <br>Correlations in samples and moving targets further destabilize training.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "Deep RL",
+            "question": "Double DQN",
+            "answer": "Addresses <b>Maximization Bias</b> by decoupling action selection from evaluation: <br>Target = R + \\gamma Q(S', argmax_{a'} Q(S', a'; \\theta); \\theta_{target}). <br>Reduces overestimation of Q-values.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "MDP basics",
+            "question": "Open-loop vs Closed-loop",
+            "answer": "<b>Open-loop</b>: Actions are a sequence fixed at t=0 (no feedback). <br><b>Closed-loop</b>: Actions depend on the current state (feedback-driven), more robust to noise.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "TD learning",
+            "question": "On-policy vs Off-policy",
+            "answer": "<b>On-policy</b>: Learns the value of the policy being followed (e.g., SARSA). <br><b>Off-policy</b>: Learns a target policy (usually optimal) while following a behavior policy (e.g., Q-learning).",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "TD learning",
+            "question": "SARSA Convergence",
+            "answer": "SARSA converges to Q_* if: <br>1) <b>GLIE</b> (Greedy in the Limit with Infinite Exploration) policy. <br>2) Robbins-Monro conditions on step size \\alpha (\\sum \\alpha = \\infty, \\sum \\alpha^2 < \\infty).",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Policy Gradients",
+            "question": "Parametric Policies",
+            "answer": "Policies defined by a vector \\theta: \\pi(a|s, \\theta). <br>Advantages: Can handle <b>continuous action spaces</b> and learn <b>stochastic policies</b>.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Policy Gradients",
+            "question": "PG Variance",
+            "answer": "Policy Gradient estimates (like REINFORCE) have <b>high variance</b> because returns depend on a full trajectory of random transitions. <br>Mitigated by using baselines or critics.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Policy Gradients",
+            "question": "Baselines",
+            "answer": "A function b(s) subtracted from the return G_t in PG updates: <br>\\nabla J \\approx (G_t - b(S_t)) \\nabla \\ln \\pi(A_t|S_t). <br>Reduces variance without changing the expected gradient (if b(s) doesn't depend on action).",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Advanced Exploration",
+            "question": "SAC Objective",
+            "answer": "Maximizes reward <b>plus entropy</b>: J(\\pi) = \\mathbb{E}[\\sum R_t + \\alpha H(\\pi(\\cdot|S_t))]. <br>Entropy H encourages exploration and prevents premature convergence to a single mode.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Policy Gradients",
+            "question": "G(PO)MDP Variance",
+            "answer": "G(PO)MDP reduces variance compared to REINFORCE by exploiting <b>causality</b>: <br>Removes terms R_{t'} from the gradient at time t where t' < t. Only future rewards are affected by current actions.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Deep RL",
+            "question": "DDPG (Deep Deterministic Policy Gradient)",
+            "answer": "An actor-critic method for <b>continuous actions</b>. <br>The actor outputs a deterministic action a = \\mu(s|\\theta). The critic learns Q(s, a) and provides gradients to the actor.",
+            "yana": false
+          },
+          {
+            "prof": "Restelli",
+            "topic": "MDP basics",
+            "question": "Markovian but not stationary",
+            "answer": "A process where the transition probability P(S_{t+1}|S_t) depends on the <b>time step t</b> but still only depends on the current state. <br>Common in finite-horizon tasks.",
+            "yana": true
+          },
+          {
+            "prof": "Restelli",
+            "topic": "Policy Iteration",
+            "question": "PI Optimality",
+            "answer": "Policy Iteration is guaranteed to find the <b>optimal policy</b> in a finite number of steps for finite MDPs. <br>Each improvement step yields a strictly better policy until convergence.",
+            "yana": true
+          },
+          {
+            "prof": "Metelli",
+            "topic": "TD learning",
+            "question": "MC vs TD Variance/Bias",
+            "answer": "<b>MC</b>: Unbiased (sample return G_t), high variance (many random steps). <br><b>TD</b>: Biased (bootstraps on V), low variance (only one random step R + S').",
+            "yana": true
+          },
+          {
+            "prof": "Metelli",
+            "topic": "TD learning",
+            "question": "SARSA Infinite Visit",
+            "answer": "A convergence condition requiring that all state-action pairs are <b>visited infinitely often</b>. <br>Ensured by exploration strategies like \\epsilon-greedy with \\epsilon > 0.",
+            "yana": true
+          },
+          {
+            "prof": "Metelli",
+            "topic": "Function Approximation",
+            "question": "FA Generalization",
+            "answer": "The ability of function approximation to estimate values for <b>unseen states</b> by leveraging features or similarities to visited states. <br>Prevents the need for a table of size |S|.",
+            "yana": true
+          },
+          {
+            "prof": "Metelli",
+            "topic": "Deep RL",
+            "question": "DQN Target Network",
+            "answer": "A separate network used to compute the <b>target labels</b> for training. <br>Frozen for several steps to prevent the 'moving target' problem, stabilizing the learning process.",
+            "yana": true
+          },
+          {
+            "prof": "Metelli",
+            "topic": "Model-Based RL",
+            "question": "Expectation Models",
+            "answer": "A model that predicts the <b>expected next state</b> and reward: <br>f(s, a) = \\mathbb{E}[S'] and r(s, a) = \\mathbb{E}[R]. <br>Simpler than full distribution models but fails with multimodal transitions.",
+            "yana": true
+          },
+          {
+            "prof": "Papini",
+            "topic": "Policy Gradients",
+            "question": "Softmax Policy Context",
+            "answer": "Used for discrete actions: \\pi(a|s) \\propto e^{h(s,a)}. <br>Differentiable, allows for <b>stochastic behavior</b>, and naturally approaches a deterministic policy as h values diverge.",
+            "yana": true
+          },
+          {
+            "prof": "Papini",
+            "topic": "Policy Gradients",
+            "question": "G(PO)MDP Causality",
+            "answer": "The principle that an action at time t cannot affect rewards at times t' < t. <br>By removing these irrelevant reward terms, G(PO)MDP achieves a <b>lower variance</b> gradient estimate.",
+            "yana": true
+          },
+          {
+            "prof": "Papini",
+            "topic": "Deep RL",
+            "question": "DDPG Deterministic Policy",
+            "answer": "Unlike REINFORCE, DDPG uses a <b>deterministic actor</b>. <br>To ensure exploration, noise (e.g., Ornstein-Uhlenbeck) is added to the actor's output during training.",
+            "yana": true
+          },
+          {
+            "prof": "Restelli",
+            "topic": "MDP basics",
+            "question": "Discount Factor (\\gamma)",
+            "answer": "A value in [0, 1) that determines the <b>present value</b> of future rewards. <br>\\gamma < 1 ensures convergence of infinite sums and reflects preference for immediate rewards.",
+            "yana": false
+          },
+          {
+            "prof": "Restelli",
+            "topic": "Bellman Operators",
+            "question": "Contraction Mapping",
+            "answer": "A mapping f such that d(f(x), f(y)) \\le \\gamma d(x, y) with \\gamma < 1. <br>Ensures that repeated application leads to a <b>unique fixed point</b>.",
+            "yana": false
+          },
+          {
+            "prof": "Restelli",
+            "topic": "Dynamic Programming",
+            "question": "Policy Improvement Theorem",
+            "answer": "States that if q_\\pi(s, \\pi'(s)) \\ge v_\\pi(s) for all states, then v_{\\pi'}(s) \\ge v_\\pi(s). <br>Foundation for <b>Policy Iteration</b>.",
+            "yana": false
+          },
+          {
+            "prof": "Restelli",
+            "topic": "Dynamic Programming",
+            "question": "Policy Evaluation vs Value Iteration",
+            "answer": "<b>Evaluation</b>: Solves linear equations (fixed policy). <br><b>Value Iteration</b>: Solves non-linear equations (max operator). <br>VI combines evaluation and improvement in one step.",
+            "yana": false
+          },
+          {
+            "prof": "Restelli",
+            "topic": "Markov Chains",
+            "question": "Ergodic Markov Chain",
+            "answer": "A chain that is <b>irreducible</b> (all states communicate) and <b>aperiodic</b> (no fixed cycle). <br>Guarantees convergence to a stationary distribution.",
+            "yana": false
+          },
+          {
+            "prof": "Restelli",
+            "topic": "Markov Chains",
+            "question": "Irreducibility",
+            "answer": "A Markov chain is irreducible if it is possible to get from <b>any state to any other state</b> in a finite number of steps.",
+            "yana": false
+          },
+          {
+            "prof": "Restelli",
+            "topic": "Markov Chains",
+            "question": "Aperiodicity",
+            "answer": "A state is aperiodic if it doesn't return to itself only at multiples of some period k > 1. <br>Prevents the chain from getting stuck in <b>oscillations</b>.",
+            "yana": false
+          },
+          {
+            "prof": "Restelli",
+            "topic": "MDP basics",
+            "question": "Reward Hypothesis",
+            "answer": "The assumption that all goals can be described as the <b>maximization of expected cumulative reward</b>. <br>Central tenet of RL.",
+            "yana": false
+          },
+          {
+            "prof": "Restelli",
+            "topic": "Dynamic Programming",
+            "question": "Generalized Policy Iteration (GPI)",
+            "answer": "The general framework where <b>Policy Evaluation</b> and <b>Policy Improvement</b> compete and cooperate to find the optimal policy.",
+            "yana": false
+          },
+          {
+            "prof": "Restelli",
+            "topic": "Dynamic Programming",
+            "question": "Curse of Dimensionality",
+            "answer": "The exponential growth of state/action spaces as the number of variables increases. <br>Makes <b>tabular methods</b> (like DP) computationally infeasible for complex tasks.",
+            "yana": false
+          },
+          {
+            "prof": "Restelli",
+            "topic": "Markov Chains",
+            "question": "Absorbing State",
+            "answer": "A state that, once entered, <b>cannot be left</b>: P(s|s) = 1 and R(s) = 0 usually. <br>Common in episodic tasks to represent terminal states.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "TD learning",
+            "question": "TD(\\lambda) and Eligibility Traces",
+            "answer": "A method to bridge TD(0) and Monte Carlo. <br><b>Eligibility Traces</b> track recently visited states, allowing credit to be assigned to them when a reward occurs later.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "TD learning",
+            "question": "Q-Learning vs SARSA (Behavior)",
+            "answer": "<b>Q-learning</b> learns the optimal path (ignores exploration cost). <br><b>SARSA</b> learns the path that is safe given the current exploration policy (avoids 'cliffs').",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "TD learning",
+            "question": "Expected SARSA",
+            "answer": "Uses the <b>expected value</b> of next state-actions instead of a single sample: <br>Target = R + \\gamma \\sum_{a'} \\pi(a'|S') Q(S', a'). <br>Reduces variance compared to standard SARSA.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "TD learning",
+            "question": "Maximization Bias",
+            "answer": "The tendency of the \\max operator in Q-learning to <b>overestimate</b> values when estimates are noisy. <br>Solved by Double Q-learning.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "Function Approximation",
+            "question": "Linear Function Approximation",
+            "answer": "Representing the value function as a <b>weighted sum of features</b>: v(s, w) = w^T \\phi(s). <br>Updating w involves semi-gradient descent.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "Function Approximation",
+            "question": "Tile Coding",
+            "answer": "A form of coarse coding where the state space is partitioned into <b>multiple overlapping grids</b>. <br>Computationally efficient and provides local generalization.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "Deep RL",
+            "question": "Experience Replay",
+            "answer": "A buffer storing past transitions (s, a, r, s'). <br><b>Benefits</b>: 1) Breaks temporal correlation, 2) Allows data reuse, 3) Stabilizes training.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "Deep RL",
+            "question": "Dueling DQN Advantage",
+            "answer": "Separates Q into <b>Value V(s)</b> and <b>Advantage A(s, a)</b>. <br>Allows the network to learn state values without needing to explore all actions in every state.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "Deep RL",
+            "question": "Prioritized Experience Replay (PER)",
+            "answer": "Samples transitions with <b>high TD-error</b> more frequently. <br>Assumes these transitions are more 'instructive'. Requires Importance Sampling weights to correct bias.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "Deep RL",
+            "question": "Multi-step DQN",
+            "answer": "Uses n-step returns for the Q-learning target instead of just 1-step. <br>Target = \\sum_{i=1}^n \\gamma^{i-1} R_{t+i} + \\gamma^n \\max_{a'} Q(S_{t+n}, a'). <br>Speeds up propagation of rewards.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "Function Approximation",
+            "question": "Semi-gradient Update",
+            "answer": "A gradient update where the <b>dependency of the target on the weights</b> is ignored: <br>w \\leftarrow w + \\alpha [Target - v(s, w)] \\nabla_w v(s, w). <br>Used in bootstrapping methods.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "TD learning",
+            "question": "Deadly Triad Conditions",
+            "answer": "1) <b>Function Approximation</b>, 2) <b>Bootstrapping</b> (TD), 3) <b>Off-policy</b> learning. <br>If all three are present, convergence is not guaranteed and divergence can occur.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "Model-Free Prediction",
+            "question": "First-visit vs Every-visit MC",
+            "answer": "<b>First-visit</b>: Averages returns only from the first time a state is hit in an episode. <br><b>Every-visit</b>: Averages returns from all hits. Both are unbiased.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "Exploration",
+            "question": "\\epsilon-greedy strategy",
+            "answer": "Explores with probability \\epsilon (random action) and exploits with 1-\\epsilon (greedy action). <br>Requires <b>decaying \\epsilon</b> to converge to the optimal policy.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Policy Gradients",
+            "question": "Policy Gradient Theorem",
+            "answer": "Provides the gradient of J(\\theta) without requiring the gradient of the state distribution: <br>\\nabla J(\\theta) \\propto \\mathbb{E}_\\pi [\\nabla \\ln \\pi(a|s) Q^\\pi(s, a)].",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Policy Gradients",
+            "question": "Score Function",
+            "answer": "The term \\nabla_\\theta \\ln \\pi(a|s, \\theta). <br>Indicates the <b>direction of increase</b> of the log-probability of taking action 'a' in state 's'.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Policy Gradients",
+            "question": "REINFORCE Algorithm",
+            "answer": "A Monte Carlo Policy Gradient method: <br>\\theta \\leftarrow \\theta + \\alpha G_t \\nabla \\ln \\pi(A_t|S_t). <br>Simple but suffers from <b>high variance</b>.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Actor-Critic",
+            "question": "Actor-Critic Roles",
+            "answer": "<b>Actor</b>: Updates the policy \\pi parameters using the critic's feedback. <br><b>Critic</b>: Learns a value function (V or Q) to evaluate the actor's actions and reduce variance.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Actor-Critic",
+            "question": "Advantage Function",
+            "answer": "A(s, a) = Q(s, a) - V(s). <br>Measures how much <b>better</b> action 'a' is compared to the average action in state 's'.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Actor-Critic",
+            "question": "Compatible Function Approximation Theorem",
+            "answer": "The PG is exact if: <br>1) Critic is <b>compatible</b>: \\nabla_w Q_w(s, a) = \\nabla_\\theta \\ln \\pi_\\theta(a|s). <br>2) Critic minimizes the Mean Squared Error.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Advanced Exploration",
+            "question": "Natural Policy Gradient",
+            "answer": "Updates parameters in the steepest direction according to the <b>Fisher Information Metric</b> (KL divergence) rather than Euclidean distance. <br>Provides <b>invariant updates</b> to parameterization.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Advanced Exploration",
+            "question": "TRPO (Trust Region Policy Optimization)",
+            "answer": "Ensures stable updates by constraining the <b>KL Divergence</b> between the old and new policy: <br>Maximize J subject to KL(\\pi_{old} || \\pi_{new}) \\le \\delta.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Advanced Exploration",
+            "question": "PPO (Proximal Policy Optimization)",
+            "answer": "A simpler alternative to TRPO that uses a <b>clipped surrogate objective</b> to prevent too large policy updates.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Multi-objective RL",
+            "question": "Scalarization vs Pareto",
+            "answer": "<b>Scalarization</b>: Reduces multiple rewards to a single scalar (e.g., weighted sum). <br><b>Pareto</b>: Finds a set of policies where no objective can be improved without degrading another.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Risk-Averse RL",
+            "question": "CVaR (Conditional Value at Risk)",
+            "answer": "A risk measure that focuses on the <b>tail of the distribution</b> (the average of the worst \\alpha% outcomes). <br>Used for safety-critical RL applications.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Apprenticeship Learning",
+            "question": "Inverse Reinforcement Learning (IRL)",
+            "answer": "The task of <b>learning the reward function</b> by observing an expert's behavior. <br>Assumes the expert is acting optimally according to some unknown reward.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Policy Gradients",
+            "question": "Exploration-Exploitation PG",
+            "answer": "In PG, exploration is naturally handled by the <b>stochasticity of the policy</b>. <br>As the policy improves, the variance typically decreases, leading to exploitation.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Deep RL",
+            "question": "A2C (Advantage Actor-Critic)",
+            "answer": "A <b>synchronous</b> version of A3C. <br>Updates are performed on batches of experience collected by multiple workers in parallel.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Deep RL",
+            "question": "TD3 Improvements",
+            "answer": "1) <b>Clipped Double-Q</b> learning, 2) <b>Target Policy Smoothing</b>, 3) <b>Delayed</b> policy updates. <br>Addresses overestimation and variance in DDPG.",
+            "yana": false
+          },
+          {
+            "prof": "Restelli",
+            "topic": "MDP basics",
+            "question": "Bellman Expectation vs Optimality",
+            "answer": "<b>Expectation</b>: Describes the value of a <i>fixed</i> policy (linear). <br><b>Optimality</b>: Describes the value of the <i>best possible</i> policy (non-linear, contains max).",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "Function Approximation",
+            "question": "Radial Basis Functions (RBF)",
+            "answer": "A continuous feature mapping: \\phi_i(s) = exp(-||s - c_i||^2 / (2\\sigma_i^2)). <br>Provides <b>smooth generalization</b> for continuous state spaces.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Policy Gradients",
+            "question": "Off-policy Policy Gradient",
+            "answer": "Uses <b>Importance Sampling</b> (\\pi / \\beta) to adjust for the fact that trajectories were collected by a behavior policy \\beta instead of the target policy \\pi.",
+            "yana": false
+          },
+          {
+            "prof": "Metelli",
+            "topic": "Model-Based RL",
+            "question": "Dyna-Q Architecture",
+            "answer": "Integrates <b>Learning</b> (from real experience), <b>Model Learning</b>, and <b>Planning</b> (using simulated experience from the model) into a single agent.",
+            "yana": false
+          },
+          {
+            "prof": "Papini",
+            "topic": "Advanced Exploration",
+            "question": "Entropy Regularization",
+            "answer": "Adding -\\log \\pi(a|s) to the reward. <br>Forces the agent to keep its policy <b>dispersed</b>, preventing it from collapsing too early into a sub-optimal deterministic strategy.",
+            "yana": false
+          }
         ];
 
         let cards = [];

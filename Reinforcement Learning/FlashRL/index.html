@@ -235,7 +235,7 @@
             {
                 "prof": "Metelli",
                 "topic": "Deep RL",
-                "question": "Explain Double DQN and Overestimation Bias.",
+                "question": "Explain Double DQN and the Overestimation Bias.",
                 "answer": "Standard Q-Learning selects and evaluates actions using the same weights: Q(s, argmax Q). Since estimates are noisy, the 'max' picks up positive noise. <br><br><b>Double DQN:</b> Uses the online network to <b>select</b> the action and the target network to <b>evaluate</b> it: Q_target(s, argmax Q_online). This decouples selection from evaluation and reduces overestimation.",
                 "yana": true
             },

@@ -1,0 +1,21 @@
+\section{Practical Session and Implementation}
+
+\subsection{Bridging Theory and Code}
+Implementing RL algorithms in the real world requires more than just knowing the formulas. We typically use standardized environments like \textbf{Gymnasium} (formerly OpenAI Gym) to provide a consistent interface for our agents. The core loop—resetting the environment, taking steps, and observing rewards—remains the same across almost all projects.
+
+\subsection{The Importance of Preprocessing}
+Neural networks are notoriously sensitive to the scale of their inputs. Therefore, \textbf{State Normalization} (scaling inputs to zero mean and unit variance) is often mandatory for convergence. Similarly, \textbf{Reward Scaling} or clipping (e.g., to the range $[-1, 1]$) helps keep gradients stable. 
+
+In visual tasks (like Atari), we use \textbf{Frame Stacking}. Because a single frame doesn't convey motion, we stack the last 4 frames together to give the agent information about the velocity and direction of objects.
+
+\subsection{Navigating the Hyperparameter Maze}
+RL is "brittle," meaning small changes in hyperparameters can lead to failure. 
+\begin{itemize}
+    \item \textbf{Learning Rate ($\alpha$):} Often the most critical. Too high and the agent collapses; too low and it never learns.
+    \item \textbf{Discount Factor ($\gamma$):} Usually set to $0.99$. It defines the "horizon"—how far into the future the agent looks.
+    \item \textbf{Replay Buffer Size:} A buffer that is too small leads to "catastrophic forgetting," while one that is too large can slow down learning as the agent samples too many "stale" or irrelevant experiences.
+\end{itemize}
+
+\subsection{Validation and Debugging}
+Debugging RL is notoriously difficult because a failing agent doesn't usually "crash"—it just stays stupid. To validate your agent, you must evaluate it on a separate set of episodes \textit{without exploration} ($\epsilon=0$). 
+Monitoring the \textbf{Reward Curve} is the primary diagnostic, but tracking the \textbf{Value Estimates} is equally important. If the estimated Q-values are growing indefinitely while the reward stays low, you likely have an overestimation bias or a "Deadly Triad" issue in your hands.

@@ -1,0 +1,27 @@
+\section{Policy Gradient Methods}
+
+\subsection{Why Shift from Values to Policies?}
+So far, we have focused on learning value functions and deriving policies from them (e.g., $\epsilon$-greedy). However, this approach has several limitations. It cannot easily handle continuous action spaces, and it cannot represent \textit{stochastic policies} (which are often optimal in adversarial settings). 
+
+\textbf{Policy Gradient (PG)} methods solve this by parameterizing the policy directly: $\pi(a|s, \theta)$. We then optimize the policy by following the gradient of some performance measure $J(\theta)$ with respect to the parameters $\theta$. This approach often leads to smoother convergence than value-based methods.
+
+\subsection{The Policy Gradient Theorem}
+The "magic" of PG lies in the \textbf{Policy Gradient Theorem}. It provides an expression for the gradient of performance that \textit{does not depend on the derivative of the state distribution} (which would be impossible to compute in a model-free setting). The gradient is simply:
+\[ \nabla_\theta J(\theta) = \mathbb{E}_{\pi} [ \nabla_\theta \ln \pi(a|s, \theta) Q^\pi(s, a) ] \]
+This formula tells us to increase the probability of an action if it leads to a high $Q$-value. The term $\nabla_\theta \ln \pi(a|s, \theta)$ is often called the \textit{Score Function}.
+
+\subsection{REINFORCE: The Monte Carlo Approach}
+The simplest implementation of the theorem is the \textbf{REINFORCE} algorithm. It uses the actual return $G_t$ as an unbiased estimate of $Q^\pi(s, a)$.
+\[ \theta \leftarrow \theta + \alpha G_t \nabla_\theta \ln \pi(A_t|S_t, \theta) \]
+While easy to implement, REINFORCE suffers from \textbf{extreme variance} because $G_t$ is a single sample of an entire episode. To reduce this variance, we typically subtract a \textbf{Baseline} $b(s)$ (usually an estimate of the state-value $V(s)$) from the return. This doesn't change the expected gradient but significantly stabilizes learning.
+
+\subsection{Actor-Critic: Reducing Variance with Bootstrapping}
+To further reduce variance, we can replace the full return $G_t$ with a learned value function. This leads to the \textbf{Actor-Critic} architecture:
+\begin{itemize}
+    \item \textbf{The Actor:} Optimizes the policy $\pi(a|s, \theta)$ using gradients provided by the critic.
+    \item \textbf{The Critic:} Estimates the value function $V(s, w)$ and uses it to calculate the \textbf{Advantage} $A(s, a) = Q(s, a) - V(s)$. 
+\end{itemize}
+In practice, we often use the \textbf{TD Error} $\delta_t = R + \gamma V(S') - V(S)$ as an estimate of the advantage. This is the core idea behind algorithms like \textbf{A2C}.
+
+\subsection{Compatible Function Approximation}
+A theoretical detail often asked in exams is: when is the gradient calculated by an actor-critic exact? The \textbf{Compatible Function Approximation Theorem} states that if the critic's features are "compatible" with the actor (i.e., $\nabla_w f_w(s, a) = \nabla_\theta \ln \pi_\theta(a|s)$) and the critic is trained to minimize the MSE, then the resulting gradient is unbiased.

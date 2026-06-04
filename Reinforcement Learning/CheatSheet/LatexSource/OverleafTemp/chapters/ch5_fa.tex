@@ -1,0 +1,27 @@
+\section{RL with Function Approximation}
+
+\subsection{The Need for Generalization}
+As we move from simple grid-worlds to complex problems (like robotics or video games), the number of states becomes astronomical. We can no longer store a value for every state in a table. Instead, we must use \textbf{Function Approximation} to represent the value function as $v(s, \mathbf{w}) \approx v_\pi(s)$, where $\mathbf{w}$ is a set of learnable weights. This allows the agent to \textit{generalize}: learning about one state helps it estimate the value of similar, unvisited states.
+
+The training objective is typically to minimize the \textbf{Mean Squared Value Error (MSVE)} using Gradient Descent. The update rule becomes:
+\[ \mathbf{w}_{t+1} = \mathbf{w}_t + \alpha [Target_t - v(S_t, \mathbf{w}_t)] \nabla_{\mathbf{w}} v(S_t, \mathbf{w}_t) \]
+Depending on whether we use MC, TD, or n-step returns for the \textit{Target}, we inherit the respective bias and variance characteristics.
+
+\subsection{Linear Function Approximation and Feature Engineering}
+A simple yet powerful form is \textbf{Linear Function Approximation}, where $v(s, \mathbf{w}) = \mathbf{w}^\top \mathbf{x}(s)$. Here, $\mathbf{x}(s)$ is a feature vector representing the state. The quality of learning depends entirely on these features.
+\begin{itemize}
+    \item \textbf{Tile Coding:} This technique involves overlaying the state space with multiple, overlapping grids (tilings). It is computationally efficient and naturally provides generalization across space.
+    \item \textbf{Radial Basis Functions (RBF):} These provide smooth, continuous features (like Gaussians). While expressive, they can be computationally expensive as the number of basis functions grows.
+\end{itemize}
+
+\subsection{The Deadly Triad: A Warning for the Oral Exam}
+One of the most important theoretical topics is the \textbf{Deadly Triad}. It states that instability and divergence can occur when three conditions are met simultaneously:
+\begin{enumerate}
+    \item \textbf{Function Approximation:} (e.g., using a neural network or linear FA).
+    \item \textbf{Bootstrapping:} (e.g., using TD or SARSA instead of MC).
+    \item \textbf{Off-policy learning:} (e.g., Q-learning or using an experience replay).
+\end{enumerate}
+If any one of these is absent, convergence is often guaranteed. However, when all three are present, the value function can "blow up." Modern Deep RL algorithms (like DQN) use specific tricks—such as Target Networks and Experience Replay—to stabilize this interaction.
+
+\subsection{Convergence and the Semi-Gradient Update}
+When using bootstrapping with function approximation, we typically use \textbf{Semi-Gradient} methods. We call them "semi" because we ignore the fact that the target itself depends on the weights $\mathbf{w}$. While this makes the math simpler and allows for online updates, it means we are not following a true gradient of any error function. Consequently, on-policy linear TD converges to a point (the TD fixed point), but it is not the global minimum of the MSVE. Off-policy learning is even more precarious and often requires more complex "Gradient TD" algorithms to ensure stability.

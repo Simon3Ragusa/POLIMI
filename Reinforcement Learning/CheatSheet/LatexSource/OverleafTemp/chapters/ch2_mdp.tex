@@ -1,0 +1,25 @@
+\section{Markov Decision Processes (MDPs)}
+
+\subsection{The Foundation of RL: The Markov Property}
+To model the agent-environment interaction mathematically, we rely on the \textit{Markov Property}. A state $S_t$ is said to be Markovian if "the future is independent of the past given the present." Formally, this means $\mathbb{P}[S_{t+1} | S_t] = \mathbb{P}[S_{t+1} | S_1, \dots, S_t]$. This is a powerful assumption because it allows us to discard the history of the agent and make decisions based solely on the current observation.
+
+An MDP is formally defined by the tuple $(\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)$. Here, $\mathcal{P}$ represents the transition dynamics ($P_{ss'}^a$), and $\mathcal{R}$ the reward function ($R_s^a$). The discount factor $\gamma \in [0, 1]$ serves a dual purpose: it ensures the mathematical convergence of infinite sums and reflects a preference for immediate rewards over distant ones, which is analogous to economic discounting.
+
+\subsection{Value Functions and the Bellman Intuition}
+A central goal in RL is to evaluate how "good" a state or an action is. We define the \textbf{State-Value function} $v_\pi(s)$ as the expected return starting from state $s$ and following policy $\pi$. Similarly, the \textbf{Action-Value function} $q_\pi(s, a)$ adds the condition of taking action $a$ first.
+
+The brilliance of the Bellman equations lies in their recursive nature. Instead of calculating the entire return from scratch, we express the value of a state as the immediate reward plus the discounted value of the subsequent state.
+\begin{itemize}
+    \item \textbf{Bellman Expectation Equation:} 
+    \[ v_\pi(s) = \sum_{a \in \mathcal{A}} \pi(a|s) \left( R_s^a + \gamma \sum_{s' \in \mathcal{S}} P_{ss'}^a v_\pi(s') \right) \]
+    This equation is linear and essentially describes the value of a state under a \textit{fixed} policy.
+    \item \textbf{Bellman Optimality Equation:} 
+    \[ v_*(s) = \max_{a \in \mathcal{A}} \left( R_s^a + \gamma \sum_{s' \in \mathcal{S}} P_{ss'}^a v_*(s') \right) \]
+    This is non-linear due to the $\max$ operator. It tells us that for a state to be optimal, we must choose the action that leads to the best possible expected future value.
+\end{itemize}
+
+\subsection{Theoretical Guarantees: Contractions and Fixed Points}
+In an oral exam, you might be asked why we can solve these equations iteratively. The answer lies in the \textbf{Bellman Operator} $T^\pi$. By applying the \textit{Banach Fixed Point Theorem}, we can prove that $T^\pi$ is a $\gamma$-contraction in the $L_\infty$ norm. This means that every time we apply the operator, the "distance" between our current estimate and the true value function shrinks by at least a factor of $\gamma$. This guarantees that we will eventually converge to a unique fixed point—the true value function.
+
+\subsection{Limitations and Extensions}
+While the MDP framework is robust, it assumes a finite and fully observable world. In reality, we often face \textbf{POMDPs} (Partially Observable MDPs), where the agent only sees a filtered version of the state, or \textbf{Semi-MDPs}, where actions have variable durations. Furthermore, as the state space grows, we encounter the "Curse of Dimensionality," where the tabular approach of storing a value for every state becomes computationally impossible.

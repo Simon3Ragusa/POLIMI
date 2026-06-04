@@ -1,0 +1,65 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{enumitem}
+
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}[{\titlerule[0.5pt]}]
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+
+\title{\textbf{Reinforcement Learning Oral Exam Cheatsheet}}
+\author{Master's Degree in Computer Science and Engineering}
+\date{Academic Year 2025/2026}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\input{chapters/ch1_intro.tex}
+\newpage
+\input{chapters/ch2_mdp.tex}
+\newpage
+\input{chapters/ch3_dp.tex}
+\newpage
+\input{chapters/ch4_tabular.tex}
+\newpage
+\input{chapters/ch5_fa.tex}
+\newpage
+\input{chapters/ch6_dqn.tex}
+\newpage
+\input{chapters/ch7_pg.tex}
+\newpage
+\input{chapters/ch8_deep.tex}
+\newpage
+\input{chapters/ch9_practical.tex}
+
+\newpage
+\section{Algorithm Quick-Reference}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Algorithm} & \textbf{Paradigm} & \textbf{Update Target} & \textbf{Key Pros/Cons} \\ \midrule
+DP (Value Iter) & Model-based & $\max_a [R + \gamma P V]$ & Exact, but needs model \\
+MC & Model-free & $G_t$ & Unbiased, high variance \\
+TD(0) & Model-free & $R + \gamma V(S')$ & Low variance, biased \\
+SARSA & On-policy & $R + \gamma Q(S', A')$ & Safe, conservative \\
+Q-Learning & Off-policy & $R + \gamma \max Q(S', a')$ & Optimal, max bias \\
+DQN & Deep RL & $R + \gamma \max \hat{Q}^-$ & Target net/Replay buffer \\
+REINFORCE & Policy Grad & $G_t \nabla \ln \pi$ & Simple, high variance \\
+A2C & Actor-Critic & $\delta_t \nabla \ln \pi$ & Bootstrapping, low variance \\
+PPO & Policy Grad & Clipped $r_t \hat{A}_t$ & Stable, easy to tune \\
+SAC & Off-policy AC & Entropy-aug $G_t$ & Robust exploration \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\end{document}

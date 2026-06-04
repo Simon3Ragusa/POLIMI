@@ -1,0 +1,20 @@
+\section{Introduction to Reinforcement Learning}
+
+\subsection{The Reinforcement Learning Paradigm}
+Reinforcement Learning (RL) represents a distinct branch of machine learning that focuses on how an agent ought to take actions in an environment to maximize some notion of cumulative reward. Unlike Supervised Learning, where the agent is provided with a "ground truth" target for every input, an RL agent must discover which actions yield the most reward by trying them out—a process known as learning by trial-and-error.
+
+The fundamental framework involves a continuous interaction loop: at each discrete time step, the agent observes the current state of the environment ($S_t$), selects an action ($A_t$), and in response, the environment provides a numerical reward ($R_{t+1}$) and transitions to a new state ($S_{t+1}$). This entire process is governed by the \textit{Reward Hypothesis}, which posits that all goals can be described as the maximization of the expected return.
+
+\subsection{The Fundamental Trade-off: Exploration vs. Exploitation}
+A central challenge that is unique to RL is the trade-off between exploration and exploitation. To maximize reward, an agent must "exploit" the actions it has already tried and found to be effective. However, to discover such actions in the first place, it must "explore" the environment by trying actions that have not been selected before, or for which it has high uncertainty.
+
+In practice, this is often implemented using an \textbf{$\epsilon$-greedy strategy}. Here, the agent follows its current best knowledge (the greedy action) with probability $1-\epsilon$, but with probability $\epsilon$, it chooses a random action. While simple and effective, this approach has limitations: a fixed $\epsilon$ might explore too much when the policy is already near-optimal, or not enough in the early stages. This often necessitates "annealing" or decaying $\epsilon$ over time to shift the focus from discovery to refinement.
+
+\subsection{Defining the Challenges}
+When preparing for an oral exam, it is crucial to articulate why RL is difficult. Three main problems typically arise:
+\begin{itemize}
+    \item \textbf{The Credit Assignment Problem:} Since rewards can be delayed (e.g., winning a game of chess based on a move made 20 steps ago), it is difficult to determine which specific action was responsible for the final outcome.
+    \item \textbf{Partial Observability:} In many real-world scenarios, the agent cannot see the full state of the environment (modeled as POMDPs), requiring it to maintain a history or use memory-based architectures.
+    \item \textbf{Generalization:} Because the state space is often vast (or continuous), the agent cannot visit every state. It must therefore use function approximation to generalize its experience from known states to unknown ones.
+\end{itemize}
+ Greenland

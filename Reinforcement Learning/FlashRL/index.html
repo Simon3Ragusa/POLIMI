@@ -205,7 +205,8 @@
     </div>
 
     <script>
-        const originalCards = [
+        console.log('FlashRL starting...');
+        var originalCards = [
           {
             "prof": "Restelli",
             "topic": "MDP basics",
@@ -733,14 +734,16 @@
           }
         ];
 
-        let cards = [];
-        let index = 0;
+        var cards = [];
+        var index = 0;
 
         function shuffleDeck() {
-            cards = [...originalCards];
-            for (let i = cards.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [cards[i], cards[j]] = [cards[j], cards[i]];
+            cards = originalCards.slice();
+            for (var i = cards.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = cards[i];
+                cards[i] = cards[j];
+                cards[j] = temp;
             }
             index = 0;
             render();
@@ -748,40 +751,40 @@
 
         function render() {
             if (cards.length === 0) return;
-            const card = cards[index];
-            document.getElementById('professor-tag').innerText = `Examiner: Prof. ${card.prof}`;
+            var card = cards[index];
+            document.getElementById('professor-tag').innerText = 'Examiner: Prof. ' + card.prof;
             document.getElementById('topic-front').innerText = card.topic;
             document.getElementById('question-text').innerText = card.question;
-            document.getElementById('answer-text').innerHTML = `<p>${card.answer}</p>`;
-            document.getElementById('progress').innerText = `${index + 1} / ${cards.length}`;
+            document.getElementById('answer-text').innerHTML = '<p>' + card.answer + '</p>';
+            document.getElementById('progress').innerText = (index + 1) + ' / ' + cards.length;
             document.getElementById('card').classList.remove('flipped');
             
             // Show/Hide Yana Badge
             document.getElementById('yana-badge').style.display = card.yana ? 'block' : 'none';
         }
 
-        document.getElementById('card').onclick = () => {
+        document.getElementById('card').onclick = function() {
             document.getElementById('card').classList.toggle('flipped');
         };
 
-        document.getElementById('next').onclick = (e) => {
+        document.getElementById('next').onclick = function(e) {
             e.stopPropagation();
             index = (index + 1) % cards.length;
             render();
         };
 
-        document.getElementById('prev').onclick = (e) => {
+        document.getElementById('prev').onclick = function(e) {
             e.stopPropagation();
             index = (index - 1 + cards.length) % cards.length;
             render();
         };
 
-        document.getElementById('shuffle').onclick = (e) => {
+        document.getElementById('shuffle').onclick = function(e) {
             e.stopPropagation();
             shuffleDeck();
         };
 
-        document.addEventListener('keydown', (e) => {
+        document.addEventListener('keydown', function(e) {
             if (e.code === 'Space') document.getElementById('card').click();
             if (e.code === 'ArrowRight') document.getElementById('next').click();
             if (e.code === 'ArrowLeft') document.getElementById('prev').click();

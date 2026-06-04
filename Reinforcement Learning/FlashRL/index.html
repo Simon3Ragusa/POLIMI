@@ -130,35 +130,6 @@
             font-weight: bold;
             letter-spacing: 1px;
         }
-
-        /* References Modal Style */
-        #refs-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        #refs-content {
-            background: #141414;
-            border: 1px solid #4caf50;
-            padding: 40px;
-            max-width: 800px;
-            width: 100%;
-            border-radius: 4px;
-            max-height: 80vh;
-            overflow-y: auto;
-            text-align: left;
-        }
-
-        #refs-content h2 { font-family: 'Playfair Display', serif; color: #4caf50; margin-top: 0; }
-        #refs-content ul { list-style: none; padding: 0; }
-        #refs-content li { margin-bottom: 10px; font-size: 0.9rem; color: #aaa; border-left: 2px solid #2e7d32; padding-left: 15px; }
-        #refs-content b { color: #eee; }
     </style>
 </head>
 <body>
@@ -183,28 +154,7 @@
     <div class="controls">
         <button id="prev">PREV</button>
         <button id="shuffle">SHUFFLE</button>
-        <button id="show-refs">REFERENCES</button>
         <button id="next">NEXT</button>
-    </div>
-
-    <!-- References Modal -->
-    <div id="refs-modal">
-        <div id="refs-content">
-            <h2>Course Materials & References</h2>
-            <p>The content of these cards is derived from the following PhD Reinforcement Learning decks:</p>
-            <ul>
-                <li><b>Deck 1: Introduction</b> - Course overview and scheduling.</li>
-                <li><b>Deck 2: MDP</b> - Markov Decision Processes, Bellman Operators, and Stochastic Processes.</li>
-                <li><b>Deck 3: DP</b> - Dynamic Programming, Policy/Value Iteration.</li>
-                <li><b>Deck 4: Finite RL</b> - Temporal-Difference Learning, SARSA, Q-learning, Convergence.</li>
-                <li><b>Deck 5: Continuous RL</b> - Function Approximation, Projected Bellman Error (PBE).</li>
-                <li><b>Deck 6: Model-Based</b> - Planning, Open Loop Planning, MCTS.</li>
-                <li><b>Deck 7: Policy Gradient</b> - PG Theorem, REINFORCE, G(PO)MDP, Baselines.</li>
-                <li><b>Deck 8: Deep RL</b> - DQN, Double DQN, SAC, DDPG.</li>
-            </ul>
-            <p style="font-size: 0.8rem; color: #666;">Note: Content marked with (*) in slides is excluded per exam rules, except Open Loop Planning.</p>
-            <button id="close-refs" style="margin-top: 20px; border-color: #4caf50; color: #4caf50;">CLOSE</button>
-        </div>
     </div>
 
     <script>

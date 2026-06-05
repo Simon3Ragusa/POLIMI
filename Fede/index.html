@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Amoretto's Adventure - Pro Edition</title>
+    <title>Amoretto's Adventure - Ultimate Pro</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pacifico&display=swap');
 
@@ -11,7 +11,7 @@
 
         body {
             margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            min-height: 100vh; background-color: #fbcce7; color: white; font-family: 'Press+Start+2P', cursive;
+            min-height: 100vh; background-color: #fbcce7; color: white; font-family: 'Pacifico', cursive;
             overflow-x: hidden; touch-action: none;
         }
 
@@ -35,9 +35,11 @@
             margin-bottom: 5px;
         }
 
-        #inventory { display: flex; gap: 5px; margin-top: 5px; }
-        .inv-item { width: 15px; height: 20px; background: rgba(0,0,0,0.2); border: 1px solid #fff; }
-        .inv-item.collected { background: #ff69b4; }
+        #collection-text { font-family: 'Pacifico', cursive; font-size: 14px; color: #ff69b4; margin-top: 2px;}
+
+        #inventory { display: flex; gap: 8px; margin-top: 5px; }
+        .inv-item { width: 18px; height: 24px; background: rgba(255, 105, 180, 0.2); border: 2px solid #fff; border-radius: 4px; }
+        .inv-item.collected { background: #ff69b4; box-shadow: 0 0 5px #fff; }
 
         #message-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -45,11 +47,11 @@
             justify-content: center; align-items: center; text-align: center; padding: 20px; z-index: 20;
         }
 
-        #message-overlay h1 { font-size: 12px; line-height: 1.6; color: #d10068; margin-bottom: 20px; }
+        #message-overlay h1 { font-family: 'Pacifico', cursive; font-size: 22px; line-height: 1.4; color: #d10068; margin-bottom: 20px; }
 
         #message-overlay button {
             padding: 15px 30px; font-family: 'Press+Start+2P', cursive; background: #fff;
-            border: 3px solid #ff69b4; color: #ff69b4; cursor: pointer; font-size: 10px;
+            border: 3px solid #ff69b4; color: #ff69b4; cursor: pointer; font-size: 10px; border-radius: 10px;
         }
 
         #controls-area {
@@ -81,7 +83,7 @@
         <canvas id="gameCanvas" width="800" height="400"></canvas>
         <div id="ui">
             <div id="game-title">Amoretto's Adventure</div>
-            <div id="collection-text">COLLECTED RHODE: 0/5</div>
+            <div id="collection-text">Collected Rhode: 0/5</div>
             <div id="inventory">
                 <div class="inv-item" id="inv-0"></div>
                 <div class="inv-item" id="inv-1"></div>
@@ -92,7 +94,7 @@
         </div>
         <div id="message-overlay">
             <h1 id="victory-text"></h1>
-            <button onclick="resetGame()">Riprova</button>
+            <button id="play-again-btn">Gioca ancora!</button>
         </div>
     </div>
     
@@ -114,13 +116,14 @@
     const victoryScreen = document.getElementById('message-overlay');
     const victoryText = document.getElementById('victory-text');
     const collectionText = document.getElementById('collection-text');
+    const playAgainBtn = document.getElementById('play-again-btn');
 
     // Constants
     const SPEED = 4.5;
     const GROUND_HEIGHT = 60;
     const BULLET_SPEED = 8;
     const GRAVITY = 0.5;
-    const JUMP_FORCE = -11;
+    const JUMP_FORCE = -11.5;
 
     // State
     let player = {
@@ -145,11 +148,11 @@
     };
 
     const RHODE_LIST = [
-        "PEPTIDE LIP TREATMENT",
-        "BARRIER RESTORE CREAM",
-        "GLAZING MILK",
-        "PEPTIDE GLAZING FLUID",
-        "POCKET BLUSH"
+        "Peptide Lip Treatment",
+        "Barrier Restore Cream",
+        "Glazing Milk",
+        "Peptide Glazing Fluid",
+        "Pocket Blush"
     ];
 
     function initLevel() {
@@ -161,50 +164,63 @@
         collectedCount = 0;
         victoryScreen.style.display = 'none';
         bullets = []; sparkles = [];
-        collectionText.innerText = "COLLECTED RHODE: 0/5";
+        collectionText.innerText = "Collected Rhode: 0/5";
         for(let i=0; i<5; i++) document.getElementById(`inv-${i}`).classList.remove('collected');
 
-        // Reachability Checked Platforms
+        // STAIR-LIKE PLATFORM STRUCTURES
         platforms = [
-            { x: 300, y: 300, width: 150, height: 15 },
-            { x: 600, y: 220, width: 150, height: 15 },
-            { x: 1000, y: 280, width: 150, height: 15 },
-            { x: 1400, y: 180, width: 150, height: 15 },
-            { x: 1900, y: 280, width: 150, height: 15 },
-            { x: 2300, y: 200, width: 150, height: 15 },
-            { x: 2800, y: 280, width: 200, height: 15 },
-            { x: 3300, y: 180, width: 200, height: 15 },
-            { x: 3900, y: 250, width: 200, height: 15 },
-            { x: 4500, y: 180, width: 200, height: 15 },
-            { x: 5200, y: 280, width: 200, height: 15 }
+            // Stair 1 (Lip Treatment)
+            { x: 300, y: 310, width: 100, height: 10 },
+            { x: 450, y: 240, width: 100, height: 10 },
+            { x: 600, y: 170, width: 150, height: 10 },
+            
+            // Stair 2 (Cream)
+            { x: 1100, y: 300, width: 100, height: 10 },
+            { x: 1250, y: 230, width: 100, height: 10 },
+            { x: 1400, y: 160, width: 150, height: 10 },
+            
+            // Stair 3 (Milk)
+            { x: 2000, y: 310, width: 100, height: 10 },
+            { x: 2150, y: 240, width: 100, height: 10 },
+            { x: 2300, y: 170, width: 150, height: 10 },
+            
+            // Stair 4 (Fluid)
+            { x: 3000, y: 300, width: 100, height: 10 },
+            { x: 3150, y: 230, width: 100, height: 10 },
+            { x: 3300, y: 160, width: 150, height: 10 },
+            
+            // Stair 5 (Blush)
+            { x: 4200, y: 310, width: 100, height: 10 },
+            { x: 4350, y: 240, width: 100, height: 10 },
+            { x: 4500, y: 170, width: 150, height: 10 }
         ];
 
-        // Products on reachable platforms or ground
+        // Products at top of stairs
         products = [
-            { x: 650, y: 180, name: RHODE_LIST[0], width: 15, height: 30, collected: false },
-            { x: 1450, y: 140, name: RHODE_LIST[1], width: 15, height: 30, collected: false },
-            { x: 2350, y: 160, name: RHODE_LIST[2], width: 15, height: 30, collected: false },
-            { x: 3350, y: 140, name: RHODE_LIST[3], width: 15, height: 30, collected: false },
-            { x: 4550, y: 140, name: RHODE_LIST[4], width: 15, height: 30, collected: false }
+            { x: 650, y: 130, name: RHODE_LIST[0], width: 15, height: 30, collected: false },
+            { x: 1450, y: 120, name: RHODE_LIST[1], width: 15, height: 30, collected: false },
+            { x: 2350, y: 130, name: RHODE_LIST[2], width: 15, height: 30, collected: false },
+            { x: 3350, y: 120, name: RHODE_LIST[3], width: 15, height: 30, collected: false },
+            { x: 4550, y: 130, name: RHODE_LIST[4], width: 15, height: 30, collected: false }
         ];
 
-        // Obstacles (Text)
+        // Obstacles (Reduced Count)
         obstacles = [];
-        for (let i = 0; i < 20; i++) {
-            let ox = 800 + (i * 300);
+        for (let i = 0; i < 12; i++) {
+            let ox = 800 + (i * 450);
             obstacles.push({
                 x: ox, y: canvas.height - GROUND_HEIGHT - 20, baseX: ox,
-                width: 140, height: 15, speed: 2.5, text: "overstimulation", hp: 3
+                width: 140, height: 15, speed: 2.2, text: "overstimulation", hp: 3
             });
         }
 
-        // Mamme (Jumping)
+        // Mamme (Killable)
         mamme = [];
-        for (let i = 0; i < 12; i++) {
-            let mx = 1100 + (i * 550);
+        for (let i = 0; i < 8; i++) {
+            let mx = 1300 + (i * 650);
             mamme.push({
                 x: mx, y: canvas.height - GROUND_HEIGHT - 40, width: 32, height: 40,
-                velY: 0, grounded: true, jumpTimer: Math.random() * 100
+                velY: 0, grounded: true, jumpTimer: Math.random() * 100, hp: 2
             });
         }
     }
@@ -221,6 +237,8 @@
     setupBtn('right-btn', 'ArrowRight');
     setupBtn('jump-btn', 'KeyW');
     setupBtn('shoot-btn', 'Space');
+
+    playAgainBtn.onclick = () => { initLevel(); };
 
     window.addEventListener('keydown', e => keys[e.code] = true);
     window.addEventListener('keyup', e => keys[e.code] = false);
@@ -280,6 +298,7 @@
         bullets.forEach((b, i) => {
             b.x += BULLET_SPEED;
             if (b.x > cameraX + canvas.width) bullets.splice(i, 1);
+            
             obstacles.forEach((obs, oi) => {
                 if (b.x < obs.x + obs.width && b.x + b.width > obs.x && b.y < obs.y && b.y + b.height > obs.y - 15) {
                     obs.hp--; bullets.splice(i, 1);
@@ -289,18 +308,28 @@
                     }
                 }
             });
+
+            mamme.forEach((m, mi) => {
+                if (b.x < m.x + m.width && b.x + b.width > m.x && b.y < m.y + m.height && b.y + b.height > m.y) {
+                    m.hp--; bullets.splice(i, 1);
+                    if (m.hp <= 0) {
+                        for(let j=0; j<8; j++) sparkles.push({x: m.x+16, y: m.y+20, vx: Math.random()*4-2, vy: Math.random()*-4, life: 1.0});
+                        mamme.splice(mi, 1);
+                    }
+                }
+            });
         });
 
         obstacles.forEach(obs => {
-            obs.x -= 2.5;
+            obs.x -= 2.2;
             if (player.x < obs.x + obs.width && player.x + player.width > obs.x && player.y + player.height > obs.y - 10 && player.y < obs.y) initLevel();
         });
 
         mamme.forEach(m => {
-            m.x -= 2;
+            m.x -= 1.8;
             m.jumpTimer++;
-            if (m.grounded && m.jumpTimer > 150) {
-                m.velY = -8; m.grounded = false; m.jumpTimer = 0;
+            if (m.grounded && m.jumpTimer > 180) {
+                m.velY = -8.5; m.grounded = false; m.jumpTimer = 0;
             }
             m.velY += 0.3; m.y += m.velY;
             if (m.y > canvas.height - GROUND_HEIGHT - m.height) {
@@ -312,7 +341,7 @@
         products.forEach((p, idx) => {
             if (!p.collected && player.x < p.x + p.width && player.x + player.width > p.x && player.y < p.y + p.height && player.y + player.height > p.y) {
                 p.collected = true; collectedCount++;
-                collectionText.innerText = `COLLECTED RHODE: ${collectedCount}/5`;
+                collectionText.innerText = `Collected Rhode: ${collectedCount}/5`;
                 document.getElementById(`inv-${idx}`).classList.add('collected');
                 for(let j=0; j<10; j++) sparkles.push({x: p.x, y: p.y, vx: Math.random()*6-3, vy: Math.random()*-6, life: 1.0});
             }
@@ -344,7 +373,7 @@
             if (!p.collected) {
                 ctx.fillStyle = COLORS.rhodeGray; ctx.fillRect(p.x - cameraX, p.y, p.width, p.height);
                 ctx.fillStyle = '#fff'; ctx.fillRect(p.x - cameraX+3, p.y-4, p.width-6, 4);
-                ctx.fillStyle = '#000'; ctx.font = '6px "Press Start 2P"'; ctx.fillText(p.name, p.x - cameraX - 10, p.y - 10);
+                ctx.fillStyle = '#ff69b4'; ctx.font = '10px "Pacifico"'; ctx.fillText(p.name, p.x - cameraX - 10, p.y - 15);
             }
         });
 
@@ -358,7 +387,9 @@
         mamme.forEach(m => {
             ctx.fillStyle = '#8b0000'; ctx.fillRect(m.x - cameraX, m.y, m.width, m.height);
             ctx.fillStyle = COLORS.skin; ctx.fillRect(m.x - cameraX + 4, m.y + 4, 24, 16);
-            ctx.fillStyle = '#000'; ctx.font = '6px "Press Start 2P"'; ctx.fillText("MAMMA", m.x - cameraX - 10, m.y - 10);
+            ctx.fillStyle = '#fff'; ctx.font = '10px "Pacifico"'; ctx.fillText("Mamma", m.x - cameraX - 5, m.y - 15);
+            // HP Bar for mamma
+            ctx.fillStyle = '#ff0000'; ctx.fillRect(m.x - cameraX, m.y - 5, (m.hp/2)*m.width, 3);
         });
 
         sparkles.forEach(s => { ctx.fillStyle = `rgba(255, 255, 255, ${s.life})`; ctx.fillRect(s.x - cameraX, s.y, 4, 4); });

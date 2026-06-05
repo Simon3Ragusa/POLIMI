@@ -378,9 +378,25 @@
         ctx.fillStyle = '#ff69b4'; bullets.forEach(b => ctx.fillRect(b.x - cameraX, b.y, b.width, b.height));
         obstacles.forEach(obs => { ctx.fillStyle = obs.hp > 1 ? '#555' : '#ff0000'; ctx.font = '8px "Press Start 2P"'; ctx.fillText(obs.text, obs.x - cameraX, obs.y); });
         mamme.forEach(m => {
-            ctx.fillStyle = '#8b0000'; ctx.fillRect(m.x - cameraX, m.y, m.width, m.height);
+            ctx.fillStyle = '#4a0000'; // Darker, blood red for base
+            ctx.fillRect(m.x - cameraX, m.y, m.width, m.height);
             ctx.fillStyle = COLORS.skin; ctx.fillRect(m.x - cameraX + 4, m.y + 4, 24, 16);
-            ctx.fillStyle = '#fff'; ctx.font = '6px "Press Start 2P"'; ctx.fillText("MAMMA", m.x - cameraX - 5, m.y - 15);
+            
+            // Angry Eyes
+            ctx.fillStyle = '#ff0000'; // Glowing red eyes
+            ctx.fillRect(m.x - cameraX + 8, m.y + 8, 4, 4);
+            ctx.fillRect(m.x - cameraX + 20, m.y + 8, 4, 4);
+            
+            // Eyebrows (Angry slant)
+            ctx.fillStyle = '#000';
+            ctx.fillRect(m.x - cameraX + 6, m.y + 6, 8, 2);
+            ctx.fillRect(m.x - cameraX + 18, m.y + 6, 8, 2);
+
+            ctx.fillStyle = '#ff0000'; ctx.font = '8px "Press Start 2P"'; 
+            ctx.fillText("MAMMA", m.x - cameraX - 15, m.y - 20);
+            ctx.fillText("INCAZZATA", m.x - cameraX - 25, m.y - 10);
+            
+            // HP Bar for mamma
             ctx.fillStyle = '#ff0000'; ctx.fillRect(m.x - cameraX, m.y - 5, (m.hp/2)*m.width, 3);
         });
         sparkles.forEach(s => { ctx.fillStyle = `rgba(255, 255, 255, ${s.life})`; ctx.fillRect(s.x - cameraX, s.y, 4, 4); });

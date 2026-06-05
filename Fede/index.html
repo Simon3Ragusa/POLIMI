@@ -16,33 +16,35 @@
             margin: 0;
             padding: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             background-color: #fbcce7;
             color: white;
             font-family: 'Press+Start+2P', cursive;
-            overflow: hidden;
+            overflow-x: hidden;
             touch-action: none;
+        }
+
+        #game-wrapper {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 900px;
+            background: #fff;
+            border: 6px solid #ff69b4;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.4);
         }
 
         #game-container {
             position: relative;
-            width: 100vw;
-            height: 100vh;
-            max-width: 1000px;
-            max-height: 500px;
+            width: 100%;
+            aspect-ratio: 2 / 1;
             background: linear-gradient(to bottom, #a1c4fd 0%, #c2e9fb 100%);
-            border: 4px solid #fff;
-            box-shadow: 0 0 20px rgba(255, 105, 180, 0.4);
             overflow: hidden;
-        }
-
-        @media (max-aspect-ratio: 2/1) {
-            #game-container {
-                height: 50vw;
-                max-height: 100vh;
-            }
         }
 
         canvas {
@@ -95,58 +97,65 @@
             font-size: 12px;
         }
 
-        #controls {
-            position: absolute;
-            bottom: 20px;
+        #controls-area {
             width: 100%;
+            background: #fdf2f8;
+            padding: 20px;
             display: flex;
             justify-content: space-between;
-            padding: 0 30px;
-            pointer-events: none;
-            z-index: 10;
+            align-items: center;
+            border-top: 4px solid #ff69b4;
         }
 
         .btn-group {
             display: flex;
-            gap: 20px;
+            gap: 15px;
         }
 
         .btn {
-            width: clamp(50px, 12vw, 70px);
-            height: clamp(50px, 12vw, 70px);
-            background: rgba(255, 255, 255, 0.4);
-            border: 3px solid #fff;
-            border-radius: 15px;
+            width: clamp(55px, 14vw, 75px);
+            height: clamp(55px, 14vw, 75px);
+            background: #fff;
+            border: 4px solid #ff69b4;
+            border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
             pointer-events: auto;
             user-select: none;
-            font-size: clamp(10px, 3vw, 14px);
-            backdrop-filter: blur(2px);
+            font-size: clamp(12px, 4vw, 18px);
+            color: #ff69b4;
+            box-shadow: 0 4px 0 #ffb6c1;
+            transition: all 0.1s;
         }
 
         .btn:active {
-            background: rgba(255, 255, 255, 0.7);
-            transform: scale(0.95);
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #ffb6c1;
+            background: #fff0f5;
         }
 
-        #shoot-btn { background: rgba(255, 105, 180, 0.5); color: white; border-color: #ff69b4; }
-        #jump-btn { background: rgba(161, 196, 253, 0.5); color: white; border-color: #a1c4fd; }
+        #jump-btn { background: #a1c4fd; color: #fff; border-color: #7fb4f0; box-shadow: 0 4px 0 #6096d1; }
+        #jump-btn:active { box-shadow: 0 0 0 #6096d1; }
+
+        #shoot-btn { background: #ff69b4; color: #fff; border-color: #d10068; box-shadow: 0 4px 0 #a30052; }
+        #shoot-btn:active { box-shadow: 0 0 0 #a30052; }
 
     </style>
 </head>
 <body>
 
-<div id="game-container">
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
-    <div id="ui">Amoretto's Adventure</div>
-    <div id="message-overlay" id="victory-screen">
-        <h1 id="victory-text"></h1>
-        <button onclick="resetGame()">Ricomincia</button>
+<div id="game-wrapper">
+    <div id="game-container">
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+        <div id="ui">Amoretto's Adventure</div>
+        <div id="message-overlay" id="victory-screen">
+            <h1 id="victory-text"></h1>
+            <button onclick="resetGame()">Ricomincia</button>
+        </div>
     </div>
     
-    <div id="controls">
+    <div id="controls-area">
         <div class="btn-group">
             <div class="btn" id="left-btn">←</div>
             <div class="btn" id="right-btn">→</div>
@@ -183,7 +192,7 @@
     let skyDetails = [];
     let bullets = [];
     let sparkles = [];
-    let goal = { x: 4500, y: 0, width: 80, height: 80 }; // Longer level, bigger goal
+    let goal = { x: 4500, y: 0, width: 80, height: 80 };
     let cameraX = 0;
     let levelWidth = 4800;
     let gameOver = false;
@@ -231,7 +240,7 @@
         }
     }
 
-    // Input
+    // Input handling
     window.addEventListener('keydown', e => keys[e.code] = true);
     window.addEventListener('keyup', e => keys[e.code] = false);
 
@@ -239,6 +248,9 @@
         const btn = document.getElementById(id);
         btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[code] = true; });
         btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[code] = false; });
+        btn.addEventListener('mousedown', (e) => { keys[code] = true; });
+        btn.addEventListener('mouseup', (e) => { keys[code] = false; });
+        btn.addEventListener('mouseleave', (e) => { keys[code] = false; });
     };
     setupBtn('left-btn', 'ArrowLeft');
     setupBtn('right-btn', 'ArrowRight');
@@ -274,12 +286,10 @@
         ctx.fillStyle = '#ffd700';
         ctx.fillRect(goal.width/2 - 8, 0, 16, goal.height);
         ctx.fillRect(0, goal.height/2 - 8, goal.width, 16);
-        
         let bowSize = 20 + Math.sin(Date.now()/200) * 5;
         ctx.fillStyle = '#ffd700';
         ctx.beginPath(); ctx.moveTo(goal.width/2, 0); ctx.lineTo(goal.width/2 - bowSize, -bowSize); ctx.lineTo(goal.width/2, -bowSize/2); ctx.fill();
         ctx.beginPath(); ctx.moveTo(goal.width/2, 0); ctx.lineTo(goal.width/2 + bowSize, -bowSize); ctx.lineTo(goal.width/2, -bowSize/2); ctx.fill();
-
         if (Math.random() > 0.7) {
             sparkles.push({
                 x: goal.x + Math.random() * goal.width,
@@ -293,7 +303,6 @@
 
     function update() {
         if (gameOver) return;
-
         if (keys['ArrowRight'] || keys['KeyD']) {
             if (player.velX < SPEED) player.velX += 0.5;
         } else if (keys['ArrowLeft'] || keys['KeyA']) {
@@ -301,26 +310,19 @@
         } else {
             player.velX *= 0.8;
         }
-
         if ((keys['KeyW'] || keys['ArrowUp']) && player.grounded) {
             player.velY = JUMP_FORCE;
             player.grounded = false;
         }
-
         if (keys['Space']) shoot();
-
         player.velY += GRAVITY;
         player.x += player.velX;
         player.y += player.velY;
-
         if (player.y > canvas.height - GROUND_HEIGHT - player.height) {
             player.y = canvas.height - GROUND_HEIGHT - player.height;
             player.velY = 0; player.grounded = true;
         }
-
-        // Camera follow with better mobile centering
         cameraX = Math.max(0, Math.min(player.x - canvas.width / 3, levelWidth - canvas.width));
-
         bullets.forEach((b, i) => {
             b.x += BULLET_SPEED;
             if (b.x > cameraX + canvas.width) bullets.splice(i, 1);
@@ -331,19 +333,16 @@
                 }
             });
         });
-
         obstacles.forEach(obs => {
             obs.x -= obs.speed;
             if (player.x < obs.x + obs.width && player.x + player.width > obs.x && player.y + player.height > obs.y - 10 && player.y < obs.y) {
                 initLevel();
             }
         });
-
         sparkles.forEach((s, i) => {
             s.y -= 0.5; s.life -= 0.02;
             if (s.life <= 0) sparkles.splice(i, 1);
         });
-
         if (player.x + player.width > goal.x && player.y + player.height > goal.y) {
             gameOver = true;
             victoryText.innerHTML = "Congratulazioni Amoretto!<br>Hai sconfitto lo stress!<br>Dai un bacio a Simone!";
@@ -356,7 +355,6 @@
         let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
         grad.addColorStop(0, '#a1c4fd'); grad.addColorStop(1, '#c2e9fb');
         ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-
         skyDetails.forEach(s => {
             s.x -= s.speed; if (s.x < cameraX - 100) s.x = cameraX + canvas.width + 100;
             if (s.type === 'cloud') {
@@ -367,32 +365,25 @@
                 ctx.fillRect(s.x - cameraX, s.y, 4, 4); ctx.globalAlpha = 1;
             }
         });
-
         scenery.forEach(s => {
             ctx.save(); ctx.translate(s.x - cameraX, s.y);
             if (s.type === 'bottle') { ctx.fillStyle = COLORS.rhodeGray; ctx.fillRect(0, 0, 15, 30); ctx.fillStyle = '#fff'; ctx.fillRect(2, -5, 11, 5); }
             else { ctx.fillStyle = '#fff'; ctx.fillRect(5, 0, 5, 40); ctx.fillStyle = '#ffc0cb'; ctx.fillRect(-5, -15, 25, 25); }
             ctx.restore();
         });
-
         ctx.fillStyle = COLORS.ground; ctx.fillRect(0, canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
-        
         drawGoal();
-
         ctx.fillStyle = '#ff69b4';
         bullets.forEach(b => { ctx.fillRect(b.x - cameraX, b.y, b.width, b.height); });
-
         sparkles.forEach(s => {
             ctx.fillStyle = `rgba(255, 255, 255, ${s.life})`;
             ctx.fillRect(s.x - cameraX, s.y, s.size, s.size);
         });
-
         obstacles.forEach(obs => {
             ctx.fillStyle = obs.hp > 1 ? '#555' : '#ff0000';
             ctx.font = '8px "Press Start 2P"'; ctx.fillText(obs.text, obs.x - cameraX, obs.y);
             ctx.fillStyle = '#ff69b4'; ctx.fillRect(obs.x - cameraX, obs.y + 5, (obs.hp/3) * obs.width, 3);
         });
-
         drawPlayer();
         if (!gameOver) requestAnimationFrame(draw);
     }

@@ -7,11 +7,11 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Press+Start+2P', cursive; }
 
         body {
             margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            min-height: 100vh; background-color: #fbcce7; color: white; font-family: 'Press+Start+2P', cursive;
+            min-height: 100vh; background-color: #fbcce7; color: white;
             overflow-x: hidden; touch-action: none;
         }
 
@@ -50,11 +50,11 @@
 
         #alert-overlay { background: rgba(0, 0, 0, 0.8); color: #fff; z-index: 30; }
 
-        #message-overlay h1, #alert-overlay h1 { font-size: clamp(10px, 2.5vw, 16px); line-height: 1.8; color: #d10068; margin-bottom: 20px; }
+        #message-overlay h1, #alert-overlay h1 { font-size: clamp(10px, 2.5vw, 14px); line-height: 1.8; color: #d10068; margin-bottom: 20px; }
         #alert-overlay h1 { color: #ff4d4d; }
 
         #message-overlay button, #alert-overlay button {
-            padding: 12px 24px; font-family: 'Press+Start+2P', cursive; background: #fff;
+            padding: 12px 24px; background: #fff;
             border: 3px solid #ff69b4; color: #ff69b4; cursor: pointer; font-size: 10px; border-radius: 10px;
         }
 
@@ -77,7 +77,10 @@
         .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #ffb6c1; background: #fff0f5; }
 
         #jump-btn { background: #a1c4fd; color: #fff; border-color: #7fb4f0; box-shadow: 0 6px 0 #6096d1; }
+        #jump-btn:active { box-shadow: 0 2px 0 #6096d1; }
+
         #shoot-btn { background: #ff69b4; color: #fff; border-color: #d10068; box-shadow: 0 6px 0 #a30052; }
+        #shoot-btn:active { box-shadow: 0 2px 0 #a30052; }
 
         @media screen and (orientation: landscape) and (max-height: 500px) {
             #game-wrapper { border-width: 3px; }
@@ -289,11 +292,7 @@
         products.forEach(p => { if (!p.collected) { ctx.fillStyle = COLORS.rhodeGray; ctx.fillRect(p.x - cameraX, p.y, p.width, p.height); ctx.fillStyle = '#fff'; ctx.fillRect(p.x - cameraX+3, p.y-4, p.width-6, 4); ctx.fillStyle = '#ff69b4'; ctx.font = '6px "Press Start 2P"'; ctx.fillText(p.name, p.x - cameraX - 15, p.y - 15); } });
         ctx.fillStyle = COLORS.ground; ctx.fillRect(0, canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
         
-        // Detailed 8-Bit Present
-        let goalX = levelWidth - 300 - cameraX;
-        let goalY = canvas.height - GROUND_HEIGHT - 60;
-        let goalW = 60;
-        let goalH = 60;
+        let goalX = levelWidth - 300 - cameraX; let goalY = canvas.height - GROUND_HEIGHT - 60; let goalW = 60; let goalH = 60;
         ctx.fillStyle = '#ff4d4d'; ctx.fillRect(goalX, goalY, goalW, goalH);
         ctx.fillStyle = '#ffd700'; ctx.fillRect(goalX + goalW/2 - 6, goalY, 12, goalH); ctx.fillRect(goalX, goalY + goalH/2 - 6, goalW, 12);
         let bowS = 12 + Math.sin(Date.now()/200) * 2;

@@ -19,7 +19,7 @@
             display: flex; flex-direction: column; width: 100%; max-width: 900px;
             background: #fff; border: 6px solid #ff69b4; border-radius: 20px; overflow: hidden;
             box-shadow: 0 10px 30px rgba(255, 105, 180, 0.4);
-            max-height: 98vh; /* Prevent vertical overflow */
+            max-height: 98vh;
         }
 
         #game-container { position: relative; width: 100%; aspect-ratio: 2 / 1; background: linear-gradient(to bottom, #a1c4fd 0%, #c2e9fb 100%); overflow: hidden; }
@@ -56,24 +56,28 @@
         }
 
         #controls-area {
-            width: 100%; background: #fdf2f8; padding: clamp(8px, 2vh, 15px); display: flex;
+            width: 100%; background: #fdf2f8; padding: 15px 25px; display: flex;
             justify-content: space-between; align-items: center; border-top: 4px solid #ff69b4;
         }
 
-        .btn-group { display: flex; gap: clamp(10px, 3vw, 20px); }
+        .btn-group { display: flex; gap: 25px; }
 
         .btn {
-            width: clamp(50px, 12vh, 70px); height: clamp(50px, 12vh, 70px);
-            background: #fff; border: 4px solid #ff69b4; border-radius: 50%;
+            width: clamp(65px, 15vw, 85px); height: clamp(65px, 15vw, 85px);
+            background: #fff; border: 5px solid #ff69b4; border-radius: 20px; /* Squircle for better hit area */
             display: flex; justify-content: center; align-items: center;
-            user-select: none; font-size: clamp(12px, 3vw, 16px); color: #ff69b4;
-            box-shadow: 0 4px 0 #ffb6c1; transition: all 0.1s;
+            user-select: none; font-size: 24px; color: #ff69b4;
+            box-shadow: 0 6px 0 #ffb6c1; transition: all 0.05s;
+            cursor: pointer;
         }
 
-        .btn:active { transform: translateY(4px); box-shadow: 0 0 0 #ffb6c1; background: #fff0f5; }
+        .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #ffb6c1; background: #fff0f5; }
 
-        #jump-btn { background: #a1c4fd; color: #fff; border-color: #7fb4f0; box-shadow: 0 4px 0 #6096d1; }
-        #shoot-btn { background: #ff69b4; color: #fff; border-color: #d10068; box-shadow: 0 4px 0 #a30052; }
+        #jump-btn { background: #a1c4fd; color: #fff; border-color: #7fb4f0; box-shadow: 0 6px 0 #6096d1; }
+        #jump-btn:active { box-shadow: 0 2px 0 #6096d1; }
+
+        #shoot-btn { background: #ff69b4; color: #fff; border-color: #d10068; box-shadow: 0 6px 0 #a30052; }
+        #shoot-btn:active { box-shadow: 0 2px 0 #a30052; }
 
         /* LANDSCAPE OPTIMIZATIONS */
         @media screen and (orientation: landscape) and (max-height: 500px) {
@@ -81,8 +85,8 @@
             #game-title { font-size: 16px; margin: 0; }
             #collection-text { font-size: 10px; display: inline-block; margin-left: 10px; }
             #inventory { margin-top: 0; margin-left: 10px; display: inline-flex; }
-            #controls-area { padding: 5px 20px; }
-            .btn { width: 50px; height: 50px; border-width: 3px; }
+            #controls-area { padding: 5px 30px; }
+            .btn { width: clamp(55px, 18vh, 75px); height: clamp(55px, 18vh, 75px); border-width: 3px; }
             #ui { display: flex; align-items: baseline; gap: 5px; }
         }
 
@@ -227,10 +231,14 @@
     // Controls
     const setupBtn = (id, code) => {
         const btn = document.getElementById(id);
-        btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[code] = true; });
-        btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[code] = false; });
-        btn.addEventListener('mousedown', (e) => { keys[code] = true; });
-        btn.addEventListener('mouseup', (e) => { keys[code] = false; });
+        const handleDown = (e) => { e.preventDefault(); keys[code] = true; };
+        const handleUp = (e) => { e.preventDefault(); keys[code] = false; };
+        
+        btn.addEventListener('touchstart', handleDown);
+        btn.addEventListener('touchend', handleUp);
+        btn.addEventListener('mousedown', handleDown);
+        btn.addEventListener('mouseup', handleUp);
+        btn.addEventListener('mouseleave', handleUp);
     };
     setupBtn('left-btn', 'ArrowLeft');
     setupBtn('right-btn', 'ArrowRight');

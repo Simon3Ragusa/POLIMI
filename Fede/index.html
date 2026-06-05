@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amoretto's Adventure</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #222;
+            color: white;
+            font-family: 'Press+Start+2P', cursive;
+            overflow: hidden;
+        }
+
+        #game-container {
+            position: relative;
+            border: 4px solid #fff;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        canvas {
+            display: block;
+            background-color: #87CEEB; /* Sky blue */
+        }
+
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            pointer-events: none;
+        }
+
+        #message-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        #message-overlay h1 {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #ff69b4;
+        }
+
+        #message-overlay button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-family: 'Press+Start+2P', cursive;
+            background: #fff;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <div id="ui">
+        <div>Amoretto's Adventure</div>
+    </div>
+    <div id="message-overlay" id="victory-screen">
+        <h1 id="victory-text"></h1>
+        <button onclick="resetGame()">Riprova</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const victoryScreen = document.getElementById('message-overlay');
+    const victoryText = document.getElementById('victory-text');
+
+    // Game constants
+    const GRAVITY = 0.5;
+    const JUMP_FORCE = -10;
+    const SPEED = 4;
+    const GROUND_HEIGHT = 50;
+
+    // Game state
+    let player = {
+        x: 50,
+        y: 300,
+        width: 32,
+        height: 48,
+        velX: 0,
+        velY: 0,
+        grounded: false,
+        color: '#8B4513' // Brunette hair color for head
+    };
+
+    let keys = {};
+    let obstacles = [];
+    let goal = {
+        x: 2000, // Long level
+        y: 0,
+        width: 40,
+        height: 40
+    };
+
+    let cameraX = 0;
+    let levelWidth = 2200;
+    let gameOver = false;
+
+    // Initialize obstacles
+    function initLevel() {
+        obstacles = [
+            { x: 400, y: 320, text: "overstimulation", width: 180 },
+            { x: 800, y: 320, text: "overstimulation", width: 180 },
+            { x: 1200, y: 250, text: "overstimulation", width: 180 },
+            { x: 1500, y: 320, text: "overstimulation", width: 180 },
+            { x: 1800, y: 280, text: "overstimulation", width: 180 }
+        ];
+        
+        player.x = 50;
+        player.y = canvas.height - GROUND_HEIGHT - player.height;
+        player.velX = 0;
+        player.velY = 0;
+        cameraX = 0;
+        gameOver = false;
+        victoryScreen.style.display = 'none';
+        
+        goal.x = levelWidth - 150;
+        goal.y = canvas.height - GROUND_HEIGHT - goal.height;
+    }
+
+    // Input handling
+    window.addEventListener('keydown', (e) => {
+        keys[e.code] = true;
+    });
+
+    window.addEventListener('keyup', (e) => {
+        keys[e.code] = false;
+    });
+
+    function resetGame() {
+        initLevel();
+    }
+
+    function drawPlayer() {
+        // Simple 8-bit brunette girl
+        // Body (Dress)
+        ctx.fillStyle = '#ff69b4'; // Pink dress
+        ctx.fillRect(player.x - cameraX, player.y + 16, player.width, 32);
+        
+        // Head
+        ctx.fillStyle = '#ffdbac'; // Skin tone
+        ctx.fillRect(player.x - cameraX + 4, player.y, 24, 24);
+        
+        // Hair (Brunette)
+        ctx.fillStyle = '#4B3621'; 
+        ctx.fillRect(player.x - cameraX + 2, player.y - 4, 28, 12); // Top hair
+        ctx.fillRect(player.x - cameraX + 2, player.y, 6, 24); // Side hair left
+        ctx.fillRect(player.x - cameraX + 24, player.y, 6, 24); // Side hair right
+        
+        // Eyes
+        ctx.fillStyle = '#000';
+        ctx.fillRect(player.x - cameraX + 8, player.y + 10, 4, 4);
+        ctx.fillRect(player.x - cameraX + 20, player.y + 10, 4, 4);
+    }
+
+    function drawObstacle(obs) {
+        ctx.fillStyle = '#000';
+        ctx.font = '14px "Press Start 2P"';
+        ctx.fillText(obs.text, obs.x - cameraX, obs.y);
+        
+        // Collision box visualization (optional, for debugging)
+        // ctx.strokeStyle = 'red';
+        // ctx.strokeRect(obs.x - cameraX, obs.y - 14, obs.width, 20);
+    }
+
+    function drawGoal() {
+        // Present box
+        ctx.fillStyle = '#ff0000'; // Red box
+        ctx.fillRect(goal.x - cameraX, goal.y, goal.width, goal.height);
+        
+        // Ribbon
+        ctx.fillStyle = '#ffff00'; // Yellow ribbon
+        ctx.fillRect(goal.x - cameraX + goal.width/2 - 4, goal.y, 8, goal.height);
+        ctx.fillRect(goal.x - cameraX, goal.y + goal.height/2 - 4, goal.width, 8);
+        
+        // Bow
+        ctx.fillRect(goal.x - cameraX + 5, goal.y - 10, 10, 10);
+        ctx.fillRect(goal.x - cameraX + 25, goal.y - 10, 10, 10);
+    }
+
+    function update() {
+        if (gameOver) return;
+
+        if (keys['ArrowRight'] || keys['KeyD']) {
+            if (player.velX < SPEED) player.velX++;
+        } else if (keys['ArrowLeft'] || keys['KeyA']) {
+            if (player.velX > -SPEED) player.velX--;
+        } else {
+            player.velX *= 0.8;
+        }
+
+        if ((keys['ArrowUp'] || keys['KeyW'] || keys['Space']) && player.grounded) {
+            player.velY = JUMP_FORCE;
+            player.grounded = false;
+        }
+
+        player.velY += GRAVITY;
+        player.x += player.velX;
+        player.y += player.velY;
+
+        // Ground collision
+        if (player.y > canvas.height - GROUND_HEIGHT - player.height) {
+            player.y = canvas.height - GROUND_HEIGHT - player.height;
+            player.velY = 0;
+            player.grounded = true;
+        }
+
+        // World bounds
+        if (player.x < 0) player.x = 0;
+        if (player.x > levelWidth - player.width) player.x = levelWidth - player.width;
+
+        // Camera follow
+        if (player.x > canvas.width / 2 && player.x < levelWidth - canvas.width / 2) {
+            cameraX = player.x - canvas.width / 2;
+        } else if (player.x <= canvas.width / 2) {
+            cameraX = 0;
+        } else {
+            cameraX = levelWidth - canvas.width;
+        }
+
+        // Obstacle collision
+        obstacles.forEach(obs => {
+            if (player.x < obs.x + obs.width &&
+                player.x + player.width > obs.x &&
+                player.y < obs.y &&
+                player.y + player.height > obs.y - 14) {
+                // Hit obstacle
+                initLevel();
+            }
+        });
+
+        // Goal collision
+        if (player.x < goal.x + goal.width &&
+            player.x + player.width > goal.x &&
+            player.y < goal.y + goal.height &&
+            player.y + player.height > goal.y) {
+            
+            gameOver = true;
+            victoryText.innerText = "Congratulazioni! Dai un bacio a Simone per ricevere la tua ricompensa!!!";
+            victoryScreen.style.display = 'flex';
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw sky
+        ctx.fillStyle = '#87CEEB';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw ground
+        ctx.fillStyle = '#228B22'; // Forest green
+        ctx.fillRect(0 - (cameraX % canvas.width), canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
+        ctx.fillRect(canvas.width - (cameraX % canvas.width), canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
+
+        // Draw static clouds or decorations could go here
+        
+        drawGoal();
+        obstacles.forEach(drawObstacle);
+        drawPlayer();
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    function gameLoop() {
+        update();
+        draw();
+    }
+
+    initLevel();
+    gameLoop();
+
+</script>
+</body>
+</html>

@@ -3,143 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Amoretto's Adventure - Ultimate Edition</title>
+    <title>Amoretto's Adventure - Pro Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #fbcce7;
-            color: white;
-            font-family: 'Press+Start+2P', cursive;
-            overflow-x: hidden;
-            touch-action: none;
+            margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            min-height: 100vh; background-color: #fbcce7; color: white; font-family: 'Press+Start+2P', cursive;
+            overflow-x: hidden; touch-action: none;
         }
 
         #game-wrapper {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            max-width: 900px;
-            background: #fff;
-            border: 6px solid #ff69b4;
-            border-radius: 20px;
-            overflow: hidden;
+            display: flex; flex-direction: column; width: 100%; max-width: 900px;
+            background: #fff; border: 6px solid #ff69b4; border-radius: 20px; overflow: hidden;
             box-shadow: 0 10px 30px rgba(255, 105, 180, 0.4);
         }
 
-        #game-container {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 2 / 1;
-            background: linear-gradient(to bottom, #a1c4fd 0%, #c2e9fb 100%);
-            overflow: hidden;
-        }
+        #game-container { position: relative; width: 100%; aspect-ratio: 2 / 1; background: linear-gradient(to bottom, #a1c4fd 0%, #c2e9fb 100%); overflow: hidden; }
 
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            image-rendering: pixelated;
-        }
+        canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
 
         #ui {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            font-size: clamp(8px, 2vw, 12px);
-            text-shadow: 2px 2px #ff69b4;
-            pointer-events: none;
-            z-index: 5;
+            position: absolute; top: 15px; left: 15px; font-size: 8px; text-shadow: 2px 2px #ff69b4;
+            pointer-events: none; z-index: 5; line-height: 1.5;
         }
 
         #message-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 192, 203, 0.95);
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-            z-index: 20;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 192, 203, 0.95); display: none; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center; padding: 20px; z-index: 20;
         }
 
-        #message-overlay h1 {
-            font-size: clamp(10px, 4vw, 18px);
-            line-height: 1.6;
-            color: #d10068;
-            margin-bottom: 20px;
-        }
+        #message-overlay h1 { font-size: 12px; line-height: 1.6; color: #d10068; margin-bottom: 20px; }
 
         #message-overlay button {
-            padding: 15px 30px;
-            font-family: 'Press+Start+2P', cursive;
-            background: #fff;
-            border: 3px solid #ff69b4;
-            color: #ff69b4;
-            cursor: pointer;
-            font-size: 12px;
+            padding: 15px 30px; font-family: 'Press+Start+2P', cursive; background: #fff;
+            border: 3px solid #ff69b4; color: #ff69b4; cursor: pointer; font-size: 10px;
         }
 
         #controls-area {
-            width: 100%;
-            background: #fdf2f8;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 4px solid #ff69b4;
+            width: 100%; background: #fdf2f8; padding: 15px; display: flex;
+            justify-content: space-between; align-items: center; border-top: 4px solid #ff69b4;
         }
 
-        .btn-group {
-            display: flex;
-            gap: 15px;
-        }
+        .btn-group { display: flex; gap: 15px; }
 
         .btn {
-            width: clamp(55px, 14vw, 75px);
-            height: clamp(55px, 14vw, 75px);
-            background: #fff;
-            border: 4px solid #ff69b4;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            pointer-events: auto;
-            user-select: none;
-            font-size: clamp(12px, 4vw, 18px);
-            color: #ff69b4;
-            box-shadow: 0 4px 0 #ffb6c1;
-            transition: all 0.1s;
+            width: clamp(55px, 14vw, 75px); height: clamp(55px, 14vw, 75px);
+            background: #fff; border: 4px solid #ff69b4; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            user-select: none; font-size: 14px; color: #ff69b4;
+            box-shadow: 0 4px 0 #ffb6c1; transition: all 0.1s;
         }
 
-        .btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 0 0 #ffb6c1;
-            background: #fff0f5;
-        }
+        .btn:active { transform: translateY(4px); box-shadow: 0 0 0 #ffb6c1; background: #fff0f5; }
 
         #jump-btn { background: #a1c4fd; color: #fff; border-color: #7fb4f0; box-shadow: 0 4px 0 #6096d1; }
-        #jump-btn:active { box-shadow: 0 0 0 #6096d1; }
-
         #shoot-btn { background: #ff69b4; color: #fff; border-color: #d10068; box-shadow: 0 4px 0 #a30052; }
-        #shoot-btn:active { box-shadow: 0 0 0 #a30052; }
 
     </style>
 </head>
@@ -148,10 +70,13 @@
 <div id="game-wrapper">
     <div id="game-container">
         <canvas id="gameCanvas" width="800" height="400"></canvas>
-        <div id="ui">Amoretto's Adventure</div>
-        <div id="message-overlay" id="victory-screen">
+        <div id="ui">
+            <div>AMORETTO'S ADVENTURE</div>
+            <div id="collection-ui">PRODOTTI: 0/5</div>
+        </div>
+        <div id="message-overlay">
             <h1 id="victory-text"></h1>
-            <button onclick="resetGame()">Ricomincia</button>
+            <button onclick="resetGame()">Riprova</button>
         </div>
     </div>
     
@@ -172,34 +97,44 @@
     const ctx = canvas.getContext('2d');
     const victoryScreen = document.getElementById('message-overlay');
     const victoryText = document.getElementById('victory-text');
+    const collectionUI = document.getElementById('collection-ui');
 
     // Constants
     const SPEED = 4;
     const GROUND_HEIGHT = 60;
     const BULLET_SPEED = 7;
-    const GRAVITY = 0.4;
-    const JUMP_FORCE = -9;
+    const GRAVITY = 0.45;
+    const JUMP_FORCE = -10.5;
 
     // State
     let player = {
-        x: 50, y: 0, width: 32, height: 48,
+        x: 50, y: 0, width: 28, height: 42,
         velX: 0, velY: 0, grounded: false, lastShootTime: 0
     };
 
     let keys = {};
     let obstacles = [];
-    let scenery = [];
-    let skyDetails = [];
+    let mamme = [];
+    let platforms = [];
+    let products = [];
     let bullets = [];
     let sparkles = [];
-    let goal = { x: 4500, y: 0, width: 80, height: 80 };
+    let collectedCount = 0;
     let cameraX = 0;
-    let levelWidth = 4800;
+    let levelWidth = 6000; // Even longer for difficulty
     let gameOver = false;
 
     const COLORS = {
         sky: '#a1c4fd', ground: '#fbcce7', hair: '#4B3621', dress: '#ff69b4', skin: '#ffdbac', rhodeGray: '#e5e5e5'
     };
+
+    const RHODE_LIST = [
+        "PEPTIDE LIP TREATMENT",
+        "BARRIER RESTORE CREAM",
+        "GLAZING MILK",
+        "PEPTIDE GLAZING FLUID",
+        "POCKET BLUSH"
+    ];
 
     function initLevel() {
         player.x = 100;
@@ -207,62 +142,75 @@
         player.velX = 0; player.velY = 0;
         cameraX = 0;
         gameOver = false;
+        collectedCount = 0;
         victoryScreen.style.display = 'none';
-        bullets = [];
-        sparkles = [];
-        
-        goal.x = levelWidth - 300;
-        goal.y = canvas.height - GROUND_HEIGHT - goal.height;
+        bullets = []; sparkles = [];
+        collectionUI.innerText = "PRODOTTI: 0/5";
 
+        // Platforms
+        platforms = [
+            { x: 400, y: 280, width: 120, height: 15 },
+            { x: 750, y: 220, width: 120, height: 15 },
+            { x: 1100, y: 280, width: 120, height: 15 },
+            { x: 1500, y: 180, width: 150, height: 15 },
+            { x: 2000, y: 250, width: 120, height: 15 },
+            { x: 2500, y: 200, width: 120, height: 15 },
+            { x: 3200, y: 260, width: 150, height: 15 },
+            { x: 4000, y: 180, width: 120, height: 15 },
+            { x: 4800, y: 240, width: 150, height: 15 }
+        ];
+
+        // Products
+        products = [];
+        RHODE_LIST.forEach((name, i) => {
+            let px = 600 + (i * 1000) + Math.random() * 200;
+            let py = 120 + Math.random() * 50;
+            products.push({ x: px, y: py, name: name, width: 20, height: 35, collected: false });
+        });
+
+        // Obstacles (Overstimulation - Shooter targets)
         obstacles = [];
-        for (let i = 0; i < 20; i++) {
-            let ox = 800 + (i * 450) + Math.random() * 200;
+        for (let i = 0; i < 25; i++) {
+            let ox = 800 + (i * 300);
             obstacles.push({
                 x: ox, y: canvas.height - GROUND_HEIGHT - 20, baseX: ox,
-                width: 140, height: 15, speed: 1.5 + Math.random() * 2, text: "overstimulation", hp: 3
+                width: 140, height: 15, speed: 2 + Math.random() * 2, text: "overstimulation", hp: 3
             });
         }
 
-        scenery = [];
-        for (let i = 0; i < 30; i++) {
-            scenery.push({
-                x: Math.random() * levelWidth, y: canvas.height - GROUND_HEIGHT - 40,
-                type: Math.random() > 0.5 ? 'bottle' : 'tree'
-            });
-        }
-
-        skyDetails = [];
-        for (let i = 0; i < 40; i++) {
-            skyDetails.push({
-                x: Math.random() * levelWidth, y: Math.random() * 200,
-                type: Math.random() > 0.7 ? 'cloud' : 'star', size: 5 + Math.random() * 15, speed: 0.2 + Math.random() * 0.5
+        // Mamme Incazzate (Jumping obstacles)
+        mamme = [];
+        for (let i = 0; i < 15; i++) {
+            let mx = 1200 + (i * 500);
+            mamme.push({
+                x: mx, y: canvas.height - GROUND_HEIGHT - 40, width: 32, height: 40,
+                speed: 1.5, type: 'mamma'
             });
         }
     }
 
-    // Input handling
-    window.addEventListener('keydown', e => keys[e.code] = true);
-    window.addEventListener('keyup', e => keys[e.code] = false);
-
+    // Input
     const setupBtn = (id, code) => {
         const btn = document.getElementById(id);
         btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[code] = true; });
         btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[code] = false; });
         btn.addEventListener('mousedown', (e) => { keys[code] = true; });
         btn.addEventListener('mouseup', (e) => { keys[code] = false; });
-        btn.addEventListener('mouseleave', (e) => { keys[code] = false; });
     };
     setupBtn('left-btn', 'ArrowLeft');
     setupBtn('right-btn', 'ArrowRight');
     setupBtn('jump-btn', 'KeyW');
     setupBtn('shoot-btn', 'Space');
 
+    window.addEventListener('keydown', e => keys[e.code] = true);
+    window.addEventListener('keyup', e => keys[e.code] = false);
+
     function resetGame() { initLevel(); }
 
     function shoot() {
         const now = Date.now();
-        if (now - player.lastShootTime > 300) {
-            bullets.push({ x: player.x + player.width, y: player.y + 20, width: 14, height: 14 });
+        if (now - player.lastShootTime > 250) {
+            bullets.push({ x: player.x + player.width, y: player.y + 15, width: 12, height: 12 });
             player.lastShootTime = now;
         }
     }
@@ -270,83 +218,108 @@
     function drawPlayer() {
         ctx.save();
         ctx.translate(player.x - cameraX, player.y);
-        ctx.fillStyle = COLORS.hair;
-        ctx.fillRect(-2, -4, 36, 20); ctx.fillRect(-2, 0, 6, 35); ctx.fillRect(28, 0, 6, 35);
-        ctx.fillStyle = COLORS.skin; ctx.fillRect(4, 0, 24, 24);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'; ctx.fillRect(-10, 10, 10, 20); ctx.fillRect(32, 10, 10, 20);
-        ctx.fillStyle = COLORS.dress; ctx.fillRect(0, 24, 32, 24);
-        ctx.fillStyle = '#000'; ctx.fillRect(8, 10, 4, 4); ctx.fillRect(20, 10, 4, 4);
-        ctx.restore();
-    }
-
-    function drawGoal() {
-        ctx.save();
-        ctx.translate(goal.x - cameraX, goal.y);
-        ctx.fillStyle = '#ff4d4d'; ctx.fillRect(0, 0, goal.width, goal.height);
-        ctx.fillStyle = '#ffd700';
-        ctx.fillRect(goal.width/2 - 8, 0, 16, goal.height);
-        ctx.fillRect(0, goal.height/2 - 8, goal.width, 16);
-        let bowSize = 20 + Math.sin(Date.now()/200) * 5;
-        ctx.fillStyle = '#ffd700';
-        ctx.beginPath(); ctx.moveTo(goal.width/2, 0); ctx.lineTo(goal.width/2 - bowSize, -bowSize); ctx.lineTo(goal.width/2, -bowSize/2); ctx.fill();
-        ctx.beginPath(); ctx.moveTo(goal.width/2, 0); ctx.lineTo(goal.width/2 + bowSize, -bowSize); ctx.lineTo(goal.width/2, -bowSize/2); ctx.fill();
-        if (Math.random() > 0.7) {
-            sparkles.push({
-                x: goal.x + Math.random() * goal.width,
-                y: goal.y + Math.random() * goal.height,
-                size: 3 + Math.random() * 5,
-                life: 1.0
-            });
-        }
+        ctx.fillStyle = COLORS.hair; ctx.fillRect(-2, -4, 32, 18); ctx.fillRect(-2, 0, 6, 30); ctx.fillRect(24, 0, 6, 30);
+        ctx.fillStyle = COLORS.skin; ctx.fillRect(4, 0, 20, 20);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)'; ctx.fillRect(-8, 10, 8, 16); ctx.fillRect(28, 10, 8, 16);
+        ctx.fillStyle = COLORS.dress; ctx.fillRect(0, 20, 28, 22);
+        ctx.fillStyle = '#000'; ctx.fillRect(8, 8, 3, 3); ctx.fillRect(17, 8, 3, 3);
         ctx.restore();
     }
 
     function update() {
         if (gameOver) return;
-        if (keys['ArrowRight'] || keys['KeyD']) {
-            if (player.velX < SPEED) player.velX += 0.5;
-        } else if (keys['ArrowLeft'] || keys['KeyA']) {
-            if (player.velX > -SPEED) player.velX -= 0.5;
-        } else {
-            player.velX *= 0.8;
-        }
+
+        if (keys['ArrowRight'] || keys['KeyD']) { if (player.velX < SPEED) player.velX += 0.4; }
+        else if (keys['ArrowLeft'] || keys['KeyA']) { if (player.velX > -SPEED) player.velX -= 0.4; }
+        else { player.velX *= 0.85; }
+
         if ((keys['KeyW'] || keys['ArrowUp']) && player.grounded) {
-            player.velY = JUMP_FORCE;
-            player.grounded = false;
+            player.velY = JUMP_FORCE; player.grounded = false;
         }
         if (keys['Space']) shoot();
+
         player.velY += GRAVITY;
         player.x += player.velX;
         player.y += player.velY;
+
+        // World Bounds
+        if (player.x < 0) player.x = 0;
+
+        // Ground collision
         if (player.y > canvas.height - GROUND_HEIGHT - player.height) {
             player.y = canvas.height - GROUND_HEIGHT - player.height;
             player.velY = 0; player.grounded = true;
         }
+
+        // Platform collision
+        platforms.forEach(p => {
+            if (player.velY > 0 && 
+                player.x + player.width > p.x && player.x < p.x + p.width &&
+                player.y + player.height > p.y && player.y + player.height < p.y + p.height + player.velY) {
+                player.y = p.y - player.height;
+                player.velY = 0; player.grounded = true;
+            }
+        });
+
         cameraX = Math.max(0, Math.min(player.x - canvas.width / 3, levelWidth - canvas.width));
+
+        // Bullets
         bullets.forEach((b, i) => {
             b.x += BULLET_SPEED;
             if (b.x > cameraX + canvas.width) bullets.splice(i, 1);
             obstacles.forEach((obs, oi) => {
                 if (b.x < obs.x + obs.width && b.x + b.width > obs.x && b.y < obs.y && b.y + b.height > obs.y - 15) {
                     obs.hp--; bullets.splice(i, 1);
-                    if (obs.hp <= 0) obstacles.splice(oi, 1);
+                    if (obs.hp <= 0) {
+                        for(let j=0; j<5; j++) sparkles.push({x: obs.x+70, y: obs.y, vx: Math.random()*4-2, vy: Math.random()*-4, life: 1.0});
+                        obstacles.splice(oi, 1);
+                    }
                 }
             });
         });
+
+        // Obstacles (Overstimulation)
         obstacles.forEach(obs => {
             obs.x -= obs.speed;
             if (player.x < obs.x + obs.width && player.x + player.width > obs.x && player.y + player.height > obs.y - 10 && player.y < obs.y) {
                 initLevel();
             }
         });
+
+        // Mamme Incazzate
+        mamme.forEach(m => {
+            m.x -= m.speed;
+            if (player.x < m.x + m.width && player.x + player.width > m.x && 
+                player.y < m.y + m.height && player.y + player.height > m.y) {
+                initLevel();
+            }
+        });
+
+        // Products
+        products.forEach(p => {
+            if (!p.collected && player.x < p.x + p.width && player.x + player.width > p.x && 
+                player.y < p.y + p.height && player.y + player.height > p.y) {
+                p.collected = true;
+                collectedCount++;
+                collectionUI.innerText = `PRODOTTI: ${collectedCount}/5`;
+                for(let j=0; j<10; j++) sparkles.push({x: p.x+10, y: p.y+15, vx: Math.random()*6-3, vy: Math.random()*-6, life: 1.0});
+            }
+        });
+
         sparkles.forEach((s, i) => {
-            s.y -= 0.5; s.life -= 0.02;
+            s.x += s.vx; s.y += s.vy; s.life -= 0.03;
             if (s.life <= 0) sparkles.splice(i, 1);
         });
-        if (player.x + player.width > goal.x && player.y + player.height > goal.y) {
-            gameOver = true;
-            victoryText.innerHTML = "Congratulazioni Amoretto!<br>Hai sconfitto lo stress!<br>Dai un bacio a Simone!";
-            victoryScreen.style.display = 'flex';
+
+        // Victory condition
+        if (player.x > levelWidth - 300) {
+            if (collectedCount >= 5) {
+                gameOver = true;
+                victoryText.innerHTML = "Hai tutti i prodotti Rhode!<br>Congratulazioni Amoretto!<br>Dai un bacio a Simone!";
+                victoryScreen.style.display = 'flex';
+            } else {
+                player.x = levelWidth - 310; // Block until all collected
+            }
         }
     }
 
@@ -355,35 +328,56 @@
         let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
         grad.addColorStop(0, '#a1c4fd'); grad.addColorStop(1, '#c2e9fb');
         ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        skyDetails.forEach(s => {
-            s.x -= s.speed; if (s.x < cameraX - 100) s.x = cameraX + canvas.width + 100;
-            if (s.type === 'cloud') {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-                ctx.fillRect(s.x - cameraX, s.y, s.size * 2, s.size); ctx.fillRect(s.x - cameraX + s.size/2, s.y - s.size/2, s.size, s.size);
-            } else {
-                ctx.fillStyle = '#fff'; ctx.globalAlpha = Math.sin(Date.now()/200 + s.x) * 0.5 + 0.5;
-                ctx.fillRect(s.x - cameraX, s.y, 4, 4); ctx.globalAlpha = 1;
+
+        // Platforms
+        ctx.fillStyle = '#fff';
+        platforms.forEach(p => {
+            ctx.fillRect(p.x - cameraX, p.y, p.width, p.height);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.fillRect(p.x - cameraX, p.y + p.height, p.width, 5);
+        });
+
+        // Products
+        products.forEach(p => {
+            if (!p.collected) {
+                ctx.fillStyle = COLORS.rhodeGray;
+                ctx.fillRect(p.x - cameraX, p.y, p.width, p.height);
+                ctx.fillStyle = '#fff'; ctx.fillRect(p.x - cameraX + 4, p.y - 4, 12, 4);
+                ctx.fillStyle = '#000'; ctx.font = '6px "Press Start 2P"';
+                ctx.fillText(p.name, p.x - cameraX - 20, p.y - 15);
             }
         });
-        scenery.forEach(s => {
-            ctx.save(); ctx.translate(s.x - cameraX, s.y);
-            if (s.type === 'bottle') { ctx.fillStyle = COLORS.rhodeGray; ctx.fillRect(0, 0, 15, 30); ctx.fillStyle = '#fff'; ctx.fillRect(2, -5, 11, 5); }
-            else { ctx.fillStyle = '#fff'; ctx.fillRect(5, 0, 5, 40); ctx.fillStyle = '#ffc0cb'; ctx.fillRect(-5, -15, 25, 25); }
-            ctx.restore();
-        });
+
+        // Ground
         ctx.fillStyle = COLORS.ground; ctx.fillRect(0, canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
-        drawGoal();
+
+        // Goal
+        ctx.fillStyle = collectedCount >= 5 ? '#ff4d4d' : '#888';
+        ctx.fillRect(levelWidth - 300 - cameraX, canvas.height - GROUND_HEIGHT - 60, 60, 60);
+
+        // Bullets
         ctx.fillStyle = '#ff69b4';
-        bullets.forEach(b => { ctx.fillRect(b.x - cameraX, b.y, b.width, b.height); });
-        sparkles.forEach(s => {
-            ctx.fillStyle = `rgba(255, 255, 255, ${s.life})`;
-            ctx.fillRect(s.x - cameraX, s.y, s.size, s.size);
-        });
+        bullets.forEach(b => ctx.fillRect(b.x - cameraX, b.y, b.width, b.height));
+
+        // Obstacles
         obstacles.forEach(obs => {
             ctx.fillStyle = obs.hp > 1 ? '#555' : '#ff0000';
             ctx.font = '8px "Press Start 2P"'; ctx.fillText(obs.text, obs.x - cameraX, obs.y);
-            ctx.fillStyle = '#ff69b4'; ctx.fillRect(obs.x - cameraX, obs.y + 5, (obs.hp/3) * obs.width, 3);
         });
+
+        // Mamme
+        mamme.forEach(m => {
+            ctx.fillStyle = '#8b0000'; // Dark red for anger
+            ctx.fillRect(m.x - cameraX, m.y, m.width, m.height);
+            ctx.fillStyle = COLORS.skin; ctx.fillRect(m.x - cameraX + 6, m.y + 4, 20, 16);
+            ctx.fillStyle = '#000'; ctx.font = '6px "Press Start 2P"'; ctx.fillText("MAMMA", m.x - cameraX - 10, m.y - 10);
+        });
+
+        sparkles.forEach(s => {
+            ctx.fillStyle = `rgba(255, 255, 255, ${s.life})`;
+            ctx.fillRect(s.x - cameraX, s.y, 4, 4);
+        });
+
         drawPlayer();
         if (!gameOver) requestAnimationFrame(draw);
     }

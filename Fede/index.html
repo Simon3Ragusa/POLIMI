@@ -2,8 +2,8 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amoretto's Adventure</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Amoretto's Adventure - Fairy Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -14,27 +14,35 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #222;
+            background-color: #fbcce7;
             color: white;
             font-family: 'Press+Start+2P', cursive;
             overflow: hidden;
+            touch-action: none;
         }
 
         #game-container {
             position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
             border: 4px solid #fff;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            background: linear-gradient(to bottom, #a1c4fd 0%, #c2e9fb 100%);
+            box-shadow: 0 0 20px rgba(255, 105, 180, 0.4);
         }
 
         canvas {
             display: block;
-            background-color: #87CEEB; /* Sky blue */
+            width: 100%;
+            height: 100%;
         }
 
         #ui {
             position: absolute;
             top: 10px;
             left: 10px;
+            font-size: 10px;
+            text-shadow: 2px 2px #ff69b4;
             pointer-events: none;
         }
 
@@ -44,7 +52,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(255, 192, 203, 0.9);
             display: none;
             flex-direction: column;
             justify-content: center;
@@ -56,18 +64,53 @@
         }
 
         #message-overlay h1 {
-            font-size: 18px;
-            line-height: 1.6;
-            color: #ff69b4;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #d10068;
         }
 
         #message-overlay button {
             margin-top: 20px;
-            padding: 10px 20px;
+            padding: 15px 30px;
             font-family: 'Press+Start+2P', cursive;
             background: #fff;
-            border: none;
+            border: 3px solid #ff69b4;
+            color: #ff69b4;
             cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Mobile Controls */
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-sizing: border-box;
+            pointer-events: none;
+        }
+
+        .btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.5);
+            border: 3px solid #fff;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+            user-select: none;
+        }
+
+        .btn:active {
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        #jump-btn {
+            width: 80px;
         }
     </style>
 </head>
@@ -75,12 +118,18 @@
 
 <div id="game-container">
     <canvas id="gameCanvas" width="800" height="400"></canvas>
-    <div id="ui">
-        <div>Amoretto's Adventure</div>
-    </div>
+    <div id="ui">Amoretto's Adventure</div>
     <div id="message-overlay" id="victory-screen">
         <h1 id="victory-text"></h1>
-        <button onclick="resetGame()">Riprova</button>
+        <button onclick="resetGame()">Ricomincia</button>
+    </div>
+    
+    <div id="controls">
+        <div style="display:flex; gap: 10px;">
+            <div class="btn" id="left-btn">←</div>
+            <div class="btn" id="right-btn">→</div>
+        </div>
+        <div class="btn" id="jump-btn">JUMP</div>
     </div>
 </div>
 
@@ -90,126 +139,155 @@
     const victoryScreen = document.getElementById('message-overlay');
     const victoryText = document.getElementById('victory-text');
 
-    // Game constants
-    const GRAVITY = 0.5;
-    const JUMP_FORCE = -10;
+    // Constants
+    const GRAVITY = 0.4;
+    const JUMP_FORCE = -9;
     const SPEED = 4;
-    const GROUND_HEIGHT = 50;
+    const GROUND_HEIGHT = 60;
 
-    // Game state
+    // State
     let player = {
-        x: 50,
-        y: 300,
-        width: 32,
-        height: 48,
-        velX: 0,
-        velY: 0,
-        grounded: false,
-        color: '#8B4513' // Brunette hair color for head
+        x: 50, y: 0, width: 32, height: 48,
+        velX: 0, velY: 0, grounded: false
     };
 
     let keys = {};
     let obstacles = [];
-    let goal = {
-        x: 2000, // Long level
-        y: 0,
-        width: 40,
-        height: 40
+    let scenery = [];
+    let goal = { x: 3000, y: 0, width: 50, height: 50 };
+    let cameraX = 0;
+    let levelWidth = 3300;
+    let gameOver = false;
+    let particles = [];
+
+    // Skin care theme colors
+    const COLORS = {
+        sky: '#a1c4fd',
+        ground: '#fbcce7',
+        hair: '#4B3621',
+        dress: '#ff69b4',
+        skin: '#ffdbac',
+        rhodeGray: '#e5e5e5' // Rhode-like minimalist gray
     };
 
-    let cameraX = 0;
-    let levelWidth = 2200;
-    let gameOver = false;
-
-    // Initialize obstacles
     function initLevel() {
-        obstacles = [
-            { x: 400, y: 320, text: "overstimulation", width: 180 },
-            { x: 800, y: 320, text: "overstimulation", width: 180 },
-            { x: 1200, y: 250, text: "overstimulation", width: 180 },
-            { x: 1500, y: 320, text: "overstimulation", width: 180 },
-            { x: 1800, y: 280, text: "overstimulation", width: 180 }
-        ];
-        
-        player.x = 50;
+        player.x = 100;
         player.y = canvas.height - GROUND_HEIGHT - player.height;
-        player.velX = 0;
-        player.velY = 0;
+        player.velX = 0; player.velY = 0;
         cameraX = 0;
         gameOver = false;
         victoryScreen.style.display = 'none';
         
-        goal.x = levelWidth - 150;
+        // Goal position
+        goal.x = levelWidth - 200;
         goal.y = canvas.height - GROUND_HEIGHT - goal.height;
+
+        // Generate obstacles (moving towards player)
+        obstacles = [];
+        for (let i = 0; i < 12; i++) {
+            obstacles.push({
+                x: 600 + (i * 450) + Math.random() * 100,
+                y: canvas.height - GROUND_HEIGHT - 20,
+                baseX: 0, // Assigned later
+                width: 160,
+                height: 20,
+                speed: 1 + Math.random() * 1.5,
+                text: "overstimulation"
+            });
+            obstacles[i].baseX = obstacles[i].x;
+        }
+
+        // Scenery (8-bit skincare bottles & fairy trees)
+        scenery = [];
+        for (let i = 0; i < 20; i++) {
+            scenery.push({
+                x: Math.random() * levelWidth,
+                y: canvas.height - GROUND_HEIGHT - 40,
+                type: Math.random() > 0.5 ? 'bottle' : 'tree',
+                size: 20 + Math.random() * 20
+            });
+        }
     }
 
-    // Input handling
-    window.addEventListener('keydown', (e) => {
-        keys[e.code] = true;
-    });
+    // Input
+    window.addEventListener('keydown', e => keys[e.code] = true);
+    window.addEventListener('keyup', e => keys[e.code] = false);
 
-    window.addEventListener('keyup', (e) => {
-        keys[e.code] = false;
-    });
+    // Mobile touch
+    const setupBtn = (id, code) => {
+        const btn = document.getElementById(id);
+        btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[code] = true; });
+        btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[code] = false; });
+    };
+    setupBtn('left-btn', 'ArrowLeft');
+    setupBtn('right-btn', 'ArrowRight');
+    setupBtn('jump-btn', 'Space');
 
-    function resetGame() {
-        initLevel();
-    }
+    function resetGame() { initLevel(); }
 
     function drawPlayer() {
-        // Simple 8-bit brunette girl
-        // Body (Dress)
-        ctx.fillStyle = '#ff69b4'; // Pink dress
-        ctx.fillRect(player.x - cameraX, player.y + 16, player.width, 32);
-        
+        ctx.save();
+        ctx.translate(player.x - cameraX, player.y);
+
+        // Hair (Fairy Brunette)
+        ctx.fillStyle = COLORS.hair;
+        ctx.fillRect(-2, -4, 36, 20); // Longer hair
+        ctx.fillRect(-2, 0, 6, 35);
+        ctx.fillRect(28, 0, 6, 35);
+
         // Head
-        ctx.fillStyle = '#ffdbac'; // Skin tone
-        ctx.fillRect(player.x - cameraX + 4, player.y, 24, 24);
-        
-        // Hair (Brunette)
-        ctx.fillStyle = '#4B3621'; 
-        ctx.fillRect(player.x - cameraX + 2, player.y - 4, 28, 12); // Top hair
-        ctx.fillRect(player.x - cameraX + 2, player.y, 6, 24); // Side hair left
-        ctx.fillRect(player.x - cameraX + 24, player.y, 6, 24); // Side hair right
-        
-        // Eyes
+        ctx.fillStyle = COLORS.skin;
+        ctx.fillRect(4, 0, 24, 24);
+
+        // Wings (8-bit translucent)
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.fillRect(-10, 10, 10, 20);
+        ctx.fillRect(32, 10, 10, 20);
+
+        // Dress
+        ctx.fillStyle = COLORS.dress;
+        ctx.fillRect(0, 24, 32, 24);
+
+        // Face
         ctx.fillStyle = '#000';
-        ctx.fillRect(player.x - cameraX + 8, player.y + 10, 4, 4);
-        ctx.fillRect(player.x - cameraX + 20, player.y + 10, 4, 4);
+        ctx.fillRect(8, 10, 4, 4);
+        ctx.fillRect(20, 10, 4, 4);
+        ctx.fillStyle = '#ffb6c1'; // Blush
+        ctx.fillRect(4, 16, 4, 2);
+        ctx.fillRect(24, 16, 4, 2);
+
+        ctx.restore();
     }
 
-    function drawObstacle(obs) {
-        ctx.fillStyle = '#000';
-        ctx.font = '14px "Press Start 2P"';
-        ctx.fillText(obs.text, obs.x - cameraX, obs.y);
-        
-        // Collision box visualization (optional, for debugging)
-        // ctx.strokeStyle = 'red';
-        // ctx.strokeRect(obs.x - cameraX, obs.y - 14, obs.width, 20);
-    }
-
-    function drawGoal() {
-        // Present box
-        ctx.fillStyle = '#ff0000'; // Red box
-        ctx.fillRect(goal.x - cameraX, goal.y, goal.width, goal.height);
-        
-        // Ribbon
-        ctx.fillStyle = '#ffff00'; // Yellow ribbon
-        ctx.fillRect(goal.x - cameraX + goal.width/2 - 4, goal.y, 8, goal.height);
-        ctx.fillRect(goal.x - cameraX, goal.y + goal.height/2 - 4, goal.width, 8);
-        
-        // Bow
-        ctx.fillRect(goal.x - cameraX + 5, goal.y - 10, 10, 10);
-        ctx.fillRect(goal.x - cameraX + 25, goal.y - 10, 10, 10);
+    function drawSkincare(s) {
+        ctx.save();
+        ctx.translate(s.x - cameraX, s.y);
+        if (s.type === 'bottle') {
+            // Rhode-style bottle
+            ctx.fillStyle = COLORS.rhodeGray;
+            ctx.fillRect(0, 0, 15, 30);
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(2, -5, 11, 5); // cap
+            ctx.fillStyle = '#ccc';
+            ctx.fillRect(4, 10, 7, 2); // label line
+        } else {
+            // Fairy Tree (Cotton Candy style)
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(5, 0, 5, 40); // trunk
+            ctx.fillStyle = '#ffc0cb';
+            ctx.fillRect(-5, -15, 25, 25);
+        }
+        ctx.restore();
     }
 
     function update() {
         if (gameOver) return;
 
+        // Player movement
         if (keys['ArrowRight'] || keys['KeyD']) {
-            if (player.velX < SPEED) player.velX++;
+            if (player.velX < SPEED) player.velX += 0.5;
         } else if (keys['ArrowLeft'] || keys['KeyA']) {
-            if (player.velX > -SPEED) player.velX--;
+            if (player.velX > -SPEED) player.velX -= 0.5;
         } else {
             player.velX *= 0.8;
         }
@@ -223,77 +301,83 @@
         player.x += player.velX;
         player.y += player.velY;
 
-        // Ground collision
+        // Ground check
         if (player.y > canvas.height - GROUND_HEIGHT - player.height) {
             player.y = canvas.height - GROUND_HEIGHT - player.height;
             player.velY = 0;
             player.grounded = true;
         }
 
-        // World bounds
-        if (player.x < 0) player.x = 0;
-        if (player.x > levelWidth - player.width) player.x = levelWidth - player.width;
+        // Camera
+        cameraX = Math.max(0, Math.min(player.x - canvas.width / 2, levelWidth - canvas.width));
 
-        // Camera follow
-        if (player.x > canvas.width / 2 && player.x < levelWidth - canvas.width / 2) {
-            cameraX = player.x - canvas.width / 2;
-        } else if (player.x <= canvas.width / 2) {
-            cameraX = 0;
-        } else {
-            cameraX = levelWidth - canvas.width;
-        }
-
-        // Obstacle collision
+        // Obstacles logic: Move towards player when close
         obstacles.forEach(obs => {
+            // Move obstacle left
+            obs.x -= obs.speed;
+            
+            // Loop obstacle position so it stays in its zone but feels dynamic
+            if (obs.x < obs.baseX - 400) obs.x = obs.baseX + 200;
+
+            // Collision
             if (player.x < obs.x + obs.width &&
                 player.x + player.width > obs.x &&
-                player.y < obs.y &&
-                player.y + player.height > obs.y - 14) {
-                // Hit obstacle
-                initLevel();
+                player.y + player.height > obs.y - 12 &&
+                player.y < obs.y) {
+                initLevel(); // Die
             }
         });
 
-        // Goal collision
-        if (player.x < goal.x + goal.width &&
-            player.x + player.width > goal.x &&
-            player.y < goal.y + goal.height &&
+        // Goal
+        if (player.x + player.width > goal.x && player.x < goal.x + goal.width &&
             player.y + player.height > goal.y) {
-            
             gameOver = true;
-            victoryText.innerText = "Congratulazioni! Dai un bacio a Simone per ricevere la tua ricompensa!!!";
+            victoryText.innerHTML = "Congratulazioni Amoretto!<br>Dai un bacio a Simone per ricevere la tua ricompensa!!!";
             victoryScreen.style.display = 'flex';
         }
     }
 
     function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Draw sky
-        ctx.fillStyle = '#87CEEB';
+        // Gradient background
+        let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        grad.addColorStop(0, '#a1c4fd');
+        grad.addColorStop(1, '#c2e9fb');
+        ctx.fillStyle = grad;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Draw ground
-        ctx.fillStyle = '#228B22'; // Forest green
-        ctx.fillRect(0 - (cameraX % canvas.width), canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
-        ctx.fillRect(canvas.width - (cameraX % canvas.width), canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
+        // Draw Scenery
+        scenery.forEach(drawSkincare);
 
-        // Draw static clouds or decorations could go here
-        
-        drawGoal();
-        obstacles.forEach(drawObstacle);
+        // Draw Ground
+        ctx.fillStyle = COLORS.ground;
+        ctx.fillRect(0, canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
+        ctx.fillStyle = '#fff'; // Sparkles on ground
+        for(let i=0; i<levelWidth; i+=100) {
+            ctx.fillRect(i - cameraX + (Math.sin(Date.now()/500 + i)*20), canvas.height - GROUND_HEIGHT + 10, 4, 4);
+        }
+
+        // Draw Goal (Present with Sparkles)
+        ctx.fillStyle = '#ff0000';
+        ctx.fillRect(goal.x - cameraX, goal.y, goal.width, goal.height);
+        ctx.fillStyle = '#ffff00';
+        ctx.fillRect(goal.x - cameraX + 20, goal.y, 10, goal.height);
+        ctx.fillRect(goal.x - cameraX, goal.y + 20, goal.width, 10);
+
+        // Draw Obstacles
+        ctx.fillStyle = '#555';
+        ctx.font = '12px "Press Start 2P"';
+        obstacles.forEach(obs => {
+            ctx.fillText(obs.text, obs.x - cameraX, obs.y);
+        });
+
         drawPlayer();
 
-        requestAnimationFrame(gameLoop);
+        if (!gameOver) requestAnimationFrame(draw);
     }
 
-    function gameLoop() {
-        update();
-        draw();
-    }
-
+    setInterval(update, 1000/60);
     initLevel();
-    gameLoop();
+    draw();
 
 </script>
 </body>

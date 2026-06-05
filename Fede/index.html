@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Amoretto's Adventure - Fairy Edition</title>
+    <title>Amoretto's Adventure - Battle Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -109,8 +109,10 @@
             background: rgba(255, 255, 255, 0.8);
         }
 
-        #jump-btn {
-            width: 80px;
+        #shoot-btn {
+            width: 100px;
+            background: rgba(255, 105, 180, 0.6);
+            color: white;
         }
     </style>
 </head>
@@ -129,7 +131,7 @@
             <div class="btn" id="left-btn">←</div>
             <div class="btn" id="right-btn">→</div>
         </div>
-        <div class="btn" id="jump-btn">JUMP</div>
+        <div class="btn" id="shoot-btn">SHOOT</div>
     </div>
 </div>
 
@@ -140,71 +142,80 @@
     const victoryText = document.getElementById('victory-text');
 
     // Constants
-    const GRAVITY = 0.4;
-    const JUMP_FORCE = -9;
     const SPEED = 4;
     const GROUND_HEIGHT = 60;
+    const BULLET_SPEED = 7;
 
     // State
     let player = {
         x: 50, y: 0, width: 32, height: 48,
-        velX: 0, velY: 0, grounded: false
+        velX: 0, velY: 0, lastShootTime: 0
     };
 
     let keys = {};
     let obstacles = [];
     let scenery = [];
+    let skyDetails = [];
+    let bullets = [];
     let goal = { x: 3000, y: 0, width: 50, height: 50 };
     let cameraX = 0;
     let levelWidth = 3300;
     let gameOver = false;
-    let particles = [];
 
-    // Skin care theme colors
     const COLORS = {
         sky: '#a1c4fd',
         ground: '#fbcce7',
         hair: '#4B3621',
         dress: '#ff69b4',
         skin: '#ffdbac',
-        rhodeGray: '#e5e5e5' // Rhode-like minimalist gray
+        rhodeGray: '#e5e5e5'
     };
 
     function initLevel() {
         player.x = 100;
         player.y = canvas.height - GROUND_HEIGHT - player.height;
-        player.velX = 0; player.velY = 0;
+        player.velX = 0;
         cameraX = 0;
         gameOver = false;
         victoryScreen.style.display = 'none';
+        bullets = [];
         
-        // Goal position
         goal.x = levelWidth - 200;
         goal.y = canvas.height - GROUND_HEIGHT - goal.height;
 
-        // Generate obstacles (moving towards player)
         obstacles = [];
-        for (let i = 0; i < 12; i++) {
+        for (let i = 0; i < 15; i++) {
+            let ox = 600 + (i * 400) + Math.random() * 200;
             obstacles.push({
-                x: 600 + (i * 450) + Math.random() * 100,
+                x: ox,
                 y: canvas.height - GROUND_HEIGHT - 20,
-                baseX: 0, // Assigned later
-                width: 160,
-                height: 20,
-                speed: 1 + Math.random() * 1.5,
-                text: "overstimulation"
+                baseX: ox,
+                width: 140,
+                height: 15,
+                speed: 1.5 + Math.random() * 2,
+                text: "overstimulation",
+                hp: 3
             });
-            obstacles[i].baseX = obstacles[i].x;
         }
 
-        // Scenery (8-bit skincare bottles & fairy trees)
         scenery = [];
         for (let i = 0; i < 20; i++) {
             scenery.push({
                 x: Math.random() * levelWidth,
                 y: canvas.height - GROUND_HEIGHT - 40,
-                type: Math.random() > 0.5 ? 'bottle' : 'tree',
-                size: 20 + Math.random() * 20
+                type: Math.random() > 0.5 ? 'bottle' : 'tree'
+            });
+        }
+
+        // Sky details (Clouds & Stars)
+        skyDetails = [];
+        for (let i = 0; i < 30; i++) {
+            skyDetails.push({
+                x: Math.random() * levelWidth,
+                y: Math.random() * 200,
+                type: Math.random() > 0.7 ? 'cloud' : 'star',
+                size: 5 + Math.random() * 15,
+                speed: 0.2 + Math.random() * 0.5
             });
         }
     }
@@ -213,7 +224,6 @@
     window.addEventListener('keydown', e => keys[e.code] = true);
     window.addEventListener('keyup', e => keys[e.code] = false);
 
-    // Mobile touch
     const setupBtn = (id, code) => {
         const btn = document.getElementById(id);
         btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[code] = true; });
@@ -221,69 +231,70 @@
     };
     setupBtn('left-btn', 'ArrowLeft');
     setupBtn('right-btn', 'ArrowRight');
-    setupBtn('jump-btn', 'Space');
+    setupBtn('shoot-btn', 'Space');
 
     function resetGame() { initLevel(); }
+
+    function shoot() {
+        const now = Date.now();
+        if (now - player.lastShootTime > 300) {
+            bullets.push({
+                x: player.x + player.width,
+                y: player.y + 20,
+                width: 10,
+                height: 10
+            });
+            player.lastShootTime = now;
+        }
+    }
 
     function drawPlayer() {
         ctx.save();
         ctx.translate(player.x - cameraX, player.y);
-
-        // Hair (Fairy Brunette)
+        // Hair
         ctx.fillStyle = COLORS.hair;
-        ctx.fillRect(-2, -4, 36, 20); // Longer hair
+        ctx.fillRect(-2, -4, 36, 20);
         ctx.fillRect(-2, 0, 6, 35);
         ctx.fillRect(28, 0, 6, 35);
-
         // Head
         ctx.fillStyle = COLORS.skin;
         ctx.fillRect(4, 0, 24, 24);
-
-        // Wings (8-bit translucent)
+        // Wings
         ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
         ctx.fillRect(-10, 10, 10, 20);
         ctx.fillRect(32, 10, 10, 20);
-
         // Dress
         ctx.fillStyle = COLORS.dress;
         ctx.fillRect(0, 24, 32, 24);
-
         // Face
         ctx.fillStyle = '#000';
         ctx.fillRect(8, 10, 4, 4);
         ctx.fillRect(20, 10, 4, 4);
-        ctx.fillStyle = '#ffb6c1'; // Blush
-        ctx.fillRect(4, 16, 4, 2);
-        ctx.fillRect(24, 16, 4, 2);
-
         ctx.restore();
     }
 
-    function drawSkincare(s) {
-        ctx.save();
-        ctx.translate(s.x - cameraX, s.y);
-        if (s.type === 'bottle') {
-            // Rhode-style bottle
-            ctx.fillStyle = COLORS.rhodeGray;
-            ctx.fillRect(0, 0, 15, 30);
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(2, -5, 11, 5); // cap
-            ctx.fillStyle = '#ccc';
-            ctx.fillRect(4, 10, 7, 2); // label line
-        } else {
-            // Fairy Tree (Cotton Candy style)
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(5, 0, 5, 40); // trunk
-            ctx.fillStyle = '#ffc0cb';
-            ctx.fillRect(-5, -15, 25, 25);
-        }
-        ctx.restore();
+    function drawSky() {
+        skyDetails.forEach(s => {
+            s.x -= s.speed;
+            if (s.x < cameraX - 100) s.x = cameraX + canvas.width + 100;
+
+            if (s.type === 'cloud') {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.fillRect(s.x - cameraX, s.y, s.size * 2, s.size);
+                ctx.fillRect(s.x - cameraX + s.size/2, s.y - s.size/2, s.size, s.size);
+            } else {
+                ctx.fillStyle = '#fff';
+                let op = Math.sin(Date.now()/200 + s.x) * 0.5 + 0.5;
+                ctx.globalAlpha = op;
+                ctx.fillRect(s.x - cameraX, s.y, 4, 4);
+                ctx.globalAlpha = 1;
+            }
+        });
     }
 
     function update() {
         if (gameOver) return;
 
-        // Player movement
         if (keys['ArrowRight'] || keys['KeyD']) {
             if (player.velX < SPEED) player.velX += 0.5;
         } else if (keys['ArrowLeft'] || keys['KeyA']) {
@@ -292,86 +303,89 @@
             player.velX *= 0.8;
         }
 
-        if ((keys['ArrowUp'] || keys['KeyW'] || keys['Space']) && player.grounded) {
-            player.velY = JUMP_FORCE;
-            player.grounded = false;
+        if (keys['Space'] || keys['KeyF']) {
+            shoot();
         }
 
-        player.velY += GRAVITY;
         player.x += player.velX;
-        player.y += player.velY;
+        cameraX = Math.max(0, Math.min(player.x - canvas.width / 4, levelWidth - canvas.width));
 
-        // Ground check
-        if (player.y > canvas.height - GROUND_HEIGHT - player.height) {
-            player.y = canvas.height - GROUND_HEIGHT - player.height;
-            player.velY = 0;
-            player.grounded = true;
-        }
-
-        // Camera
-        cameraX = Math.max(0, Math.min(player.x - canvas.width / 2, levelWidth - canvas.width));
-
-        // Obstacles logic: Move towards player when close
-        obstacles.forEach(obs => {
-            // Move obstacle left
-            obs.x -= obs.speed;
+        // Bullets
+        bullets.forEach((b, i) => {
+            b.x += BULLET_SPEED;
+            if (b.x > cameraX + canvas.width) bullets.splice(i, 1);
             
-            // Loop obstacle position so it stays in its zone but feels dynamic
-            if (obs.x < obs.baseX - 400) obs.x = obs.baseX + 200;
+            obstacles.forEach((obs, oi) => {
+                if (b.x < obs.x + obs.width && b.x + b.width > obs.x &&
+                    b.y < obs.y && b.y + b.height > obs.y - 15) {
+                    obs.hp--;
+                    bullets.splice(i, 1);
+                    if (obs.hp <= 0) obstacles.splice(oi, 1);
+                }
+            });
+        });
 
-            // Collision
-            if (player.x < obs.x + obs.width &&
-                player.x + player.width > obs.x &&
-                player.y + player.height > obs.y - 12 &&
-                player.y < obs.y) {
-                initLevel(); // Die
+        // Obstacles
+        obstacles.forEach(obs => {
+            obs.x -= obs.speed;
+            if (player.x < obs.x + obs.width && player.x + player.width > obs.x &&
+                player.y + player.height > obs.y - 10) {
+                initLevel();
             }
         });
 
-        // Goal
-        if (player.x + player.width > goal.x && player.x < goal.x + goal.width &&
-            player.y + player.height > goal.y) {
+        if (player.x + player.width > goal.x) {
             gameOver = true;
-            victoryText.innerHTML = "Congratulazioni Amoretto!<br>Dai un bacio a Simone per ricevere la tua ricompensa!!!";
+            victoryText.innerHTML = "Congratulazioni Amoretto!<br>Hai sconfitto lo stress!<br>Dai un bacio a Simone!";
             victoryScreen.style.display = 'flex';
         }
     }
 
     function draw() {
-        // Gradient background
         let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
         grad.addColorStop(0, '#a1c4fd');
         grad.addColorStop(1, '#c2e9fb');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Draw Scenery
-        scenery.forEach(drawSkincare);
+        drawSky();
+        scenery.forEach(s => {
+            ctx.save();
+            ctx.translate(s.x - cameraX, s.y);
+            if (s.type === 'bottle') {
+                ctx.fillStyle = COLORS.rhodeGray; ctx.fillRect(0, 0, 15, 30);
+                ctx.fillStyle = '#fff'; ctx.fillRect(2, -5, 11, 5);
+            } else {
+                ctx.fillStyle = '#fff'; ctx.fillRect(5, 0, 5, 40);
+                ctx.fillStyle = '#ffc0cb'; ctx.fillRect(-5, -15, 25, 25);
+            }
+            ctx.restore();
+        });
 
-        // Draw Ground
         ctx.fillStyle = COLORS.ground;
         ctx.fillRect(0, canvas.height - GROUND_HEIGHT, canvas.width, GROUND_HEIGHT);
-        ctx.fillStyle = '#fff'; // Sparkles on ground
-        for(let i=0; i<levelWidth; i+=100) {
-            ctx.fillRect(i - cameraX + (Math.sin(Date.now()/500 + i)*20), canvas.height - GROUND_HEIGHT + 10, 4, 4);
-        }
 
-        // Draw Goal (Present with Sparkles)
+        // Draw Goal
         ctx.fillStyle = '#ff0000';
         ctx.fillRect(goal.x - cameraX, goal.y, goal.width, goal.height);
-        ctx.fillStyle = '#ffff00';
-        ctx.fillRect(goal.x - cameraX + 20, goal.y, 10, goal.height);
-        ctx.fillRect(goal.x - cameraX, goal.y + 20, goal.width, 10);
 
-        // Draw Obstacles
-        ctx.fillStyle = '#555';
-        ctx.font = '8px "Press Start 2P"';
+        // Bullets (Pink Hearts)
+        ctx.fillStyle = '#ff69b4';
+        bullets.forEach(b => {
+            ctx.fillRect(b.x - cameraX, b.y, b.width, b.height);
+        });
+
+        // Obstacles
         obstacles.forEach(obs => {
+            ctx.fillStyle = obs.hp > 1 ? '#555' : '#ff0000';
+            ctx.font = '8px "Press Start 2P"';
             ctx.fillText(obs.text, obs.x - cameraX, obs.y);
+            // Health bar
+            ctx.fillStyle = '#ff69b4';
+            ctx.fillRect(obs.x - cameraX, obs.y + 5, (obs.hp/3) * obs.width, 3);
         });
 
         drawPlayer();
-
         if (!gameOver) requestAnimationFrame(draw);
     }
 

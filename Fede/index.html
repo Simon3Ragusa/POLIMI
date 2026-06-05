@@ -141,11 +141,14 @@
     const collectionText = document.getElementById('collection-text');
     const playAgainBtn = document.getElementById('play-again-btn');
 
+    // CONFIGURAZIONE VELOCITA' (BILANCIATA)
     const SPEED = 3.8;
     const GROUND_HEIGHT = 60;
     const BULLET_SPEED = 7;
     const GRAVITY = 0.5;
     const JUMP_FORCE = -11.5;
+    const OBSTACLE_BASE_SPEED = 1.8;
+    const MAMMA_BASE_SPEED = 1.3;
 
     let player = { x: 50, y: 0, width: 28, height: 42, velX: 0, velY: 0, grounded: false, lastShootTime: 0 };
     let keys = {};
@@ -161,13 +164,12 @@
     let gameOver = false;
     let isAlerting = false;
     let spawnTimer = 0;
-    let animationId = null;
+    let isGameRunning = false;
 
     const COLORS = { sky: '#a1c4fd', ground: '#fbcce7', hair: '#4B3621', dress: '#ff69b4', skin: '#ffdbac', rhodeGray: '#e5e5e5' };
     const RHODE_LIST = ["LIP TREATMENT", "RESTORE CREAM", "GLAZING MILK", "GLAZING FLUID", "POCKET BLUSH"];
 
     function initLevel() {
-        if (animationId) cancelAnimationFrame(animationId);
         player.x = 100; player.y = canvas.height - GROUND_HEIGHT - player.height; player.velX = 0; player.velY = 0;
         cameraX = 0; gameOver = false; isAlerting = false; collectedCount = 0;
         victoryScreen.style.display = 'none'; alertScreen.style.display = 'none';
@@ -194,15 +196,18 @@
             { x: 5850, y: 130, name: RHODE_LIST[4], width: 15, height: 30, collected: false }
         ];
         
-        requestAnimationFrame(gameLoop);
+        if (!isGameRunning) {
+            isGameRunning = true;
+            gameLoop();
+        }
     }
 
     function spawnEnemies() {
         spawnTimer++;
-        if (spawnTimer > 120) {
+        if (spawnTimer > 150) {
             let spawnX = cameraX + canvas.width + 50;
             if (Math.random() > 0.4) {
-                obstacles.push({ x: spawnX, y: canvas.height - GROUND_HEIGHT - 20, width: 140, speed: 3 + Math.random(), text: "overstimulation", hp: 3 });
+                obstacles.push({ x: spawnX, y: canvas.height - GROUND_HEIGHT - 20, width: 140, speed: OBSTACLE_BASE_SPEED + Math.random(), text: "overstimulation", hp: 3 });
             } else {
                 mamme.push({ x: spawnX, y: canvas.height - GROUND_HEIGHT - 40, width: 32, height: 40, velY: 0, grounded: true, jumpTimer: 0, hp: 2 });
             }
@@ -267,7 +272,7 @@
         });
         obstacles.forEach((obs, i) => { obs.x -= obs.speed; if (obs.x < cameraX - 200) obstacles.splice(i, 1); if (player.x < obs.x + obs.width && player.x + player.width > obs.x && player.y + player.height > obs.y - 10 && player.y < obs.y) initLevel(); });
         mamme.forEach((m, i) => {
-            m.x -= 2; m.jumpTimer++; if (m.x < cameraX - 100) mamme.splice(i, 1);
+            m.x -= MAMMA_BASE_SPEED; m.jumpTimer++; if (m.x < cameraX - 100) mamme.splice(i, 1);
             if (m.grounded && m.jumpTimer > 180) { m.velY = -8.5; m.grounded = false; m.jumpTimer = 0; }
             m.velY += 0.3; m.y += m.velY;
             if (m.y > canvas.height - GROUND_HEIGHT - m.height) { m.y = canvas.height - GROUND_HEIGHT - m.height; m.velY = 0; m.grounded = true; }
@@ -316,9 +321,10 @@
     }
 
     function gameLoop() {
+        if (!isGameRunning) return;
         update();
         draw();
-        if (!gameOver) animationId = requestAnimationFrame(gameLoop);
+        animationId = requestAnimationFrame(gameLoop);
     }
 
     initLevel();

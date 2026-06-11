@@ -1,0 +1,32 @@
+\section{Introduction to Embedded and Edge AI}
+
+\subsection{The Shift to the Edge}
+Embedded and Edge AI (EEAI) represents a paradigm shift from centralized Cloud Computing to distributed, localized intelligence. The goal is to move processing as close to the data source as possible—ideally directly on the Internet of Things (IoT) devices and microcontrollers (MCUs).
+
+\subsection{The Computing Continuum}
+The computing infrastructure is viewed as a continuum with varying degrees of resources and latency:
+\begin{itemize}
+    \item \textbf{Cloud Computing (Data Centers):} High performance, "unlimited" storage, but high latency and power consumption.
+    \item \textbf{Edge Computing (Servers/Gateways):} Intermediate layer providing high computational capacity closer to the source, reducing latency.
+    \item \textbf{Embedded PCs (e.g., Raspberry Pi, Jetson):} Pervasive, medium power consumption, capable of running complex Linux-based applications.
+    \item \textbf{IoT / TinyML (MCUs):} Battery-powered, ultra-low cost, and extremely resource-constrained (KBs of RAM/Flash).
+\end{itemize}
+
+\subsection{Motivations for EEAI}
+Moving AI to the edge is driven by several critical factors:
+\begin{enumerate}
+    \item \textbf{Latency:} Real-time decision-making by avoiding round-trip communication delays.
+    \item \textbf{Bandwidth:} Reducing the need to transmit massive raw data streams (e.g., video) by sending only processed insights.
+    \item \textbf{Autonomy:} Allowing devices to operate reliably even without a constant internet connection.
+    \item \textbf{Energy Efficiency:} Local low-power processing is often more efficient than high-power radio transmissions.
+    \item \textbf{Security and Privacy:} Sensitive data (medical, personal) remains on the device, reducing the attack surface.
+    \item \textbf{Adaptive Learning:} Enabling systems to adapt to local, non-stationary environments.
+\end{enumerate}
+
+\subsection{Key Challenges}
+EEAI is inherently difficult due to the tight coupling between Hardware (HW), Software (SW), and Machine Learning (ML). The main constraints include:
+\begin{itemize}
+    \item \textbf{Memory:} Extremely limited RAM (for activations) and Flash (for weights).
+    \item \textbf{Compute:} Low clock speeds and often lack of advanced instruction sets (SIMD/FPU).
+    \item \textbf{Energy:} Devices are frequently battery-powered or use energy harvesting.
+\end{itemize}

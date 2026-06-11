@@ -1,0 +1,27 @@
+\section{Early Exit Neural Networks (EENN)}
+
+\subsection{The Overthinking Problem}
+Standard DNNs process every input sample through all layers. However, many "easy" samples can be correctly classified by earlier layers. Forcing them through deeper layers is computationally wasteful and can sometimes degrade accuracy (a phenomenon known as \textit{overthinking}).
+
+\subsection{Architecture of EENNs}
+An EENN augments a standard \textbf{Backbone} network by attaching \textbf{Early Exit Classifiers (EECs)} at intermediate layers. If an EEC is sufficiently confident in its prediction, the inference stops, and the deeper layers are skipped.
+
+\subsection{Confidence Measures}
+To decide whether to exit, a confidence score $C$ is calculated and compared to a threshold $\theta$:
+\begin{itemize}
+    \item \textbf{Max Softmax:} The highest probability in the output vector.
+    \item \textbf{Score Margin (SM):} The difference between the highest and second-highest probabilities.
+    \item \textbf{Entropy:} Lower entropy indicates a sharper, more confident prediction.
+\end{itemize}
+
+\subsection{Training Strategies}
+\begin{itemize}
+    \item \textbf{Joint Training (JT):} The backbone and all EECs are trained simultaneously using a weighted sum of their losses.
+    \item \textbf{Layer-wise Training (LT):} The network is trained sequentially, freezing earlier blocks once their local EEC is trained.
+\end{itemize}
+
+\subsection{Benefits for Edge AI}
+\begin{itemize}
+    \item \textbf{Dynamic Latency/Energy:} Reduces average inference time and energy consumption per sample.
+    \item \textbf{Distributed Inference:} EECs can reside on an IoT node, while the deeper backbone resides on an Edge Gateway. If the IoT node is uncertain, it offloads the computation to the Gateway.
+\end{itemize}

@@ -1,0 +1,69 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{graphicx}
+
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}[{\titlerule[0.5pt]}]
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+
+\title{\textbf{Embedded and Edge AI (EEAI) Course Summary}}
+\author{Master's Degree in Computer Science and Engineering}
+\date{Academic Year 2025/2026}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\input{chapters/ch1_intro.tex}
+\newpage
+\input{chapters/ch2_hardware.tex}
+\newpage
+\input{chapters/ch3_algorithms.tex}
+\newpage
+\input{chapters/ch4_ml_workflow.tex}
+\newpage
+\input{chapters/ch5_deep_learning.tex}
+\newpage
+\input{chapters/ch6_architectures.tex}
+\newpage
+\input{chapters/ch7_approximate_computing.tex}
+\newpage
+\input{chapters/ch8_early_exit.tex}
+\newpage
+\input{chapters/ch9_on_device_learning.tex}
+
+\newpage
+\begin{landscape}
+\section{Summary of EEAI Optimization Techniques}
+
+\begin{center}
+\small
+\renewcommand{\arraystretch}{1.5}
+\begin{longtable}{>{\bfseries}p{3cm} p{2cm} p{2cm} p{3cm} p{4cm} p{4cm}}
+\toprule
+Technique & Phase & Primary Goal & Constraint Addressed & Key Mechanism & Trade-offs \\ \midrule
+Quantization & Post-Train / Training & Footprint/Energy & Memory (Flash/RAM) & Map FP32 to INT8/INT4 & Accuracy vs. Efficiency \\
+Pruning & Training / Post-Train & Footprint/Energy & Latency/Computation & Remove zero-weights/filters & Sparsity overhead \\
+Distillation & Training & Accuracy & Model Size & Teacher-Student learning & Training complexity \\
+Early Exit & Inference & Latency/Energy & Dynamic Resource & Confidence-based exit & Branching overhead \\
+MobileNet (DS-Conv) & Design & Computation & Latency (MACs) & Depthwise + Pointwise & Slight accuracy loss \\
+EfficientNet & Design & Performance & Compound Scaling & Width/Depth/Res balance & High design effort \\
+Federated Learning & Deployment & Privacy & Data Sovereignty & Local update + Global agg & Communication cost \\
+Incremental Learning & Deployment & Adaptation & Concept Drift & Online model updates & Catastrophic forgetting \\ \bottomrule
+\end{longtable}
+\end{center}
+\end{landscape}
+
+\end{document}

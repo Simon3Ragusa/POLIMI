@@ -1,0 +1,29 @@
+\section{Tiny Architectures for EEAI}
+
+\subsection{The Need for Architectural Re-design}
+Standard modern CNNs (like VGG or ResNet) are too large for IoT. Specialized "Tiny" architectures use efficient operators to reduce parameters and MACs.
+
+\subsection{SqueezeNet: Efficiency via Fire Modules}
+SqueezeNet achieves AlexNet accuracy with 50x fewer parameters.
+\begin{itemize}
+    \item \textbf{Fire Module:}
+    \begin{enumerate}
+        \item \textit{Squeeze Layer:} $1 \times 1$ convolutions to reduce channel depth.
+        \item \textit{Expand Layer:} Combination of $1 \times 1$ and $3 \times 3$ convolutions.
+    \end{enumerate}
+    \item \textbf{Strategy:} Use $1 \times 1$ filters to replace $3 \times 3$ wherever possible to save weights.
+\end{itemize}
+
+\subsection{MobileNet: Depthwise Separable Convolutions}
+MobileNet factorizes a standard convolution into two simpler steps:
+\begin{enumerate}
+    \item \textbf{Depthwise Convolution:} One filter per input channel.
+    \item \textbf{Pointwise Convolution:} $1 \times 1$ convolution to combine channels.
+\end{enumerate}
+\textbf{Efficiency Gain:} Computation and parameters are reduced by a factor of $\frac{1}{M} + \frac{1}{R \times S}$. For $3 \times 3$ filters, this is an \textbf{$\approx 8-9x$ reduction} in complexity with minimal accuracy loss.
+
+\subsection{EfficientNet: Compound Scaling}
+Instead of scaling just width, depth, or resolution, EfficientNet scales all three dimensions simultaneously using a \textbf{Compound Coefficient ($\phi$)}:
+$d = \alpha^\phi, w = \beta^\phi, r = \gamma^\phi$.
+This systematic approach ensures that the model remains balanced and efficient as it grows.
+ Greenland

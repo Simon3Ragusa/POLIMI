@@ -1,0 +1,29 @@
+\section{On-device Learning for EEAI}
+
+\subsection{The Need for Adaptation}
+Static AI models deployed on Edge devices eventually suffer from \textbf{Concept Drift}—their performance degrades because the underlying data distribution changes over time due to:
+\begin{itemize}
+    \item Environmental variations (e.g., sensor aging, temperature).
+    \item Changes in user behavior or physical characteristics.
+\end{itemize}
+
+\subsection{Challenges of On-device Training}
+Performing Backpropagation on a microcontroller is severely constrained by memory. Training requires storing:
+$M_{Total} = M_{Model\_Weights} + M_{Activations} + M_{Gradients} + M_{Optimizer\_States} + M_{Batch\_Data}$.
+This often vastly exceeds the tiny SRAM available (e.g., 32-256 KB).
+
+\subsection{Adaptive Strategies}
+\begin{itemize}
+    \item \textbf{Passive Update:} The model continuously updates with every new labeled sample. Often uses a sliding window to manage memory.
+    \item \textbf{Active Update:} The model only updates when a \textbf{Change Detection Test (CDT)} (e.g., CUSUM algorithm) detects a significant statistical shift in the data stream.
+    \item \textbf{Incremental Learning:} Training only the final layers (classifier) while freezing the heavy feature extractor (e.g., TyBox framework).
+\end{itemize}
+
+\subsection{Federated Learning (FL)}
+FL enables distributed training across multiple Edge devices without raw data ever leaving the device, ensuring \textbf{privacy}.
+\begin{enumerate}
+    \item \textbf{Initialization:} A central server sends the global model to selected edge clients.
+    \item \textbf{Local Update:} Clients train the model on their local, private data.
+    \item \textbf{Aggregation:} Clients send only the model updates (gradients/weights) back to the server.
+    \item \textbf{Global Update:} The server aggregates the updates (e.g., using \textbf{FedAvg}) to form a new global model, and the cycle repeats.
+\end{enumerate}

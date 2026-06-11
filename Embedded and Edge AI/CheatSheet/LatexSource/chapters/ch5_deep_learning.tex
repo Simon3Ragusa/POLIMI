@@ -1,0 +1,29 @@
+\section{Deep Learning for EEAI}
+
+\subsection{The Deep Learning Paradigm}
+Deep Learning (DL) integrates feature extraction and classification into a single end-to-end architecture. It learns a hierarchy of features: low-level (edges), mid-level (shapes), and high-level (objects).
+
+\subsection{Complexity Metrics}
+\begin{itemize}
+    \item \textbf{MAC (Multiply-Accumulate):} The fundamental operation. 1 MAC $\approx$ 2 FLOPs.
+    \item \textbf{Parameters:} Determines the \textbf{Flash} footprint (Weights + Biases).
+    \item \textbf{Activations:} Determines the peak \textbf{RAM} usage (Output maps of layers).
+\end{itemize}
+
+\subsection{Convolutional Neural Networks (CNN)}
+CNNs are the workhorse of Edge AI for spatial data (images, spectrograms).
+\begin{itemize}
+    \item \textbf{CONV Layer:} Extracts spatial features using trainable filters.
+    \item \textbf{Pooling:} Reduces dimensionality (Max or Average Pooling).
+    \item \textbf{Fully Connected (FC):} Performs the final classification.
+\end{itemize}
+
+\subsection{Layer Calculations}
+For a CONV layer with input $H \times W \times C$, filter $R \times S$, stride $U$, and $M$ output filters:
+\begin{itemize}
+    \item \textbf{Output Dimensions ($E \times F$):} $E = \frac{H-R+U}{U}, F = \frac{W-S+U}{U}$.
+    \item \textbf{Weights:} $M \times R \times S \times C + M$.
+    \item \textbf{MACs:} $E \times F \times R \times S \times C \times M$.
+\end{itemize}
+\textit{Example:} A small LeNet-like model can require $\approx 280$ KB of RAM, which exceeds the capacity of many mid-range MCUs (e.g., 256 KB RAM), necessitating optimization.
+ Greenland

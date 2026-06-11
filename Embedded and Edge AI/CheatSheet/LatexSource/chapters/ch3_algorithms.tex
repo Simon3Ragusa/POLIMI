@@ -1,0 +1,43 @@
+\section{Algorithms for Embedded and Edge AI}
+
+\subsection{The Software Pipeline}
+The software pipeline converts continuous sensor streams into actionable decisions through:
+\textbf{Sensors} $\rightarrow$ \textbf{Preprocessing} $\rightarrow$ \textbf{Feature Extraction} $\rightarrow$ \textbf{ML Inference} $\rightarrow$ \textbf{Postprocessing}.
+
+\subsection{Data Preprocessing}
+\begin{itemize}
+    \item \textbf{Windowing (Chopping):} Splitting continuous signals into "windows".
+    \begin{itemize}
+        \item \textit{Trade-off:} Larger windows provide better accuracy (more context) but increase \textbf{latency}.
+        \item \textit{Overlapping:} Improves temporal resolution at the cost of higher computational load.
+    \end{itemize}
+    \item \textbf{Resampling and Filtering:}
+    \begin{itemize}
+        \item \textit{Low-pass:} Removes high-frequency noise.
+        \item \textit{High-pass:} Removes low-frequency drift.
+        \item \textit{Band-pass:} Isolate specific ranges (e.g., human speech).
+    \end{itemize}
+\end{itemize}
+
+\subsection{Feature Extraction}
+Manual feature extraction is often used to reduce the input size for shallow ML models or as a front-end for DL.
+\begin{itemize}
+    \item \textbf{Time Domain:} Mean, variance, max amplitude, Signal-to-Noise Ratio (SNR), Energy.
+    \item \textbf{Frequency Domain:} FFT (Fast Fourier Transform), spectral peaks, spectral entropy.
+    \item \textbf{Time-Frequency Domain:} Spectrograms (e.g., Mel-spectrograms for audio).
+    \item \textbf{Image/Visual:} Edge/corner detection (Harris, Canny), blob detection.
+\end{itemize}
+
+\subsection{Sensor Fusion and Scaling}
+\begin{itemize}
+    \item \textbf{Fusion:} Combining features from heterogeneous sensors (e.g., IMU + Microphone).
+    \item \textbf{Normalization:} Crucial for training stability.
+    \begin{itemize}
+        \item \textit{Min-Max:} $x' = \frac{x - \min}{\max - \min}$.
+        \item \textit{Standardization:} $x' = \frac{x - \mu}{\sigma}$.
+    \end{itemize}
+\end{itemize}
+
+\subsection{TinyML Evolution}
+The ultimate goal of TinyML is to move from \textit{Cloud-trained/On-device Inference} (Level 3) to \textit{On-device Training and Inference} (Level 6), enabling true autonomy and personalization.
+ Greenland

@@ -1,0 +1,37 @@
+\section{Embedded and Edge Hardware}
+
+\subsection{Edge AI System Architecture}
+An Edge AI system integrates a hardware layer (sensors, processors, memory) with a software layer (preprocessing, feature extraction, ML models) to process data and actuate decisions locally.
+
+\subsection{Hardware Components}
+\begin{itemize}
+    \item \textbf{Microcontrollers (MCUs):} Single-chip solutions containing CPU, RAM, Flash, and peripherals (ADC, I2C, SPI). Examples: STM32, ESP32, Arduino.
+    \item \textbf{Application Processors:} General-purpose units for higher-level logic (e.g., ARM Cortex-A).
+    \item \textbf{Coprocessors:}
+    \begin{itemize}
+        \item \textit{Integrated:} FPUs (Floating Point Units) or SIMD (Single Instruction Multiple Data) units.
+        \item \textit{Discrete:} External accelerators like GPUs or TPUs (Tensor Processing Units).
+    \end{itemize}
+\end{itemize}
+
+\subsection{The Memory Bottleneck}
+Memory is the primary constraint in EEAI:
+\begin{itemize}
+    \item \textbf{Volatile Memory (RAM/SRAM):} Fast but limited and expensive in terms of energy. It stores \textbf{activations} and intermediate computation buffers.
+    \item \textbf{Non-volatile Memory (Flash):} Stores the \textbf{model weights} and firmware. It is slower to write and has limited endurance.
+\end{itemize}
+
+\subsection{Memory Demand Examples}
+The memory required for raw data buffers can be calculated as:
+\begin{itemize}
+    \item \textbf{Audio:} $Length [s] \times Sampling [Hz] \times Resolution [Bytes] \times Channels$.
+    \item \textbf{Image:} $Width \times Height \times Bytes\_per\_pixel \times Channels$.
+\end{itemize}
+For example, a $128 \times 128$ RGB image at 1 byte/pixel requires $\approx 49$ KB, which is already significant for a low-end MCU.
+
+\subsection{Microcontroller Tiers}
+\begin{itemize}
+    \item \textbf{Low-end MCUs (e.g., ATmega328):} 8/16-bit, <100 MHz, <2 KB RAM. Suitable only for simple time-series analysis.
+    \item \textbf{High-end MCUs (e.g., STM32F4/H7):} 32-bit (Cortex-M), <1 GHz, 256 KB - 1 MB RAM. Can handle audio and limited image processing.
+    \item \textbf{SoC (e.g., Snapdragon, Jetson):} 64-bit, >1 GHz, GBs of RAM. Full support for high-resolution video and complex DL models.
+\end{itemize}

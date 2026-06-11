@@ -1,0 +1,26 @@
+\section{Machine Learning Workflow for EEAI}
+
+\subsection{Traditional Programming vs. Machine Learning}
+In traditional programming, we provide \textbf{Data + Rules} to a computer to get \textbf{Results}. In ML, we provide \textbf{Data + Results} to a computer to discover the \textbf{Rules} (the Model).
+
+\subsection{The Statistical Framework}
+\begin{itemize}
+    \item \textbf{Regression:} Estimating a continuous value.
+    \item \textbf{Classification:} Assigning a discrete label.
+\end{itemize}
+\textbf{Error Decomposition:} Total Error = Inherent Error + Approximation Error (Model too simple/Underfitting) + Estimation Error (Too little data/Overfitting).
+
+\subsection{Performance Evaluation}
+\begin{itemize}
+    \item \textbf{Hold-out:} Splitting into Train, Validation, and Test sets.
+    \item \textbf{Cross-Validation:} Robust estimation by rotating test folds.
+    \item \textbf{Metrics:} Accuracy, Precision, Recall, F1-Score, and ROC Curves. \textit{Note:} Accuracy can be misleading for imbalanced datasets common in IoT (e.g., anomaly detection).
+\end{itemize}
+
+\subsection{Memory Demand of a Model}
+For a Fully Connected (FC) layer with $H$ inputs and $W$ outputs:
+\begin{itemize}
+    \item \textbf{Weights:} $H \times W + W$ (weights + biases).
+    \item \textbf{Footprint (FP32):} $Parameters \times 4$ Bytes.
+\end{itemize}
+This calculation is critical to determine if a model fits in the Flash memory of an MCU.

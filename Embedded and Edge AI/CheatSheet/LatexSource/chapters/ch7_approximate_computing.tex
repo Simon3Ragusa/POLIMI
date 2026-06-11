@@ -1,0 +1,27 @@
+\section{Approximate Computing for EEAI}
+
+\subsection{Bridging the Gap}
+Approximate Computing aims to bridge the gap between heavy Deep Learning models and constrained IoT devices by relaxing the requirement for exact numerical precision or complete network execution.
+
+\subsection{Precision Scaling (Quantization)}
+Quantization reduces the bit-width of numbers (e.g., from 32-bit Floating Point to 8-bit Integer).
+\begin{itemize}
+    \item \textbf{Target:} 
+    \begin{itemize}
+        \item \textit{Weights:} Reduces the Flash footprint.
+        \item \textit{Activations:} Reduces RAM usage and dynamic energy.
+    \end{itemize}
+    \item \textbf{Energy Impact:} An 8-bit addition consumes $\sim 30$x less energy than a 32-bit float addition.
+    \item \textbf{Post-training Quantization (PTQ):} Fast, applied after training, but can cause significant accuracy drops for very low bit-widths (<4-bit).
+    \item \textbf{Quantization-Aware Training (QAT):} Simulates the effects of quantization during the training phase using a Straight-Through Estimator (STE), allowing the network to adapt and maintain higher accuracy.
+\end{itemize}
+
+\subsection{Task Dropping (Pruning)}
+Pruning removes redundant weights or structures from the network to save computation and space.
+\begin{itemize}
+    \item \textbf{Unstructured Pruning:} Removing individual weights (setting them to zero) based on magnitude. Creates sparse matrices which require specialized hardware/software to yield actual speedups.
+    \item \textbf{Structured Pruning:} Removing entire filters, channels, or layers. Yields immediate speedups on standard hardware.
+\end{itemize}
+
+\subsection{Knowledge Distillation}
+A technique where a large, complex \textbf{Teacher} model trains a smaller \textbf{Student} model. The student learns from the "soft labels" (the output logits with a temperature parameter applied) of the teacher, capturing richer information than hard binary labels.

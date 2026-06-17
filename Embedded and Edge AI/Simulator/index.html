@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EEAI Exam Simulator</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f4f4f9; }
+        h1 { color: #2c3e50; text-align: center; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .question { font-weight: bold; margin-top: 15px; }
+        .options { list-style-type: none; padding-left: 0; }
+        .options li { background: #ecf0f1; margin: 5px 0; padding: 10px; border-radius: 4px; cursor: pointer; transition: background 0.3s; }
+        .options li:hover { background: #d5dbdb; }
+        .answer { display: none; margin-top: 10px; padding: 10px; background: #d5f5e3; border-left: 5px solid #2ecc71; font-style: italic; }
+        .open-question { border-top: 1px dashed #ccc; padding-top: 10px; }
+        button { background-color: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; display: block; margin: 20px auto; }
+        button:hover { background-color: #2980b9; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <h1>Embedded and Edge AI - Exam Simulator</h1>
+
+    <div id="exam-container">
+        <!-- Closed Questions Section -->
+        <div class="section">
+            <h2>Section 1: Closed Questions</h2>
+            <div id="closed-questions">
+                <!-- Example MCQ -->
+                <div class="question">1. Which quantization technique requires a calibration dataset?</div>
+                <ul class="options">
+                    <li onclick="toggleAnswer('ans1')">A. Dynamic Range Quantization</li>
+                    <li onclick="toggleAnswer('ans1')">B. Post-Training Integer Quantization (PTQ)</li>
+                    <li onclick="toggleAnswer('ans1')">C. Float16 Quantization</li>
+                    <li onclick="toggleAnswer('ans1')">D. None of the above</li>
+                </ul>
+                <div id="ans1" class="answer">Correct Answer: B. PTQ requires a representative dataset to calibrate the dynamic range of activations.</div>
+
+                <div class="question">2. True or False: SqueezeNet uses Depthwise Separable Convolutions to reduce parameters.</div>
+                <ul class="options">
+                    <li onclick="toggleAnswer('ans2')">True</li>
+                    <li onclick="toggleAnswer('ans2')">False</li>
+                </ul>
+                <div id="ans2" class="answer">Correct Answer: False. SqueezeNet uses "Fire Modules" (1x1 squeeze and 1x1/3x3 expand). MobileNet uses Depthwise Separable Convolutions.</div>
+            </div>
+        </div>
+
+        <!-- Open Questions Section -->
+        <div class="section">
+            <h2>Section 2: Open Questions</h2>
+            <div id="open-questions">
+                <div class="open-question">
+                    <div class="question">Q1: Calculate MACs for a Conv layer (3x3 kernel, 64 input channels, 128 output channels, 32x32 input).</div>
+                    <button onclick="toggleAnswer('ans-o1')">Show Solution</button>
+                    <div id="ans-o1" class="answer">
+                        Solution: <br>
+                        Output size (no padding, stride 1): (32-3+1) = 30. <br>
+                        MACs = (Kernel_H * Kernel_W * Channels_In) * (Output_H * Output_W * Channels_Out) <br>
+                        MACs = (3 * 3 * 64) * (30 * 30 * 128) = 576 * 115,200 = 66,355,200 MACs.
+                    </div>
+                </div>
+
+                <div class="open-question">
+                    <div class="question">Q2: Explain the "Early Exit" mechanism and its trade-offs.</div>
+                    <button onclick="toggleAnswer('ans-o2')">Show Solution</button>
+                    <div id="ans-o2" class="answer">
+                        Solution: Early Exit inserts classifiers at intermediate layers. If the confidence (e.g., entropy) is high enough, the inference stops early. <br>
+                        Trade-off: Lower latency and energy vs. potential drop in accuracy if the exit is too early or the threshold is poorly tuned.
+                    </div>
+                </div>
+
+                <div class="open-question">
+                    <div class="question">Q3: Discuss the hardware limitations of ESP32-S3 for AI.</div>
+                    <button onclick="toggleAnswer('ans-o3')">Show Solution</button>
+                    <div id="ans-o3" class="answer">
+                        Solution: <br>
+                        - SRAM: ~512KB (shared with system). <br>
+                        - Flash: 4MB-16MB. <br>
+                        - AI Acceleration: SIMD instructions (PIE) but no dedicated NPU. <br>
+                        - Software: Supports TFLite Micro with optimized kernels for ESP-NN.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleAnswer(id) {
+            var x = document.getElementById(id);
+            if (x.style.display === "block") {
+                x.style.display = "none";
+            } else {
+                x.style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>

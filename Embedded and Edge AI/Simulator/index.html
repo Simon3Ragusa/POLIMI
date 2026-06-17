@@ -3,34 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EEAI - Exam Simulator 2026</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <title>EEAI Pro-Simulator | 2026 Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-light: #dbeafe;
-            --secondary: #64748b;
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.2);
+            --accent: #f59e0b;
+            --bg: #fdfeff;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --text-dim: #64748b;
             --success: #10b981;
             --danger: #ef4444;
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --text: #1e293b;
-            --text-dim: #64748b;
-            --border: #e2e8f0;
+            --radius: 24px;
         }
 
+        * { box-sizing: border-box; }
+
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg);
+            background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                              radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                              radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            background-attachment: fixed;
             color: var(--text);
             margin: 0;
             padding: 0;
-            line-height: 1.6;
+            min-height: 100vh;
         }
 
+        /* Glassmorphism Navigation */
         .navbar {
-            background: var(--card);
-            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.7);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
@@ -38,378 +46,228 @@
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
-        .logo {
-            font-weight: 800;
-            font-size: 1.25rem;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .timer-pill {
-            background: #fee2e2;
+        .logo { font-weight: 800; font-size: 1.2rem; color: var(--text); display: flex; align-items: center; gap: 8px; }
+        
+        .timer-badge {
+            background: rgba(239, 68, 68, 0.1);
             color: var(--danger);
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
+            padding: 8px 16px;
+            border-radius: 99px;
             font-weight: 700;
             font-variant-numeric: tabular-nums;
-            border: 1px solid #fecaca;
+            border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
-        .container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
+        .container { max-width: 900px; margin: 3rem auto; padding: 0 1.5rem; }
 
-        .exam-header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
+        /* Modern Hero Section */
+        .hero { text-align: center; margin-bottom: 4rem; color: white; }
+        .hero h1 { font-size: 3.5rem; font-weight: 800; margin: 0; letter-spacing: -2px; }
+        .hero p { opacity: 0.8; font-size: 1.1rem; }
 
-        .exam-header h1 {
-            font-size: 2.25rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-        }
-
-        .exam-header p {
-            color: var(--text-dim);
-        }
-
-        .section-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 1rem;
-            padding: 2rem;
+        /* Card Styling */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--radius);
+            padding: 2.5rem;
             margin-bottom: 2rem;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        .section-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
+        .section-tag {
+            background: var(--primary-glow);
             color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            display: inline-block;
         }
 
-        .question {
-            margin-bottom: 2.5rem;
-        }
+        .question-text { font-size: 1.4rem; font-weight: 700; margin-bottom: 2rem; display: block; }
 
-        .question-text {
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-            display: block;
-        }
-
-        .options-list {
-            list-style: none;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .option-item {
-            padding: 1rem;
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
+        /* Modern Options */
+        .options-grid { display: flex; flex-direction: column; gap: 1rem; }
+        
+        .option-pill {
+            background: #f8fafc;
+            border: 2px solid transparent;
+            padding: 1.2rem 1.5rem;
+            border-radius: 20px;
             cursor: pointer;
-            transition: all 0.2s;
             display: flex;
             align-items: center;
             gap: 1rem;
+            transition: all 0.2s;
+            font-weight: 600;
         }
 
-        .option-item:hover {
-            border-color: var(--primary);
-            background: var(--primary-light);
-        }
+        .option-pill:hover { background: #f1f5f9; transform: translateX(8px); }
+        .option-pill.selected { border-color: var(--primary); background: var(--primary-glow); }
+        .option-pill.correct { background: #ecfdf5; border-color: var(--success); color: #065f46; }
+        .option-pill.wrong { background: #fef2f2; border-color: var(--danger); color: #991b1b; }
 
-        .option-item.selected {
-            border-color: var(--primary);
-            background: var(--primary-light);
-            font-weight: 500;
+        .idx-circle {
+            width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; 
+            display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
         }
+        .selected .idx-circle { background: var(--primary); color: white; }
 
-        .option-item.correct {
-            border-color: var(--success);
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .option-item.wrong {
-            border-color: var(--danger);
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .indicator {
-            width: 1.5rem;
-            height: 1.5rem;
-            border: 2px solid var(--border);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-
-        .selected .indicator {
-            border-color: var(--primary);
-            background: var(--primary);
-            color: white;
-        }
-
+        /* Input Area */
         textarea {
-            width: 100%;
-            min-height: 150px;
-            padding: 1rem;
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            font-family: inherit;
-            resize: vertical;
-            transition: border-color 0.2s;
+            width: 100%; min-height: 180px; border-radius: var(--radius); border: 2px solid #e2e8f0;
+            padding: 1.5rem; font-family: inherit; font-size: 1rem; transition: all 0.2s;
+        }
+        textarea:focus { outline: none; border-color: var(--primary); background: #fdf2ff; }
+
+        /* History Tracker */
+        .history-section { background: rgba(15, 23, 42, 0.8); color: white; border-radius: var(--radius); padding: 2rem; margin-top: 5rem; }
+        .history-list { list-style: none; padding: 0; margin-top: 1.5rem; }
+        .history-item { 
+            display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); 
+            font-size: 0.9rem;
         }
 
-        textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-light);
+        /* Result Animation */
+        .result-panel {
+            display: none; text-align: center; padding: 3rem; background: var(--primary); color: white;
+            border-radius: var(--radius); margin-bottom: 3rem;
         }
+        .score-num { font-size: 5rem; font-weight: 800; }
 
-        .explanation {
-            display: none;
-            margin-top: 1rem;
-            padding: 1rem;
-            background: #f1f5f9;
-            border-radius: 0.5rem;
-            font-size: 0.95rem;
-            border-left: 4px solid var(--primary);
+        /* Main Button */
+        .cta-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            color: white; border: none; padding: 1.2rem 3rem; border-radius: 99px;
+            font-size: 1.2rem; font-weight: 800; cursor: pointer; transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4); display: block; margin: 4rem auto;
         }
+        .cta-btn:hover { transform: scale(1.05); box-shadow: 0 15px 40px rgba(99, 102, 241, 0.6); }
 
-        .footer {
-            margin-top: 4rem;
-            text-align: center;
-            padding-bottom: 4rem;
-        }
-
-        .btn-submit {
-            background: var(--primary);
-            color: white;
-            padding: 1rem 3rem;
-            border-radius: 0.75rem;
-            font-weight: 700;
-            font-size: 1.1rem;
-            border: none;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
-            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
-        }
-
-        .btn-submit:hover {
-            background: #1d4ed8;
-            transform: translateY(-2px);
-        }
-
-        .result-overlay {
-            display: none;
-            background: white;
-            border: 2px solid var(--primary);
-            border-radius: 1rem;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        .score-display {
-            font-size: 3rem;
-            font-weight: 800;
-            color: var(--primary);
-        }
+        .explanation { display: none; margin-top: 1.5rem; font-size: 0.95rem; color: var(--text-dim); padding: 1rem; background: #f8fafc; border-radius: 12px; }
 
         @media (max-width: 640px) {
-            .navbar { padding: 1rem; }
-            .exam-header h1 { font-size: 1.75rem; }
-            .section-card { padding: 1rem; }
+            .hero h1 { font-size: 2.2rem; }
+            .glass-card { padding: 1.5rem; }
         }
     </style>
 </head>
 <body>
 
     <nav class="navbar">
-        <div class="logo">
-            <span>🎓</span> EEAI Simulator
-        </div>
-        <div class="timer-pill" id="timer">30:00</div>
+        <div class="logo">🚀 EEAI Simulator <span style="font-size: 0.7rem; opacity: 0.5;">v4.0</span></div>
+        <div id="timer" class="timer-badge">30:00</div>
     </nav>
 
     <div class="container">
-        <div class="exam-header">
-            <h1>Ready, Simone?</h1>
-            <p>Based on the latest 2026 EEAI Syllabus Standards</p>
+        <div class="hero">
+            <h1>Elite Training</h1>
+            <p>The Ultimate 2026 Embedded AI Simulator for Class Collaboration</p>
         </div>
 
-        <div id="result-box" class="result-overlay">
-            <p style="font-weight: 600; color: var(--text-dim); margin: 0;">YOUR FINAL GRADE</p>
-            <div class="score-display" id="final-score">-- / 30</div>
-            <p id="grade-comment" style="font-weight: 500;"></p>
+        <div id="result-panel" class="result-panel">
+            <p style="font-weight: 700; margin: 0; opacity: 0.8;">YOUR FINAL SCORE</p>
+            <div class="score-num" id="final-score">0 / 30</div>
+            <p id="grade-comment" style="font-size: 1.2rem; font-weight: 600;"></p>
         </div>
 
         <form id="exam-form">
-            <div class="section-card">
-                <div class="section-title"><span>📝</span> Part 1: Concepts & Logic</div>
-                <div id="closed-questions"></div>
-            </div>
-
-            <div class="section-card">
-                <div class="section-title"><span>🧮</span> Part 2: Technical Deep-Dive</div>
-                <div id="open-questions"></div>
-            </div>
-
-            <div class="footer">
-                <button type="button" class="btn-submit" id="submit-btn" onclick="submitExam()">Finish and Grade</button>
-            </div>
+            <div id="questions-area"></div>
+            <button type="button" class="cta-btn" id="submit-btn" onclick="submitExam()">SUBMIT & RECORD RESULTS</button>
         </form>
+
+        <div class="history-section">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0;">📈 Progress History</h3>
+                <button onclick="clearHistory()" style="background: transparent; color: #94a3b8; border: none; cursor: pointer; font-size: 0.8rem;">Clear All</button>
+            </div>
+            <div id="history-list-container" class="history-list">
+                <!-- History items injected here -->
+            </div>
+        </div>
     </div>
 
     <script>
+        // Question Pool (2026 Syllabus Standard)
         const closedPool = [
-            {
-                q: "Which specific hardware block in the ESP32-S3 core handles SIMD instructions for AI?",
-                o: ["RISC-V ULP", "Xtensa LX7 with PIE", "ESP-NN Co-processor", "Tensor-Accelerator Core"],
-                a: 1,
-                e: "The ESP32-S3's Xtensa LX7 core includes Power-efficient Instruction Extensions (PIE) for SIMD operations."
-            },
-            {
-                q: "In a SqueezeNet Fire Module, how are the 'Expand' 1x1 and 3x3 layers combined?",
-                o: ["Element-wise addition", "Sequential processing", "Depth concatenation", "Averaging"],
-                a: 2,
-                e: "The outputs of 1x1 and 3x3 filters in the expand layer are concatenated along the channel dimension."
-            },
-            {
-                q: "What does the 'Zero-Point' (Z) represent in asymmetric INT8 quantization?",
-                o: ["The minimum value of the weight range", "The integer mapping of the floating-point 0.0", "The saturation threshold for activation", "The mean value of the weights"],
-                a: 1,
-                e: "Zero-point is the integer value that corresponds exactly to the real-valued zero."
-            },
-            {
-                q: "Which technique is most effective to reduce SRAM usage for activations?",
-                o: ["Weight Pruning", "INT8 Quantization of Activations", "Moving weights to Flash", "Batch Normalization"],
-                a: 1,
-                e: "Quantizing activations directly reduces the memory footprint required in SRAM during inference."
-            },
-            {
-                q: "In MobileNetV2, what is the role of the 'Expansion' layer in an Inverted Residual block?",
-                o: ["To reduce the number of channels for efficiency", "To project data into a higher-dimensional space for filtering", "To perform spatial downsampling", "To calculate the final softmax probability"],
-                a: 1,
-                e: "The expansion layer increases the channel depth to allow the depthwise convolution to extract more features."
-            },
-            {
-                q: "What is the primary trade-off when using a higher 'Early Exit' confidence threshold?",
-                o: ["Higher accuracy but higher average latency", "Lower accuracy but lower energy consumption", "Smaller model size but slower training", "More memory usage but faster weights access"],
-                a: 0,
-                e: "A higher threshold ensures more reliable results but forces more samples to proceed to deeper, slower layers."
-            },
-            {
-                q: "Why is 'Static PTQ' generally preferred over 'Dynamic PTQ' for Edge AI?",
-                o: ["It doesn't require any calibration data", "It reduces computation during inference by pre-calculating activation scales", "It allows the model to be trained from scratch", "It supports floating-point weights natively"],
-                a: 1,
-                e: "Static PTQ calculates scales offline, avoiding the overhead of calculating them during real-time inference."
-            },
-            {
-                q: "In the EEAI workflow, what is 'Hardware-Aware' search?",
-                o: ["Searching for new hardware components online", "Optimizing model architecture based on target latency/memory constraints", "Training a model that only works on GPUs", "A technique to increase the battery life of a cloud server"],
-                a: 1,
-                e: "Hardware-Aware NAS or design optimizes models specifically for the limits (MACs/SRAM) of the target MCU."
-            },
-            {
-                q: "Which layer typically consumes the most MACs in a Depthwise Separable block?",
-                o: ["Depthwise Layer", "Pointwise Layer", "Batch Normalization", "ReLU6"],
-                a: 1,
-                e: "Pointwise (1x1) convolutions usually account for ~90% of the MACs in a Depthwise Separable block."
-            },
-            {
-                q: "What is 'Layer Fusion' in the context of TFLite Micro/ESP-DL?",
-                o: ["Merging the weights of two different models", "Combining Conv, Bias, and ReLU into a single kernel to save memory access", "Using multiple MCUs to run one layer", "Reducing the number of layers in a model"],
-                a: 1,
-                e: "Fusion minimizes memory bandwidth by keeping intermediate results in registers between fused operations."
-            }
+            { q: "Which instruction set handles SIMD acceleration on the ESP32-S3?", o: ["ULP-RV", "Xtensa PIE", "ESP-NN", "ARM Neon"], a: 1, e: "PIE (Power-efficient Instruction Extensions) is the custom SIMD set on the ESP32-S3." },
+            { q: "What's the 'Fire Module' config in SqueezeNet?", o: ["Conv -> MaxPool", "Squeeze (1x1) then Expand (1x1 & 3x3)", "Depthwise then Pointwise", "Inverted Residual with ReLU6"], a: 1, e: "SqueezeNet uses a 1x1 squeeze layer followed by concatenated 1x1 and 3x3 expand layers." },
+            { q: "Zero-Point (Z) mapping in Asymmetric Quantization?", o: ["Maps real 0.0 to integer value", "Maps weights to mean 0", "Static bias for all layers", "Floating point scaling factor"], a: 0, e: "Zero-point is the integer representation of the floating-point value 0.0." },
+            { q: "How to minimize activation SRAM footprint?", o: ["Weight pruning", "Quantize activations to INT8", "Disable bias", "Flash weights storage"], a: 1, e: "INT8 activations consume 4x less SRAM than Float32." },
+            { q: "Inverted Residual block (MobileNetV2)?", o: ["Reduce channels then filter", "Expand channels then filter", "Single 5x5 filter", "Always use skip connection"], a: 1, e: "Inverted residuals expand depth before applying a depthwise convolution." },
+            { q: "Early Exit trigger metric?", o: ["Latency timer", "Confidence (e.g. Entropy)", "Battery level", "Kernel size"], a: 1, e: "Exit is triggered when the model is 'confident' enough (low entropy)." },
+            { q: "Why use Static PTQ over Dynamic?", o: ["No data needed", "Faster inference (no on-the-fly scaling)", "Better accuracy", "Smaller model size"], a: 1, e: "Static PTQ pre-calculates scaling factors, saving CPU cycles during inference." },
+            { q: "Hardware-Aware search in Edge AI?", o: ["Finding cheap MCUs", "Architecture optimization for target constraints", "GPU-only training", "Cloud pruning"], a: 1, e: "Optimizing the model specifically for target hardware (MACs/SRAM)." },
+            { q: "Most MAC-intensive layer in Depthwise Separable?", o: ["Depthwise", "Pointwise (1x1)", "BN", "ReLU"], a: 1, e: "Pointwise layers often account for >90% of total MACs." },
+            { q: "Layer Fusion (ESP-DL)?", o: ["Weight merging", "Kernel op combination (Conv+Bias+ReLU)", "Multi-core sync", "Model compression"], a: 1, e: "Combining operations reduces memory bandwidth overhead." }
         ];
 
         const openPool = [
-            {
-                q: "EXERCISE: Calculate the MAC operations for this MobileNet-style block. \nInput: 32x32x32. \nDepthwise: 3x3 kernel, Stride 1. \nPointwise: 64 filters. \nShow your breakdown.",
-                a: "1. Output Dim: 30x30.\n2. Depthwise MACs: (3*3*1) * (30*30*32) = 259,200.\n3. Pointwise MACs: (1*1*32) * (30*30*64) = 1,843,200.\nTotal: 2,102,400 MACs."
-            },
-            {
-                q: "THEORY: Explain why 'Bias' quantization often uses 32-bit integers even if Weights and Activations use 8-bit. Refer to the Scaling Factor equation.",
-                a: "To avoid precision loss during accumulation. If Real_Val = S * (Q - Z), multiplying weights (Sw) and activations (Sa) creates a new scale (Sw*Sa). Using 32-bit for bias allows it to match the accumulator precision without premature rounding error."
-            },
-            {
-                q: "DESIGN: You need to implement a 'Multi-Person Tracker' on an ESP32-S3. The model is too big for SRAM. Suggest 3 specific optimizations from the course to fit it.",
-                a: "1. Post-Training Quantization (INT8) to reduce weights/activations.\n2. Apply 'Depthwise Separable Convolutions' to replace standard ones.\n3. Implement 'Layer Streaming' or 'Tiling' to process only parts of the feature maps in SRAM at a time."
-            }
+            { q: "MAC CALC: 32x32x32 Input, 3x3 Depthwise (S1), 64 Pointwise filters. Show total.", a: "Depthwise: (3*3*1)*(30*30*32) = 259,200. Pointwise: (1*1*32)*(30*30*64) = 1,843,200. Total = 2,102,400 MACs." },
+            { q: "THEORY: Why 32-bit Bias in 8-bit networks?", a: "To match the precision of the accumulator and avoid rounding errors during sum-product operations." },
+            { q: "DESIGN: Strategy to fit a 2MB model in 512KB SRAM?", a: "1. INT8 Quantization. 2. Layer Streaming/Tiling. 3. Depthwise Separable refactoring." }
         ];
 
         let timeLeft = 30 * 60;
-        let selectedClosed = [];
-        let selectedOpen = [];
         let userClosed = new Array(10).fill(null);
+        let currentClosed = [], currentOpen = [];
 
         function init() {
-            selectedClosed = closedPool.sort(() => 0.5 - Math.random()).slice(0, 10);
-            selectedOpen = openPool.sort(() => 0.5 - Math.random()).slice(0, 3);
+            currentClosed = [...closedPool].sort(() => Math.random() - 0.5).slice(0, 10);
+            currentOpen = [...openPool].sort(() => Math.random() - 0.5).slice(0, 3);
+            
+            const area = document.getElementById('questions-area');
+            area.innerHTML = '';
 
-            const cCont = document.getElementById('closed-questions');
-            selectedClosed.forEach((item, idx) => {
-                const div = document.createElement('div');
-                div.className = 'question';
-                div.innerHTML = `
-                    <span class="question-text">${idx + 1}. ${item.q}</span>
-                    <div class="options-list" id="opt-group-${idx}">
+            // Render Closed
+            currentClosed.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = 'glass-card';
+                card.innerHTML = `
+                    <span class="section-tag">Question ${idx+1} / 13</span>
+                    <span class="question-text">${item.q}</span>
+                    <div class="options-grid" id="opt-group-${idx}">
                         ${item.o.map((o, i) => `
-                            <div class="option-item" onclick="select(${idx}, ${i})">
-                                <div class="indicator">${String.fromCharCode(65 + i)}</div>
+                            <div class="option-pill" onclick="select(${idx}, ${i})">
+                                <div class="idx-circle">${String.fromCharCode(65+i)}</div>
                                 <span>${o}</span>
                             </div>
                         `).join('')}
                     </div>
-                    <div class="explanation" id="feed-${idx}">${item.e}</div>
+                    <div class="explanation" id="feed-${idx}"><strong>Key Concept:</strong> ${item.e}</div>
                 `;
-                cCont.appendChild(div);
+                area.appendChild(card);
             });
 
-            const oCont = document.getElementById('open-questions');
-            selectedOpen.forEach((item, idx) => {
-                const div = document.createElement('div');
-                div.className = 'question';
-                div.innerHTML = `
-                    <span class="question-text">Q${idx + 11}: ${item.q}</span>
-                    <textarea placeholder="Your analysis..." id="open-text-${idx}"></textarea>
-                    <div class="explanation" id="open-feed-${idx}"><strong>Ref Solution:</strong><br>${item.a}</div>
+            // Render Open
+            currentOpen.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = 'glass-card';
+                card.innerHTML = `
+                    <span class="section-tag">Technical Challenge Q${idx+11}</span>
+                    <span class="question-text">${item.q}</span>
+                    <textarea placeholder="Type your derivation or strategy here..." id="open-text-${idx}"></textarea>
+                    <div class="explanation" id="open-feed-${idx}"><strong>Reference Solution:</strong><br>${item.a}</div>
                 `;
-                oCont.appendChild(div);
+                area.appendChild(card);
             });
 
-            const timerInt = setInterval(() => {
-                let mins = Math.floor(timeLeft / 60);
-                let secs = timeLeft % 60;
-                document.getElementById('timer').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-                if (timeLeft <= 0) {
-                    clearInterval(timerInt);
-                    submitExam();
-                }
+            startTimer();
+            loadHistory();
+        }
+
+        function startTimer() {
+            const timerEl = document.getElementById('timer');
+            const interval = setInterval(() => {
+                let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+                timerEl.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+                if (timeLeft <= 0) { clearInterval(interval); submitExam(); }
                 timeLeft--;
             }, 1000);
         }
@@ -417,39 +275,52 @@
         window.select = (qIdx, oIdx) => {
             if (document.getElementById('submit-btn').disabled) return;
             userClosed[qIdx] = oIdx;
-            const items = document.querySelectorAll(`#opt-group-${qIdx} .option-item`);
-            items.forEach((item, i) => item.classList.toggle('selected', i === oIdx));
+            const pills = document.querySelectorAll(`#opt-group-${qIdx} .option-pill`);
+            pills.forEach((p, i) => p.classList.toggle('selected', i === oIdx));
         };
 
         window.submitExam = () => {
             document.getElementById('submit-btn').disabled = true;
             let score = 0;
-            
-            selectedClosed.forEach((item, idx) => {
-                const items = document.querySelectorAll(`#opt-group-${idx} .option-item`);
-                const feed = document.getElementById(`feed-${idx}`);
-                feed.style.display = 'block';
-                
-                if (userClosed[idx] === item.a) {
-                    score += 1.5;
-                    items[item.a].classList.add('correct');
-                } else {
-                    if (userClosed[idx] !== null) items[userClosed[idx]].classList.add('wrong');
-                    items[item.a].classList.add('correct');
-                }
+            currentClosed.forEach((item, idx) => {
+                const pills = document.querySelectorAll(`#opt-group-${idx} .option-pill`);
+                document.getElementById(`feed-${idx}`).style.display = 'block';
+                if (userClosed[idx] === item.a) { score += 1.5; pills[item.a].classList.add('correct'); }
+                else { if (userClosed[idx] !== null) pills[userClosed[idx]].classList.add('wrong'); pills[item.a].classList.add('correct'); }
             });
 
-            selectedOpen.forEach((item, idx) => {
-                document.getElementById(`open-feed-${idx}`).style.display = 'block';
-            });
+            currentOpen.forEach((_, idx) => document.getElementById(`open-feed-${idx}`).style.display = 'block');
 
-            const final = Math.min(30, score + 12.5); // Randomizing the open score slightly for effect
-            const box = document.getElementById('result-box');
-            box.style.display = 'block';
+            const final = score + 12.5; // Final score simulation
+            document.getElementById('result-panel').style.display = 'block';
             document.getElementById('final-score').innerText = `${final} / 30`;
-            document.getElementById('grade-comment').innerText = final >= 18 ? "Nice work! You're ready for the exam. 🚀" : "Keep studying! Review the key concepts below. 📚";
+            document.getElementById('grade-comment').innerText = final >= 18 ? "Passed. Excellent focus! 🚀" : "Keep grinding. Review the basics. 📚";
+            
+            saveHistory(final);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
+
+        // --- Simple History Tracker Logic ---
+        function saveHistory(score) {
+            const history = JSON.parse(localStorage.getItem('eeai_history') || '[]');
+            history.unshift({ score, date: new Date().toLocaleString() });
+            localStorage.setItem('eeai_history', JSON.stringify(history.slice(0, 5))); // Keep last 5
+            loadHistory();
+        }
+
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('eeai_history') || '[]');
+            const container = document.getElementById('history-list-container');
+            container.innerHTML = history.length ? '' : '<p style="opacity: 0.5;">No records yet. Finish an exam to track progress!</p>';
+            history.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `<span>${item.date}</span> <span style="font-weight: 700; color: #a855f7;">${item.score} / 30</span>`;
+                container.appendChild(div);
+            });
+        }
+
+        window.clearHistory = () => { localStorage.removeItem('eeai_history'); loadHistory(); };
 
         init();
     </script>

@@ -144,15 +144,15 @@ const closedPool = [
         "src": "03 - Algorithms for EEAI"
     },
     {
-        "q": "What is a primary characteristic of an Infinite Impulse Response (IIR) filter when compared to a Finite Impulse Response (FIR) filter?",
+        "q": "In the context of digital signal preprocessing, what is the primary purpose of a 'Low pass filter'?",
         "o": [
-            "An IIR filter is unconditionally stable under all configurations.",
-            "An IIR filter utilizes feedback from previous outputs, allowing for a sharper cutoff with fewer parameters.",
-            "An IIR filter only operates directly in the frequency domain.",
-            "An IIR filter strictly requires an FFT to compute its output."
+            "To keep only the high frequencies and discard the rest.",
+            "To keep low frequencies and discard high frequencies, mitigating high-frequency noise.",
+            "To completely reconstruct missing data points.",
+            "To shift the phase of the signal."
         ],
         "a": 1,
-        "e": "IIR filters have feedback loops, making them computationally efficient but potentially unstable compared to FIR.",
+        "e": "A low pass filter allows signals with a frequency lower than a selected cutoff frequency to pass through and attenuates frequencies higher than the cutoff.",
         "src": "03 - Algorithms for EEAI"
     },
     {
@@ -675,8 +675,8 @@ const openPool = [
         "src": "03 - Algorithms for EEAI"
     },
     {
-        "q": "THEORY: Compare FIR (Finite Impulse Response) and IIR (Infinite Impulse Response) digital filters in terms of stability, computational complexity, and phase response.",
-        "a": "FIR: Inherently stable (no feedback), linear phase response (preserves waveform shape), but computationally expensive (requires many taps/MACs for sharp cutoffs). IIR: Uses feedback, making it computationally cheap (sharp cutoffs with few taps), but introduces non-linear phase distortion and risks instability if poles move outside the unit circle.",
+        "q": "THEORY: Discuss the use of 'Low pass', 'High pass', and 'Band pass' filters in digital signal preprocessing for embedded AI. Provide an example use case.",
+        "a": "Low pass filters keep low frequencies and remove high-frequency noise. High pass filters keep high frequencies and remove low-frequency drift. Band pass filters isolate a specific range of interest. For example, in a speech recognition application, a Band pass filter from 100Hz to 4KHz is used to isolate the human voice band and discard background noise outside this range.",
         "pts": 5,
         "src": "03 - Algorithms for EEAI"
     },

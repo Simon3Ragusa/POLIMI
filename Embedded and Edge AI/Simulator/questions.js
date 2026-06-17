@@ -84,7 +84,7 @@ const closedPool = [
         "src": "02 - Embedded and Edge Hardware"
     },
     {
-        "q": "What is the purpose of 'Deep Sleep' modes in MCUs?",
+        "q": "What is the primary purpose of 'Deep Sleep' modes in Microcontrollers?",
         "o": [
             "To pause the ML model during inference.",
             "To shut down major power domains (CPU, main memory) while keeping a low-power timer/RTC active to save energy.",
@@ -96,24 +96,24 @@ const closedPool = [
         "src": "02 - Embedded and Edge Hardware"
     },
     {
-        "q": "What role does an FPU play in embedded hardware?",
+        "q": "What role does a Floating-Point Unit (FPU) play in embedded hardware?",
         "o": [
-            "Flash Processing Unit for faster storage.",
-            "Floating-Point Unit for hardware acceleration of floating-point arithmetic.",
-            "Frequency Prediction Unit for clock scaling.",
-            "Feature Pooling Unit for CNNs."
+            "It acts as a Flash Processing Unit for faster storage access.",
+            "It provides hardware acceleration for floating-point arithmetic, avoiding slow software emulation.",
+            "It serves as a Frequency Prediction Unit for clock scaling.",
+            "It operates as a Feature Pooling Unit for Convolutional Neural Networks."
         ],
         "a": 1,
         "e": "An FPU allows the MCU to execute floating-point operations natively without slow software emulation.",
         "src": "02 - Embedded and Edge Hardware"
     },
     {
-        "q": "What is SIMD in the context of embedded processors (like ARM Neon or Xtensa PIE)?",
+        "q": "How do SIMD instructions (such as Xtensa PIE) accelerate execution in embedded processors?",
         "o": [
-            "Single Instruction Multiple Data: executing one operation simultaneously on multiple data points.",
-            "Sequential Input Memory Device.",
-            "System In Micro Device.",
-            "Secure Instruction Management Domain."
+            "By executing one operation simultaneously on multiple data points.",
+            "By sequentially inputting memory blocks.",
+            "By operating exclusively in a secure micro-device domain.",
+            "By executing multiple different instructions on a single data point."
         ],
         "a": 0,
         "e": "SIMD accelerates vector math (like MACs in NNs) by processing multiple array elements per clock cycle.",
@@ -122,478 +122,478 @@ const closedPool = [
     {
         "q": "Why is a 'Windowing Function' (e.g., Hamming, Hanning) applied before performing an FFT on a time-series signal?",
         "o": [
-            "To increase the signal amplitude.",
+            "To increase the overall signal amplitude.",
             "To mitigate spectral leakage caused by non-periodic discontinuities at the edges of the sample frame.",
-            "To convert the signal back to the time domain.",
-            "To compress the data size."
+            "To convert the signal back into the time domain.",
+            "To structurally compress the data size before processing."
         ],
         "a": 1,
         "e": "Windowing tapers the ends of the signal to zero, making it smoothly periodic and reducing artificial high-frequency noise in the FFT.",
         "src": "03 - Algorithms for EEAI"
     },
     {
-        "q": "Which DSP technique is used to analyze how the frequency content of a signal changes over time?",
+        "q": "Which Digital Signal Processing (DSP) technique is utilized to analyze how the frequency content of a signal changes over time?",
         "o": [
-            "Standard FFT",
-            "STFT (Short-Time Fourier Transform)",
-            "IIR Filter",
-            "Moving Average"
+            "Standard Fast Fourier Transform (FFT).",
+            "Short-Time Fourier Transform (STFT).",
+            "Infinite Impulse Response (IIR) filtering.",
+            "Simple Moving Average calculation."
         ],
         "a": 1,
         "e": "STFT computes FFTs on sliding overlapping windows, creating a spectrogram of time vs. frequency.",
         "src": "03 - Algorithms for EEAI"
     },
     {
-        "q": "What is a primary characteristic of an IIR (Infinite Impulse Response) filter compared to an FIR filter?",
+        "q": "What is a primary characteristic of an Infinite Impulse Response (IIR) filter when compared to a Finite Impulse Response (FIR) filter?",
         "o": [
-            "It is always unconditionally stable.",
-            "It uses feedback (previous outputs) as well as inputs, allowing for a sharper cutoff with fewer parameters.",
-            "It only operates in the frequency domain.",
-            "It requires an FFT to compute."
+            "An IIR filter is unconditionally stable under all configurations.",
+            "An IIR filter utilizes feedback from previous outputs, allowing for a sharper cutoff with fewer parameters.",
+            "An IIR filter only operates directly in the frequency domain.",
+            "An IIR filter strictly requires an FFT to compute its output."
         ],
         "a": 1,
         "e": "IIR filters have feedback loops, making them computationally efficient but potentially unstable compared to FIR.",
         "src": "03 - Algorithms for EEAI"
     },
     {
-        "q": "In sensor data processing, what does 'Downsampling' achieve?",
+        "q": "In the context of sensor data processing, what is the primary objective of 'Downsampling'?",
         "o": [
-            "It increases the ADC bit-depth.",
-            "It reduces the sampling rate, lessening the computational load and memory requirements for subsequent stages.",
-            "It amplifies high-frequency noise.",
-            "It converts spatial data to temporal data."
+            "To arbitrarily increase the ADC bit-depth for higher precision.",
+            "To reduce the sampling rate, thereby lessening the computational load and memory requirements for subsequent stages.",
+            "To artificially amplify high-frequency noise for anomaly detection.",
+            "To transpose spatial data into temporal data arrays."
         ],
         "a": 1,
         "e": "Downsampling discards samples to lower the rate, assuming the Nyquist criterion for the frequencies of interest is still met.",
         "src": "03 - Algorithms for EEAI"
     },
     {
-        "q": "Which feature is typically extracted in the frequency domain for audio/vibration signals?",
+        "q": "Which of the following features is specifically extracted from the frequency domain when analyzing audio or vibration signals?",
         "o": [
-            "Zero-crossing rate",
-            "Root Mean Square (RMS)",
-            "Spectral Entropy or Dominant Frequency",
-            "Peak-to-peak amplitude"
+            "The Zero-crossing rate of the waveform.",
+            "The Root Mean Square (RMS) of the amplitude.",
+            "The Spectral Entropy or Dominant Frequency.",
+            "The Peak-to-peak amplitude measurement."
         ],
         "a": 2,
         "e": "Spectral features analyze the distribution of frequencies, unlike time-domain features like RMS or Zero-crossing.",
         "src": "03 - Algorithms for EEAI"
     },
     {
-        "q": "In binary classification on highly imbalanced datasets, which metric is most appropriate?",
+        "q": "When evaluating a binary classification model on a highly imbalanced dataset, which metric provides the most reliable assessment?",
         "o": [
-            "Accuracy",
-            "F1-Score",
-            "Mean Squared Error",
-            "True Negative Rate alone"
+            "Standard Accuracy.",
+            "The F1-Score.",
+            "Mean Squared Error (MSE).",
+            "True Negative Rate evaluated in isolation."
         ],
         "a": 1,
         "e": "F1-Score is the harmonic mean of Precision and Recall, making it robust against class imbalance where Accuracy would be misleading.",
         "src": "04 - Machine Learning for EEAI"
     },
     {
-        "q": "What is 'Data Leakage' in the context of ML evaluation?",
+        "q": "How is 'Data Leakage' defined in the context of Machine Learning model evaluation?",
         "o": [
-            "When the battery dies and data is lost.",
-            "When information from outside the training dataset (e.g., test set data) inadvertently influences the model creation, inflating evaluation metrics.",
-            "When a sensor is miscalibrated.",
-            "When weights overflow 8-bit limits."
+            "The physical loss of sensor data due to power failure.",
+            "A scenario where information from outside the training dataset (e.g., test set data) inadvertently influences model training, artificially inflating evaluation metrics.",
+            "The miscalibration of an input sensor.",
+            "The overflow of weights beyond 8-bit precision limits."
         ],
         "a": 1,
         "e": "Leakage creates overly optimistic models that fail to generalize in production.",
         "src": "04 - Machine Learning for EEAI"
     },
     {
-        "q": "Why is 'Leave-One-Subject-Out' (LOSO) cross-validation crucial for wearable ML models?",
+        "q": "Why is the 'Leave-One-Subject-Out' (LOSO) cross-validation technique considered crucial for evaluating wearable ML models?",
         "o": [
-            "It trains faster than K-fold.",
-            "It ensures that samples from the same person are not split across train and test sets, proving the model can generalize to unseen users.",
-            "It leaves out the most difficult class.",
-            "It reduces the model size."
+            "It significantly accelerates the training process compared to standard K-fold validation.",
+            "It ensures that samples from a single person are not split across training and testing sets, providing proof that the model can generalize to entirely unseen users.",
+            "It deliberately excludes the most difficult classification class to simplify training.",
+            "It automatically reduces the final memory footprint of the model."
         ],
         "a": 1,
         "e": "Biometric/wearable data is highly correlated per user. LOSO tests true generalization.",
         "src": "04 - Machine Learning for EEAI"
     },
     {
-        "q": "Which traditional ML algorithm uses an ensemble of decision trees to improve generalization?",
+        "q": "Which traditional Machine Learning algorithm utilizes an ensemble of decision trees to improve overall generalization?",
         "o": [
-            "Support Vector Machine (SVM)",
-            "Random Forest",
-            "K-Nearest Neighbors (KNN)",
-            "Logistic Regression"
+            "Support Vector Machine (SVM).",
+            "Random Forest.",
+            "K-Nearest Neighbors (KNN).",
+            "Logistic Regression."
         ],
         "a": 1,
         "e": "Random Forests aggregate the predictions of multiple uncorrelated decision trees to reduce overfitting.",
         "src": "04 - Machine Learning for EEAI"
     },
     {
-        "q": "What is the role of a 'Validation Set' in the ML workflow?",
+        "q": "What specific role does a 'Validation Set' serve within the standard Machine Learning workflow?",
         "o": [
-            "To train the final weights of the model.",
-            "To tune hyperparameters and make architectural decisions without touching the final Test Set.",
-            "To normalize the input sensors.",
-            "To replace the training set if it is too small."
+            "It is used to compute and update the final weights of the model during backpropagation.",
+            "It provides an unbiased evaluation metric used exclusively to tune hyperparameters and make architectural decisions without compromising the final Test Set.",
+            "It is utilized to normalize the raw input signals from the sensors.",
+            "It acts as a substitute training set when data volume is exceedingly small."
         ],
         "a": 1,
         "e": "The validation set provides unbiased evaluation during training for hyperparameter tuning.",
         "src": "04 - Machine Learning for EEAI"
     },
     {
-        "q": "What is the 'Receptive Field' of a neuron in a CNN?",
+        "q": "How is the 'Receptive Field' of a neuron defined within a Convolutional Neural Network?",
         "o": [
-            "The size of the output feature map.",
-            "The specific region in the original input volume that affects the activation of that neuron.",
-            "The number of filters in the layer.",
-            "The maximum value the neuron can output."
+            "It represents the absolute size of the output feature map produced by the layer.",
+            "It defines the specific spatial region within the original input volume that directly affects the activation of that neuron.",
+            "It indicates the total number of individual filters present in the convolutional layer.",
+            "It represents the maximum numerical value the neuron is capable of outputting."
         ],
         "a": 1,
         "e": "The receptive field denotes how much spatial context from the input image a particular neuron 'sees'.",
         "src": "05 - Deep learning for EEAI"
     },
     {
-        "q": "Why are CNNs particularly well-suited for image data compared to Fully Connected Networks (MLPs)?",
+        "q": "Why are Convolutional Neural Networks (CNNs) considered superior to Fully Connected Networks (MLPs) for processing high-dimensional image data?",
         "o": [
-            "They use more parameters.",
-            "They leverage spatial locality and weight sharing, drastically reducing parameters while maintaining translation invariance.",
-            "They do not require backpropagation.",
-            "They process 1D vectors faster."
+            "CNNs utilize significantly more parameters, allowing for greater memorization of data.",
+            "CNNs leverage spatial locality and shared weights across the image, drastically reducing the parameter count while maintaining translation invariance.",
+            "CNNs inherently bypass the need for backpropagation during training.",
+            "CNNs are exclusively optimized for processing 1D sequential vectors."
         ],
         "a": 1,
         "e": "A convolutional kernel slides across the image, sharing the same weights everywhere and detecting local patterns.",
         "src": "05 - Deep learning for EEAI"
     },
     {
-        "q": "What happens during a 'Max Pooling' operation with a 2x2 filter and stride 2?",
+        "q": "What is the exact mathematical effect of applying a 'Max Pooling' operation utilizing a 2x2 filter with a stride of 2?",
         "o": [
-            "The spatial dimensions (width and height) of the feature map are halved.",
-            "The number of channels is doubled.",
-            "The network learns new weight parameters.",
-            "All negative values are set to zero."
+            "The spatial dimensions (width and height) of the incoming feature map are exactly halved.",
+            "The total number of feature channels is doubled.",
+            "The network generates and learns new weight parameters specific to the pooling region.",
+            "All negative activation values within the window are strictly set to zero."
         ],
         "a": 0,
         "e": "Pooling downsamples the feature map by selecting the maximum value in each 2x2 window, providing translation invariance and reducing compute.",
         "src": "05 - Deep learning for EEAI"
     },
     {
-        "q": "What is the 'Vanishing Gradient' problem?",
+        "q": "How does the 'Vanishing Gradient' problem manifest in the training of deep neural networks?",
         "o": [
-            "When the learning rate is set too high.",
-            "When gradients become exponentially small as they propagate backward through many layers, halting the training of early layers.",
-            "When the loss function reaches exactly zero.",
-            "When the dataset is too small."
+            "It occurs when the learning rate hyperparameter is configured too aggressively.",
+            "It happens when gradients become exponentially small as they propagate backward through multiple layers, effectively halting the weight updates in the earliest layers.",
+            "It happens when the calculated loss function reaches exactly zero.",
+            "It manifests strictly when the training dataset lacks sufficient samples."
         ],
         "a": 1,
         "e": "Deep networks suffer from vanishing gradients, which architectures like ResNet solve using skip connections.",
         "src": "05 - Deep learning for EEAI"
     },
     {
-        "q": "In a Convolutional Layer, what does 'Padding' achieve?",
+        "q": "In the configuration of a Convolutional Layer, what specific structural purpose does 'Padding' serve?",
         "o": [
-            "It increases the number of output channels.",
-            "It adds border pixels (usually zeros) to allow the kernel to process the edges of the input, preserving spatial dimensions.",
-            "It reduces the learning rate.",
-            "It prunes small weights."
+            "It artificially increases the total number of output channels generated by the layer.",
+            "It adds border pixels (typically zeros) around the input, allowing the kernel to process the edges and preserving the original spatial dimensions in the output.",
+            "It algorithmically reduces the learning rate as the filter approaches the edges.",
+            "It systematically prunes small, insignificant weights from the kernel."
         ],
         "a": 1,
         "e": "Padding (like 'same' padding) ensures the output feature map has the same width/height as the input.",
         "src": "05 - Deep learning for EEAI"
     },
     {
-        "q": "What is the core innovation of the 'Fire Module' in SqueezeNet?",
+        "q": "What is the core architectural innovation implemented in the 'Fire Module' of SqueezeNet?",
         "o": [
-            "Using only 5x5 filters.",
-            "A 'Squeeze' layer of 1x1 filters followed by an 'Expand' layer of concatenated 1x1 and 3x3 filters.",
-            "Removing all convolutional layers and using only FC layers.",
-            "Using Depthwise Separable Convolutions exclusively."
+            "It utilizes exclusively large 5x5 filters to maximize the receptive field.",
+            "It features a 'Squeeze' layer comprised of 1x1 filters followed by an 'Expand' layer that concatenates the outputs of parallel 1x1 and 3x3 filters.",
+            "It eliminates all convolutional operations, relying solely on Fully Connected layers.",
+            "It relies exclusively on Depthwise Separable Convolutions to process spatial features."
         ],
         "a": 1,
         "e": "The Fire Module reduces parameters by squeezing the channel depth before applying the expensive 3x3 filters.",
         "src": "06 - Architectures for EEAI"
     },
     {
-        "q": "In MobileNetV1, how is a standard convolution decomposed?",
+        "q": "In the MobileNetV1 architecture, how is a standard convolution operation mathematically decomposed to improve efficiency?",
         "o": [
-            "Into a Depthwise convolution (spatial filtering) and a Pointwise convolution (1x1 channel combination).",
-            "Into a 3x3 convolution and a Max Pooling layer.",
-            "Into two sequential 1x1 convolutions.",
-            "Into a fully connected layer and a ReLU."
+            "It is split into a Depthwise convolution for spatial filtering followed by a Pointwise convolution (1x1) for cross-channel combination.",
+            "It is separated into a standard 3x3 convolution immediately followed by an aggressive Max Pooling layer.",
+            "It is reduced into two sequential 1x1 convolutions to compress channel depth.",
+            "It is decomposed into a sparse fully connected layer followed by a ReLU activation."
         ],
         "a": 0,
         "e": "Depthwise separable convolutions split spatial and cross-channel filtering, drastically reducing MACs.",
         "src": "06 - Architectures for EEAI"
     },
     {
-        "q": "Why does MobileNetV2 use a 'Linear Bottleneck'?",
+        "q": "What is the fundamental reason MobileNetV2 employs a 'Linear Bottleneck' instead of a standard non-linear activation?",
         "o": [
-            "To increase the MAC count.",
-            "Because non-linearities like ReLU destroy information when applied to low-dimensional spaces.",
-            "To make the model compatible with GPUs.",
-            "To replace the Softmax layer."
+            "To artificially inflate the total MAC count for more robust feature extraction.",
+            "Because non-linearities like ReLU destroy critical information when applied to low-dimensional manifolds.",
+            "To ensure the resulting model architecture is strictly compatible with GPU acceleration.",
+            "To entirely replace the need for a terminal Softmax classification layer."
         ],
         "a": 1,
         "e": "Applying ReLU in a bottleneck (low-channel) layer collapses the manifold; keeping it linear preserves information.",
         "src": "06 - Architectures for EEAI"
     },
     {
-        "q": "What mechanism does ShuffleNet introduce to overcome the limitations of Group Convolutions?",
+        "q": "What specific architectural mechanism does ShuffleNet introduce to mitigate the isolation issues caused by Group Convolutions?",
         "o": [
-            "Channel Shuffling, to allow information to flow across different channel groups.",
-            "Removing group convolutions entirely.",
-            "Increasing the kernel size to 7x7.",
-            "Using floating-point 64-bit weights."
+            "A 'Channel Shuffling' operation designed to enable information to flow freely across disparate channel groups.",
+            "The complete removal of group convolutions in favor of dense point-wise layers.",
+            "A significant increase in the spatial kernel size to 7x7.",
+            "The mandatory utilization of floating-point 64-bit weights."
         ],
         "a": 0,
         "e": "Group convolutions block cross-group information flow; shuffling the channels restores this representation power.",
         "src": "06 - Architectures for EEAI"
     },
     {
-        "q": "What is the primary concept behind GhostNet?",
+        "q": "What is the primary computational hypothesis behind the design of the GhostNet architecture?",
         "o": [
-            "Using invisible layers that are skipped during inference.",
-            "Generating a few intrinsic feature maps with standard convs, and generating 'ghost' variations using cheap linear operations (e.g., depthwise convs).",
-            "Training without a loss function.",
-            "Only using 1x1 convolutions."
+            "It relies on 'invisible' layers that are skipped dynamically during the inference phase.",
+            "It theorizes that feature maps are highly redundant; therefore, it generates a few intrinsic maps with standard convolutions and generates the 'ghost' variations using extremely cheap linear operations.",
+            "It assumes that training can be accomplished without the backpropagation of a loss function.",
+            "It posits that complex models can be built exclusively using 1x1 convolutions."
         ],
         "a": 1,
         "e": "GhostNet assumes many feature maps are redundant/similar, so it generates them cheaply rather than using full convolutions.",
         "src": "06 - Architectures for EEAI"
     },
     {
-        "q": "In Post-Training Quantization (PTQ), what is the difference between Symmetric and Asymmetric quantization?",
+        "q": "In the context of Post-Training Quantization (PTQ), how does Asymmetric quantization differ mathematically from Symmetric quantization?",
         "o": [
-            "Symmetric maps the float 0 to a non-zero integer.",
-            "Asymmetric uses a 'Zero-Point' offset to map unbalanced float ranges, while Symmetric is centered around zero (Zero-Point = 0).",
-            "Symmetric only works on weights, Asymmetric on activations.",
-            "Asymmetric uses 4-bit, Symmetric uses 8-bit."
+            "Symmetric quantization maps the floating-point zero to an arbitrary non-zero integer.",
+            "Asymmetric quantization utilizes a 'Zero-Point' offset to map unbalanced floating-point ranges to the integer space, whereas Symmetric quantization forces the range to be centered around zero.",
+            "Symmetric quantization is applied exclusively to weights, while Asymmetric quantization is strictly for activations.",
+            "Asymmetric quantization operates at 4-bit precision, whereas Symmetric uses standard 8-bit precision."
         ],
         "a": 1,
         "e": "Symmetric restricts the range to be equal on positive and negative sides, which is inefficient if the data is heavily skewed (like ReLU outputs).",
         "src": "07 - Approximate Computing"
     },
     {
-        "q": "What is 'Quantization-Aware Training' (QAT)?",
+        "q": "What specific mechanism characterizes 'Quantization-Aware Training' (QAT)?",
         "o": [
-            "Training a model on a quantum computer.",
-            "Inserting 'Fake Quantization' nodes during training to simulate rounding errors, allowing the network to adapt its weights.",
-            "Quantizing the dataset images before training.",
-            "Stopping the training early."
+            "The execution of the training loop on a specialized quantum computing simulator.",
+            "The insertion of 'Fake Quantization' nodes into the training graph to simulate rounding errors, forcing the network to adapt its weights to precision loss during the forward pass.",
+            "The manual quantization of all dataset images into 8-bit integers prior to training.",
+            "The algorithmic early termination of the training process once weights approach zero."
         ],
         "a": 1,
         "e": "QAT simulates the low-precision forward pass so the backward pass can adjust weights to minimize the quantization accuracy drop.",
         "src": "07 - Approximate Computing"
     },
     {
-        "q": "Which of the following describes 'Structured Pruning'?",
+        "q": "Which of the following descriptions accurately defines 'Structured Pruning'?",
         "o": [
-            "Setting individual random weights to zero based on a threshold.",
-            "Removing entire rows, columns, or filters from weight matrices to maintain dense computational structures.",
-            "Pruning only the bias vectors.",
-            "Removing the training data."
+            "The algorithmic removal of individual random weights based on a static magnitude threshold.",
+            "The systematic removal of entire rows, columns, or complete filters from weight matrices to maintain dense computational structures.",
+            "The exclusive pruning of bias vectors without altering the primary weight tensors.",
+            "The reduction of the training dataset by removing statistically insignificant samples."
         ],
         "a": 1,
         "e": "Structured pruning aligns with hardware SIMD units, providing actual speedups without branching overhead.",
         "src": "07 - Approximate Computing"
     },
     {
-        "q": "What is 'Weight Sharing' (or Weight Clustering) in the context of model compression?",
+        "q": "How is 'Weight Sharing' (or Weight Clustering) implemented to achieve model compression?",
         "o": [
-            "Copying weights from one layer to the next.",
-            "Clustering similar weights and representing them with indices pointing to a shared codebook of centroids.",
-            "Sharing the model weights over a Wi-Fi network.",
-            "Using identical weights for all filters."
+            "By indiscriminately copying weights from earlier layers to initialize subsequent deeper layers.",
+            "By clustering mathematically similar weights and representing them strictly with low-bit indices that point to a shared codebook of centroid values.",
+            "By distributing the model's weight matrices over a local Wi-Fi network to edge clients.",
+            "By forcing all convolutional filters in a specific layer to use identical weight values."
         ],
         "a": 1,
         "e": "It drastically reduces Flash footprint because you only store a small codebook and low-bit indices instead of full weights.",
         "src": "07 - Approximate Computing"
     },
     {
-        "q": "Why is an accumulator larger than 8 bits (e.g., 32-bit) required when multiplying INT8 weights and activations?",
+        "q": "Why does the Multiply-Accumulate operation of INT8 weights and activations strictly require an accumulator larger than 8 bits (e.g., 32-bit)?",
         "o": [
-            "To support floating-point operations.",
-            "Because the sum of many 16-bit products (INT8 x INT8) will quickly overflow an 8-bit or 16-bit register.",
-            "To make the MCU run faster.",
-            "To store the Zero-Point."
+            "To natively support the occasional floating-point operation during inference.",
+            "Because accumulating the sum of numerous 16-bit intermediate products (derived from INT8 x INT8 multiplication) will immediately overflow an 8-bit or 16-bit register.",
+            "To forcefully increase the clock speed of the Microcontroller.",
+            "To have dedicated memory space allocated for the Zero-Point offset."
         ],
         "a": 1,
         "e": "A MAC operation accumulates many products; a 32-bit register provides the necessary headroom to prevent overflow.",
         "src": "07 - Approximate Computing"
     },
     {
-        "q": "What is the primary goal of an 'Early Exit' neural network architecture?",
+        "q": "What is the fundamental objective driving the design of an 'Early Exit' neural network architecture?",
         "o": [
-            "To train the model in fewer epochs.",
-            "To reduce average inference latency and energy by halting computation when an intermediate classifier is sufficiently confident.",
-            "To increase the final top-1 accuracy.",
-            "To exit the program if an error occurs."
+            "To significantly reduce the total number of epochs required during the training phase.",
+            "To dynamically reduce average inference latency and energy consumption by halting computation whenever an intermediate classifier is sufficiently confident.",
+            "To artificially inflate the final top-1 accuracy metric of the network on complex datasets.",
+            "To provide an emergency software exit if a hardware error is detected during inference."
         ],
         "a": 1,
         "e": "Easy inputs can be classified by early layers, saving the compute cost of deeper layers.",
         "src": "08 - Early Exit Neural Networks"
     },
     {
-        "q": "Which metric is commonly used to determine the 'confidence' of an intermediate Early Exit branch?",
+        "q": "Which statistical metric is predominantly utilized to evaluate the 'confidence' of an intermediate Early Exit branch?",
         "o": [
-            "The total MACs executed so far.",
-            "The Shannon Entropy or the Maximum Probability of the Softmax output.",
-            "The MCU temperature.",
-            "The variance of the input image."
+            "The total cumulative MAC operations executed up to that specific branch.",
+            "The Shannon Entropy or the Maximum Probability derived from the Softmax output of the branch.",
+            "The thermal readings from the MCU's internal temperature sensor.",
+            "The statistical variance of the raw input image pixels."
         ],
         "a": 1,
         "e": "Low entropy or a high max probability indicates the classifier is highly confident in its prediction.",
         "src": "08 - Early Exit Neural Networks"
     },
     {
-        "q": "How is an Early Exit network typically trained?",
+        "q": "What specific training methodology is required to properly optimize a branching Early Exit network?",
         "o": [
-            "Only the final layer is trained.",
-            "A joint loss function is used, summing the loss of the final classifier and the weighted losses of all auxiliary branches.",
-            "The branches are trained on completely different datasets.",
-            "It requires unsupervised learning."
+            "Training is applied exclusively to the final, deepest classification layer.",
+            "The network is optimized using a joint loss function that sums the loss of the final classifier with the weighted losses of all auxiliary branches simultaneously.",
+            "Each individual branch must be trained iteratively on completely isolated and different datasets.",
+            "The network relies entirely on unsupervised clustering techniques."
         ],
         "a": 1,
         "e": "Joint training forces early layers to extract discriminative features sooner, satisfying the auxiliary classifiers.",
         "src": "08 - Early Exit Neural Networks"
     },
     {
-        "q": "What is a potential negative side-effect of attaching auxiliary Early Exit branches to a backbone network?",
+        "q": "What is a known architectural trade-off or negative side-effect of attaching auxiliary Early Exit branches to a deep backbone network?",
         "o": [
-            "It makes the network impossible to quantize.",
-            "The auxiliary branches can interfere with the feature representation needed for the final, deepest classifier (accuracy degradation).",
-            "It requires 64-bit precision.",
-            "It stops the MCU from entering sleep mode."
+            "It renders the resulting network mathematically impossible to quantize to INT8.",
+            "The aggressive gradients from auxiliary branches can interfere with the complex feature representations required by the final, deepest classifier, potentially degrading maximum accuracy.",
+            "It strictly mandates the use of 64-bit floating-point precision across all operations.",
+            "It physically prevents the MCU from entering low-power sleep modes."
         ],
         "a": 1,
         "e": "Early branches force the backbone to prioritize immediate classification, sometimes degrading the complex features needed later.",
         "src": "08 - Early Exit Neural Networks"
     },
     {
-        "q": "In an Early Exit inference phase, what happens if the first branch's confidence is below the threshold?",
+        "q": "During the inference phase of an Early Exit network, what is the defined behavior if an intermediate branch's confidence fails to meet the required threshold?",
         "o": [
-            "The system throws an error.",
-            "The system rejects the input as an anomaly.",
-            "Inference continues to the next block and evaluates the next branch.",
-            "The system restarts the MCU."
+            "The software stack throws an unhandled exception error.",
+            "The system immediately rejects the input sample as an out-of-distribution anomaly.",
+            "Inference simply continues forward into the deeper blocks to evaluate the subsequent branches or final classifier.",
+            "The system commands a hard restart of the Microcontroller."
         ],
         "a": 2,
         "e": "The data simply flows deeper into the network to gain a better representation for classification.",
         "src": "08 - Early Exit Neural Networks"
     },
     {
-        "q": "What does 'Concept Drift' refer to in edge deployments?",
+        "q": "In the context of deployed edge sensors, how is 'Concept Drift' formally defined?",
         "o": [
-            "The physical movement of the sensor.",
-            "A change in the statistical properties of the target variable over time (e.g., machinery wear), causing the pre-trained model to degrade.",
-            "The gradual loss of charge in Flash memory.",
-            "The shifting of weights during quantization."
+            "The physical shifting or degradation of the sensor's mounting hardware.",
+            "A progressive change in the underlying statistical properties of the target variable over time (e.g., due to machinery wear), resulting in the degradation of a static pre-trained model.",
+            "The gradual leakage of charge within the MCU's non-volatile Flash memory.",
+            "The inevitable shifting of weight distributions caused by aggressive post-training quantization."
         ],
         "a": 1,
         "e": "Concept drift breaks the IID assumption; the live data no longer matches the training data distribution.",
         "src": "09 - On-device Learning"
     },
     {
-        "q": "Why is 'Freezing' early layers critical for On-device Learning on MCUs?",
+        "q": "Why is the 'Freezing' of early backbone layers considered critical when implementing On-device Learning on memory-constrained MCUs?",
         "o": [
-            "It prevents the MCU from overheating.",
-            "It drastically reduces SRAM requirements because activations for frozen layers do not need to be stored for backpropagation.",
-            "It makes the model open-source.",
-            "It converts the model to a decision tree."
+            "It prevents the Microcontroller's core from exceeding its thermal limits during operation.",
+            "It drastically reduces SRAM requirements because the forward activations for frozen layers do not need to be stored in memory for the backpropagation step.",
+            "It ensures the model remains fully open-source and compliant with licensing.",
+            "It algorithmically transforms the deep neural network into a flat decision tree."
         ],
         "a": 1,
         "e": "Backprop requires storing intermediate activations; freezing layers removes this memory burden.",
         "src": "09 - On-device Learning"
     },
     {
-        "q": "What is 'Catastrophic Forgetting' in incremental learning?",
+        "q": "What phenomenon does the term 'Catastrophic Forgetting' describe in the domain of incremental machine learning?",
         "o": [
-            "When the Flash memory is erased.",
-            "When learning a new class or task causes the network to rapidly forget previously learned representations.",
-            "When the user forgets the MCU password.",
-            "When the quantization zero-point resets."
+            "The irreversible corruption of the Flash memory sector storing the model weights.",
+            "A scenario where learning a new class or task causes the neural network's weights to update aggressively, leading to the rapid loss of previously learned representations.",
+            "The event where the user loses the cryptographic key to the MCU.",
+            "The resetting of the quantization zero-point to a default state after a power cycle."
         ],
         "a": 1,
         "e": "NNs overwrite old weights when learning new data unless mitigation strategies (like replay) are used.",
         "src": "09 - On-device Learning"
     },
     {
-        "q": "What is 'Latent Replay' and how does it help on-device learning?",
+        "q": "How does the 'Latent Replay' strategy function to support on-device learning while navigating strict memory constraints?",
         "o": [
-            "Replaying audio files to the user.",
-            "Storing raw data in the cloud.",
-            "Storing compressed intermediate activations (latent patterns) of old data to mix with new data during training, preventing forgetting while saving memory.",
-            "A gaming term."
+            "By strictly replaying audio files to the user for manual validation.",
+            "By continuously uploading raw sensor data to the cloud for historical storage.",
+            "By storing compressed intermediate activations (latent patterns) of historical data to interleave with new data during training, effectively preventing forgetting without requiring massive raw data storage.",
+            "It is purely a gamification term for interactive ML."
         ],
         "a": 2,
         "e": "Storing latent vectors uses much less memory than raw data, while still reminding the network of past classes.",
         "src": "09 - On-device Learning"
     },
     {
-        "q": "What differentiates 'Federated Learning' from standard 'On-device Personalization'?",
+        "q": "What architectural feature differentiates 'Federated Learning' from standard, isolated 'On-device Personalization'?",
         "o": [
-            "Federated learning happens on a single disconnected device.",
-            "In Federated Learning, local devices compute weight updates and share them with a central server to create a global model, preserving raw data privacy.",
-            "Federated learning only uses random forests.",
-            "Federated learning requires no training."
+            "Federated learning operates exclusively on a single, disconnected device without any external communication.",
+            "In Federated Learning, distributed local devices compute weight updates independently and share only those gradients with a central server to aggregate a global model, thereby preserving raw data privacy.",
+            "Federated learning relies solely on non-parametric models like random forests.",
+            "Federated learning strictly requires no training phase whatsoever."
         ],
         "a": 1,
         "e": "Federated Learning is a distributed collaborative approach, while standard on-device learning adapts a model for a single user locally.",
         "src": "09 - On-device Learning"
     },
     {
-        "q": "In the Truesense PitchDeck context, why is UWB (Ultra-Wideband) radar at 60GHz preferred over camera vision for certain edge applications?",
+        "q": "Based on the Truesense architectural PitchDeck, why is a 60GHz Ultra-Wideband (UWB) Radar sensor selected over standard RGB camera vision for smart healthcare applications?",
         "o": [
-            "It has a higher resolution than 4K cameras.",
-            "It provides robust structural and motion sensing (e.g., respiration) while strictly preserving visual privacy.",
-            "It requires more lighting.",
-            "It only works outdoors."
+            "UWB radar provides a significantly higher spatial resolution than 4K optical cameras.",
+            "It delivers robust structural and motion sensing capabilities (e.g., detecting respiration or falls) while strictly guaranteeing visual privacy since no optical identity is captured.",
+            "UWB radar systems require vastly more ambient lighting to function.",
+            "UWB radar is designed to operate exclusively in outdoor environments."
         ],
         "a": 1,
         "e": "Radar doesn't capture visual identity, making it ideal for privacy-sensitive areas like healthcare or smart homes.",
         "src": "Truesense POLIMI 18 Mar 2026 PitchDeck"
     },
     {
-        "q": "What is a primary ML challenge when processing UWB Radar signals on the edge?",
+        "q": "What represents a primary Machine Learning challenge when attempting to process UWB Radar signals directly on the edge?",
         "o": [
-            "Radar data is fundamentally un-quantizable.",
-            "Processing complex multi-dimensional radar tensors (like Range-Doppler maps) requires significant memory and MACs, pushing MCU limits.",
-            "Radar sensors do not output digital data.",
-            "Radar signals are completely immune to noise."
+            "Radar frequency data is mathematically un-quantizable into integer formats.",
+            "Processing the complex, multi-dimensional radar tensors (such as dense Range-Doppler maps) requires significant memory and MAC throughput, severely pushing the limits of standard MCUs.",
+            "Radar sensors are entirely analog and do not interface with digital ML pipelines.",
+            "Radar signals operate in a vacuum and are completely immune to environmental noise."
         ],
         "a": 1,
         "e": "Radar point clouds or micro-Doppler maps are dense tensors requiring aggressive optimization to fit on an MCU.",
         "src": "Truesense POLIMI 18 Mar 2026 PitchDeck"
     },
     {
-        "q": "Which type of neural network is typically highly effective for recognizing sequential gestures from radar micro-Doppler signatures?",
+        "q": "Which class of neural network architectures is generally most effective for classifying sequential, temporal gestures derived from radar micro-Doppler signatures?",
         "o": [
-            "A single Fully Connected Layer.",
-            "CNNs (treating the spectrogram as an image) or RNNs/LSTMs (treating it as a sequence).",
-            "K-Means Clustering.",
-            "A static lookup table."
+            "A single, flat Fully Connected Layer.",
+            "Convolutional Neural Networks (treating the spectrogram as a 2D image) or Recurrent/LSTM networks (modeling the temporal sequence of the signature).",
+            "Unsupervised K-Means Clustering algorithms.",
+            "Static, hard-coded lookup tables."
         ],
         "a": 1,
         "e": "Micro-Doppler signatures are time-frequency representations (spectrograms) perfectly suited for CNNs or RNNs.",
         "src": "Truesense POLIMI 18 Mar 2026 PitchDeck"
     },
     {
-        "q": "Why is 'Edge AI' crucial for the Truesense radar use-case rather than streaming radar data to the cloud?",
+        "q": "Within the Truesense operational paradigm, why is processing data via 'Edge AI' deemed critical as opposed to streaming raw radar data to a centralized cloud?",
         "o": [
-            "Streaming raw 60GHz radar data requires massive continuous bandwidth and introduces privacy risks and latency.",
-            "The cloud cannot run Python.",
-            "Radar data is too small to send to the cloud.",
-            "Wi-Fi interferes with the radar."
+            "Streaming raw 60GHz radar data requires massive, continuous network bandwidth and introduces unacceptable latency and privacy risks.",
+            "Cloud computing architectures are fundamentally unable to execute Python scripts.",
+            "The volume of raw radar data is too minimal to justify the overhead of a cloud API connection.",
+            "Local Wi-Fi networks invariably create electromagnetic interference with the radar frequencies."
         ],
         "a": 0,
         "e": "Raw radar produces huge data streams. Processing locally extracts just the metadata (e.g., 'Person fell'), saving bandwidth and privacy.",
         "src": "Truesense POLIMI 18 Mar 2026 PitchDeck"
     },
     {
-        "q": "In a radar-based classification pipeline, what usually precedes the Neural Network?",
+        "q": "In a typical radar-based classification pipeline, what specific computational block must precede the Neural Network inference?",
         "o": [
-            "A mechanical actuator.",
-            "A Heavy DSP block (e.g., FFTs, clutter removal, CFAR) to convert raw ADC data into usable features.",
-            "A text-to-speech engine.",
-            "A cloud API call."
+            "A physical, mechanical actuator response.",
+            "A heavy Digital Signal Processing (DSP) block utilizing operations like FFTs, clutter removal, and CFAR to convert raw ADC signals into structured features.",
+            "An integrated text-to-speech synthesis engine.",
+            "A mandatory cloud-based API authentication call."
         ],
         "a": 1,
         "e": "Raw radar IF signals must be heavily processed via DSP to extract Range, Doppler, and Angle information before ML is applied.",

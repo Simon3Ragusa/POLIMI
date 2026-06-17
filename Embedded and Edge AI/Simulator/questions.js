@@ -1,805 +1,905 @@
 const closedPool = [
     {
-        "q": "Which instruction set handles SIMD acceleration on the ESP32-S3?",
+        "q": "What defines the 'Application Error Rate' (AER) in an Edge AI system?",
         "o": [
-            "ULP-RV",
-            "Xtensa PIE",
-            "ESP-NN",
-            "ARM Neon"
+            "The loss function during training.",
+            "The combined error probability of the entire pipeline (sensor, ADC, DSP, ML).",
+            "The hardware failure rate of the MCU.",
+            "The quantization error introduced by INT8."
         ],
         "a": 1,
-        "e": "PIE (Power-efficient Instruction Extensions) is the custom SIMD set on the ESP32-S3."
+        "e": "AER encompasses the entire sensing and processing pipeline, not just the ML model's accuracy.",
+        "src": "01 - Intro to the course"
     },
     {
-        "q": "What's the 'Fire Module' config in SqueezeNet?",
+        "q": "Which constraint is typically the strictest for an always-on edge device?",
         "o": [
-            "Conv -> MaxPool",
-            "Squeeze (1x1) then Expand (1x1 & 3x3)",
-            "Depthwise then Pointwise",
-            "Inverted Residual with ReLU6"
+            "Maximum clock frequency.",
+            "Energy/Power budget.",
+            "Cloud bandwidth.",
+            "DRAM latency."
         ],
         "a": 1,
-        "e": "SqueezeNet uses a 1x1 squeeze layer followed by concatenated 1x1 and 3x3 expand layers."
+        "e": "Battery-powered always-on devices are primarily constrained by their strict power budget.",
+        "src": "01 - Intro to the course"
     },
     {
-        "q": "Zero-Point (Z) mapping in Asymmetric Quantization?",
+        "q": "In the edge computing paradigm, what is a primary benefit of processing data locally rather than in the cloud?",
         "o": [
-            "Maps real 0.0 to integer value",
-            "Maps weights to mean 0",
-            "Static bias for all layers",
-            "Floating point scaling factor"
+            "Infinite storage capacity.",
+            "Lower deterministic latency and preserved data privacy.",
+            "Access to 64-bit floating point GPUs.",
+            "Ability to continuously run backpropagation."
+        ],
+        "a": 1,
+        "e": "Local processing avoids network round-trips (saving latency) and keeps sensitive raw data on-device (privacy).",
+        "src": "01 - Intro to the course"
+    },
+    {
+        "q": "What is the typical hierarchy of the Edge AI data pipeline?",
+        "o": [
+            "Sensor -> ML -> ADC -> Actuator",
+            "Sensor -> ADC -> DSP -> ML -> Actuator",
+            "ML -> DSP -> ADC -> Sensor",
+            "ADC -> Sensor -> ML -> DSP"
+        ],
+        "a": 1,
+        "e": "Physical signals hit the Sensor, are digitized by the ADC, cleaned by DSP, inferred by ML, and trigger an Actuator.",
+        "src": "01 - Intro to the course"
+    },
+    {
+        "q": "Why is 'TinyML' specifically distinct from general Edge AI?",
+        "o": [
+            "It only uses 1-bit quantization.",
+            "It targets microcontrollers (MCUs) with mW or µW power budgets and KB-level memory.",
+            "It refers to models with less than 10 layers.",
+            "It only processes 1D time-series data."
+        ],
+        "a": 1,
+        "e": "TinyML specifically targets severely resource-constrained MCUs, unlike Edge AI which can include powerful gateways like Jetson Nanos.",
+        "src": "01 - Intro to the course"
+    },
+    {
+        "q": "What distinguishes a Microcontroller (MCU) from a Microprocessor (MPU)?",
+        "o": [
+            "MCUs require an external OS like Linux.",
+            "MCUs integrate CPU, memory (SRAM/Flash), and peripherals on a single chip.",
+            "MPUs operate at micro-watt power levels.",
+            "MCUs have built-in GPUs."
+        ],
+        "a": 1,
+        "e": "MCUs are self-contained systems-on-a-chip designed for deeply embedded control.",
+        "src": "02 - Embedded and Edge Hardware"
+    },
+    {
+        "q": "Which memory component on an MCU is typically non-volatile and used to store model weights?",
+        "o": [
+            "SRAM",
+            "Flash",
+            "L1 Cache",
+            "Registers"
+        ],
+        "a": 1,
+        "e": "Flash memory retains data without power and is used for firmware and fixed weights.",
+        "src": "02 - Embedded and Edge Hardware"
+    },
+    {
+        "q": "What is the purpose of 'Deep Sleep' modes in MCUs?",
+        "o": [
+            "To pause the ML model during inference.",
+            "To shut down major power domains (CPU, main memory) while keeping a low-power timer/RTC active to save energy.",
+            "To offload processing to the cloud.",
+            "To increase the clock frequency temporarily."
+        ],
+        "a": 1,
+        "e": "Deep sleep drastically reduces power consumption during idle periods, waking up only on interrupts.",
+        "src": "02 - Embedded and Edge Hardware"
+    },
+    {
+        "q": "What role does an FPU play in embedded hardware?",
+        "o": [
+            "Flash Processing Unit for faster storage.",
+            "Floating-Point Unit for hardware acceleration of floating-point arithmetic.",
+            "Frequency Prediction Unit for clock scaling.",
+            "Feature Pooling Unit for CNNs."
+        ],
+        "a": 1,
+        "e": "An FPU allows the MCU to execute floating-point operations natively without slow software emulation.",
+        "src": "02 - Embedded and Edge Hardware"
+    },
+    {
+        "q": "What is SIMD in the context of embedded processors (like ARM Neon or Xtensa PIE)?",
+        "o": [
+            "Single Instruction Multiple Data: executing one operation simultaneously on multiple data points.",
+            "Sequential Input Memory Device.",
+            "System In Micro Device.",
+            "Secure Instruction Management Domain."
         ],
         "a": 0,
-        "e": "Zero-point is the integer representation of the floating-point value 0.0."
+        "e": "SIMD accelerates vector math (like MACs in NNs) by processing multiple array elements per clock cycle.",
+        "src": "02 - Embedded and Edge Hardware"
     },
     {
-        "q": "How to minimize activation SRAM footprint?",
+        "q": "Why is a 'Windowing Function' (e.g., Hamming, Hanning) applied before performing an FFT on a time-series signal?",
         "o": [
-            "Weight pruning",
-            "Quantize activations to INT8",
-            "Disable bias",
-            "Flash weights storage"
+            "To increase the signal amplitude.",
+            "To mitigate spectral leakage caused by non-periodic discontinuities at the edges of the sample frame.",
+            "To convert the signal back to the time domain.",
+            "To compress the data size."
         ],
         "a": 1,
-        "e": "INT8 activations consume 4x less SRAM than Float32."
+        "e": "Windowing tapers the ends of the signal to zero, making it smoothly periodic and reducing artificial high-frequency noise in the FFT.",
+        "src": "03 - Algorithms for EEAI"
     },
     {
-        "q": "Inverted Residual block (MobileNetV2)?",
+        "q": "Which DSP technique is used to analyze how the frequency content of a signal changes over time?",
         "o": [
-            "Reduce channels then filter",
-            "Expand channels then filter",
-            "Single 5x5 filter",
-            "Always use skip connection"
+            "Standard FFT",
+            "STFT (Short-Time Fourier Transform)",
+            "IIR Filter",
+            "Moving Average"
         ],
         "a": 1,
-        "e": "Inverted residuals expand depth before applying a depthwise convolution."
+        "e": "STFT computes FFTs on sliding overlapping windows, creating a spectrogram of time vs. frequency.",
+        "src": "03 - Algorithms for EEAI"
     },
     {
-        "q": "Early Exit trigger metric?",
+        "q": "What is a primary characteristic of an IIR (Infinite Impulse Response) filter compared to an FIR filter?",
         "o": [
-            "Latency timer",
-            "Confidence (e.g. Entropy)",
-            "Battery level",
-            "Kernel size"
+            "It is always unconditionally stable.",
+            "It uses feedback (previous outputs) as well as inputs, allowing for a sharper cutoff with fewer parameters.",
+            "It only operates in the frequency domain.",
+            "It requires an FFT to compute."
         ],
         "a": 1,
-        "e": "Exit is triggered when the model is confident enough (low entropy)."
+        "e": "IIR filters have feedback loops, making them computationally efficient but potentially unstable compared to FIR.",
+        "src": "03 - Algorithms for EEAI"
     },
     {
-        "q": "Why use Static PTQ over Dynamic?",
+        "q": "In sensor data processing, what does 'Downsampling' achieve?",
         "o": [
-            "No data needed",
-            "Faster inference (no on-the-fly scaling)",
-            "Better accuracy",
-            "Smaller model size"
+            "It increases the ADC bit-depth.",
+            "It reduces the sampling rate, lessening the computational load and memory requirements for subsequent stages.",
+            "It amplifies high-frequency noise.",
+            "It converts spatial data to temporal data."
         ],
         "a": 1,
-        "e": "Static PTQ pre-calculates scaling factors offline, saving CPU cycles during inference."
+        "e": "Downsampling discards samples to lower the rate, assuming the Nyquist criterion for the frequencies of interest is still met.",
+        "src": "03 - Algorithms for EEAI"
     },
     {
-        "q": "Hardware-Aware search in Edge AI?",
+        "q": "Which feature is typically extracted in the frequency domain for audio/vibration signals?",
         "o": [
-            "Finding cheap MCUs",
-            "Architecture optimization for target constraints",
-            "GPU-only training",
-            "Cloud pruning"
-        ],
-        "a": 1,
-        "e": "Optimizing the model specifically for target hardware constraints like SRAM and MACs."
-    },
-    {
-        "q": "Most MAC-intensive layer in Depthwise Separable?",
-        "o": [
-            "Depthwise",
-            "Pointwise (1x1)",
-            "BN",
-            "ReLU"
-        ],
-        "a": 1,
-        "e": "Pointwise layers often account for >90% of total MACs."
-    },
-    {
-        "q": "Layer Fusion (ESP-DL)?",
-        "o": [
-            "Weight merging",
-            "Kernel op combination (Conv+Bias+ReLU)",
-            "Multi-core sync",
-            "Model compression"
-        ],
-        "a": 1,
-        "e": "Combining operations reduces memory bandwidth overhead by avoiding SRAM writes."
-    },
-    {
-        "q": "What is the primary function of Pointwise convolution?",
-        "o": [
-            "Spatial downsampling",
-            "Cross-channel combination",
-            "Increasing non-linearity",
-            "Reducing input channels"
-        ],
-        "a": 1,
-        "e": "Pointwise linearly combines depthwise outputs across channels."
-    },
-    {
-        "q": "Structured vs Unstructured Pruning on MCUs?",
-        "o": [
-            "Unstructured is faster",
-            "Structured aligns better with hardware acceleration",
-            "Structured removes only FC layers",
-            "Unstructured reduces more MACs in theory but is slower in practice"
-        ],
-        "a": 1,
-        "e": "Structured pruning removes organized groups, fitting SIMD paradigms."
-    },
-    {
-        "q": "Why Asymmetric over Symmetric Quantization?",
-        "o": [
-            "Requires less memory",
-            "Handles non-zero mean distributions better",
-            "No Zero-Point needed",
-            "Uses 4-bit precision"
-        ],
-        "a": 1,
-        "e": "Perfectly maps unbalanced distributions."
-    },
-    {
-        "q": "On-device Learning limitation?",
-        "o": [
-            "Data privacy",
-            "High latency",
-            "SRAM constrained for backpropagation",
-            "Cannot use Conv layers"
+            "Zero-crossing rate",
+            "Root Mean Square (RMS)",
+            "Spectral Entropy or Dominant Frequency",
+            "Peak-to-peak amplitude"
         ],
         "a": 2,
-        "e": "Backprop exhausts MCU SRAM quickly because intermediate activations must be stored."
+        "e": "Spectral features analyze the distribution of frequencies, unlike time-domain features like RMS or Zero-crossing.",
+        "src": "03 - Algorithms for EEAI"
     },
     {
-        "q": "What is Tiling/Patching?",
+        "q": "In binary classification on highly imbalanced datasets, which metric is most appropriate?",
         "o": [
-            "Dividing source code",
-            "Processing input map in smaller spatial blocks",
-            "Distributing to multiple MCUs",
-            "Data augmentation"
+            "Accuracy",
+            "F1-Score",
+            "Mean Squared Error",
+            "True Negative Rate alone"
         ],
         "a": 1,
-        "e": "Manages peak memory by processing sub-regions."
+        "e": "F1-Score is the harmonic mean of Precision and Recall, making it robust against class imbalance where Accuracy would be misleading.",
+        "src": "04 - Machine Learning for EEAI"
     },
     {
-        "q": "Early Exit evaluation metric?",
+        "q": "What is 'Data Leakage' in the context of ML evaluation?",
         "o": [
-            "Training loss",
-            "Latency vs Accuracy trade-off curve",
-            "Epochs to converge",
-            "Camera size"
+            "When the battery dies and data is lost.",
+            "When information from outside the training dataset (e.g., test set data) inadvertently influences the model creation, inflating evaluation metrics.",
+            "When a sensor is miscalibrated.",
+            "When weights overflow 8-bit limits."
         ],
         "a": 1,
-        "e": "Evaluates saved latency against accuracy drop."
+        "e": "Leakage creates overly optimistic models that fail to generalize in production.",
+        "src": "04 - Machine Learning for EEAI"
     },
     {
-        "q": "Linear Bottleneck in MobileNetV2?",
+        "q": "Why is 'Leave-One-Subject-Out' (LOSO) cross-validation crucial for wearable ML models?",
         "o": [
-            "Prevents information destruction by ReLU in low-dims",
-            "Reduces spatial resolution",
-            "Increases channels",
-            "Applies dropout"
+            "It trains faster than K-fold.",
+            "It ensures that samples from the same person are not split across train and test sets, proving the model can generalize to unseen users.",
+            "It leaves out the most difficult class.",
+            "It reduces the model size."
+        ],
+        "a": 1,
+        "e": "Biometric/wearable data is highly correlated per user. LOSO tests true generalization.",
+        "src": "04 - Machine Learning for EEAI"
+    },
+    {
+        "q": "Which traditional ML algorithm uses an ensemble of decision trees to improve generalization?",
+        "o": [
+            "Support Vector Machine (SVM)",
+            "Random Forest",
+            "K-Nearest Neighbors (KNN)",
+            "Logistic Regression"
+        ],
+        "a": 1,
+        "e": "Random Forests aggregate the predictions of multiple uncorrelated decision trees to reduce overfitting.",
+        "src": "04 - Machine Learning for EEAI"
+    },
+    {
+        "q": "What is the role of a 'Validation Set' in the ML workflow?",
+        "o": [
+            "To train the final weights of the model.",
+            "To tune hyperparameters and make architectural decisions without touching the final Test Set.",
+            "To normalize the input sensors.",
+            "To replace the training set if it is too small."
+        ],
+        "a": 1,
+        "e": "The validation set provides unbiased evaluation during training for hyperparameter tuning.",
+        "src": "04 - Machine Learning for EEAI"
+    },
+    {
+        "q": "What is the 'Receptive Field' of a neuron in a CNN?",
+        "o": [
+            "The size of the output feature map.",
+            "The specific region in the original input volume that affects the activation of that neuron.",
+            "The number of filters in the layer.",
+            "The maximum value the neuron can output."
+        ],
+        "a": 1,
+        "e": "The receptive field denotes how much spatial context from the input image a particular neuron 'sees'.",
+        "src": "05 - Deep learning for EEAI"
+    },
+    {
+        "q": "Why are CNNs particularly well-suited for image data compared to Fully Connected Networks (MLPs)?",
+        "o": [
+            "They use more parameters.",
+            "They leverage spatial locality and weight sharing, drastically reducing parameters while maintaining translation invariance.",
+            "They do not require backpropagation.",
+            "They process 1D vectors faster."
+        ],
+        "a": 1,
+        "e": "A convolutional kernel slides across the image, sharing the same weights everywhere and detecting local patterns.",
+        "src": "05 - Deep learning for EEAI"
+    },
+    {
+        "q": "What happens during a 'Max Pooling' operation with a 2x2 filter and stride 2?",
+        "o": [
+            "The spatial dimensions (width and height) of the feature map are halved.",
+            "The number of channels is doubled.",
+            "The network learns new weight parameters.",
+            "All negative values are set to zero."
         ],
         "a": 0,
-        "e": "Linear activation preserves low-dimensional manifolds."
+        "e": "Pooling downsamples the feature map by selecting the maximum value in each 2x2 window, providing translation invariance and reducing compute.",
+        "src": "05 - Deep learning for EEAI"
     },
     {
-        "q": "Knowledge Distillation?",
+        "q": "What is the 'Vanishing Gradient' problem?",
         "o": [
-            "FP32 to INT8",
-            "Student mimics Teacher's soft outputs",
-            "L1-norm filter removal",
-            "Kernel fusion"
+            "When the learning rate is set too high.",
+            "When gradients become exponentially small as they propagate backward through many layers, halting the training of early layers.",
+            "When the loss function reaches exactly zero.",
+            "When the dataset is too small."
         ],
         "a": 1,
-        "e": "Transfers generalized knowledge to a compact model."
+        "e": "Deep networks suffer from vanishing gradients, which architectures like ResNet solve using skip connections.",
+        "src": "05 - Deep learning for EEAI"
     },
     {
-        "q": "Sample Partitioning importance?",
+        "q": "In a Convolutional Layer, what does 'Padding' achieve?",
         "o": [
-            "Class balance",
-            "Prevents data leakage from correlated user samples",
-            "Reduces dataset size",
-            "Speeds training"
+            "It increases the number of output channels.",
+            "It adds border pixels (usually zeros) to allow the kernel to process the edges of the input, preserving spatial dimensions.",
+            "It reduces the learning rate.",
+            "It prunes small weights."
         ],
         "a": 1,
-        "e": "Ensures unseen-user generalization."
+        "e": "Padding (like 'same' padding) ensures the output feature map has the same width/height as the input.",
+        "src": "05 - Deep learning for EEAI"
     },
     {
-        "q": "QAT Fake Quantization?",
+        "q": "What is the core innovation of the 'Fire Module' in SqueezeNet?",
         "o": [
-            "Effect of pruning",
-            "Device latency",
-            "Simulates rounding/clipping errors",
-            "Battery usage"
-        ],
-        "a": 2,
-        "e": "Adapts weights to precision loss during training."
-    },
-    {
-        "q": "Memory Wall in Edge AI refers to:",
-        "o": [
-            "Lack of Flash",
-            "SRAM bandwidth bottleneck",
-            "Cloud latency",
-            "DRAM cost"
+            "Using only 5x5 filters.",
+            "A 'Squeeze' layer of 1x1 filters followed by an 'Expand' layer of concatenated 1x1 and 3x3 filters.",
+            "Removing all convolutional layers and using only FC layers.",
+            "Using Depthwise Separable Convolutions exclusively."
         ],
         "a": 1,
-        "e": "Memory Wall refers to the high cost of moving data compared to computing."
+        "e": "The Fire Module reduces parameters by squeezing the channel depth before applying the expensive 3x3 filters.",
+        "src": "06 - Architectures for EEAI"
     },
     {
-        "q": "ESP32-S3 Flash memory is typically used for:",
+        "q": "In MobileNetV1, how is a standard convolution decomposed?",
         "o": [
-            "Storing activations",
-            "Storing constant model weights",
-            "Storing gradients",
-            "Dynamic routing"
-        ],
-        "a": 1,
-        "e": "Flash is non-volatile and slower, ideal for fixed weights."
-    },
-    {
-        "q": "Weight Sharing in model compression:",
-        "o": [
-            "Clustering weights to a codebook",
-            "Copying weights across layers",
-            "Sharing across devices",
-            "Broadcasting to multiple cores"
+            "Into a Depthwise convolution (spatial filtering) and a Pointwise convolution (1x1 channel combination).",
+            "Into a 3x3 convolution and a Max Pooling layer.",
+            "Into two sequential 1x1 convolutions.",
+            "Into a fully connected layer and a ReLU."
         ],
         "a": 0,
-        "e": "Reduces memory by storing indices to a shared codebook."
+        "e": "Depthwise separable convolutions split spatial and cross-channel filtering, drastically reducing MACs.",
+        "src": "06 - Architectures for EEAI"
     },
     {
-        "q": "Receptive Field expansion strategy:",
+        "q": "Why does MobileNetV2 use a 'Linear Bottleneck'?",
         "o": [
-            "Decrease filter size",
-            "Use Dilated/Atrous Convolutions",
-            "Use ReLU",
-            "Increase bit-width"
+            "To increase the MAC count.",
+            "Because non-linearities like ReLU destroy information when applied to low-dimensional spaces.",
+            "To make the model compatible with GPUs.",
+            "To replace the Softmax layer."
         ],
         "a": 1,
-        "e": "Dilated convs expand receptive field without increasing parameters."
+        "e": "Applying ReLU in a bottleneck (low-channel) layer collapses the manifold; keeping it linear preserves information.",
+        "src": "06 - Architectures for EEAI"
     },
     {
-        "q": "Feature Map size after 3x3 Conv, Stride 1, No Padding on 32x32?",
+        "q": "What mechanism does ShuffleNet introduce to overcome the limitations of Group Convolutions?",
         "o": [
-            "32x32",
-            "30x30",
-            "16x16",
-            "28x28"
-        ],
-        "a": 1,
-        "e": "(32 - 3)/1 + 1 = 30."
-    },
-    {
-        "q": "Concept Drift means:",
-        "o": [
-            "Sensor moves",
-            "Target distribution changes over time",
-            "Weights decay",
-            "Latency increases"
-        ],
-        "a": 1,
-        "e": "Concept drift is when statistical properties of the target change."
-    },
-    {
-        "q": "Freezing layers in On-device training:",
-        "o": [
-            "Saves power",
-            "Prevents updating feature extractors, saving SRAM",
-            "Quantizes to INT4",
-            "Increases MACs"
-        ],
-        "a": 1,
-        "e": "Freezing avoids storing activations for backprop in those layers."
-    },
-    {
-        "q": "GhostNet main idea:",
-        "o": [
-            "Invisible layers",
-            "Generating more feature maps from cheap linear operations",
-            "Removing residual connections",
-            "Using 1-bit weights"
-        ],
-        "a": 1,
-        "e": "GhostNet generates 'ghost' features using cheap depthwise operations."
-    },
-    {
-        "q": "ShuffleNet Channel Shuffle:",
-        "o": [
-            "Randomizes weights",
-            "Enables information flow across group convolutions",
-            "Shuffles input pixels",
-            "Reorders batches"
-        ],
-        "a": 1,
-        "e": "Channel shuffling overcomes the isolation of group convolutions."
-    },
-    {
-        "q": "Straight-Through Estimator (STE) in QAT:",
-        "o": [
-            "Bypasses backprop",
-            "Passes gradient of rounding function as 1",
-            "Estimates loss without labels",
-            "Prunes zeros"
-        ],
-        "a": 1,
-        "e": "STE allows gradients to flow through non-differentiable rounding nodes."
-    },
-    {
-        "q": "Symmetric Quantization Range for 8-bit?",
-        "o": [
-            "0 to 255",
-            "-128 to 127",
-            "-127 to 127",
-            "0 to 127"
-        ],
-        "a": 2,
-        "e": "Typically -127 to 127 to maintain strict symmetry around zero."
-    },
-    {
-        "q": "Why use 1x1 Convolutions?",
-        "o": [
-            "Spatial filtering",
-            "Channel projection and dimensionality reduction",
-            "Data augmentation",
-            "Increasing resolution"
-        ],
-        "a": 1,
-        "e": "1x1 convolutions linearly combine channels without spatial extent."
-    },
-    {
-        "q": "What is an Epoch?",
-        "o": [
-            "One batch update",
-            "One full pass over the entire training dataset",
-            "One forward pass",
-            "One gradient calculation"
-        ],
-        "a": 1,
-        "e": "An epoch is a complete pass over the training data."
-    },
-    {
-        "q": "What does Dropout do during Inference?",
-        "o": [
-            "Drops random neurons",
-            "Multiplies by dropout probability",
-            "Nothing, it is disabled",
-            "Quantizes neurons"
-        ],
-        "a": 2,
-        "e": "Dropout is a training-only regularization technique."
-    },
-    {
-        "q": "What is the role of Batch Normalization at inference?",
-        "o": [
-            "Normalizes the batch",
-            "Is fused into the preceding Convolution layer",
-            "Calculates new mean/variance",
-            "Is ignored"
-        ],
-        "a": 1,
-        "e": "BN parameters are folded into Conv weights for faster inference."
-    },
-    {
-        "q": "ESP-DL library targets:",
-        "o": [
-            "ARM Cortex",
-            "RISC-V",
-            "Xtensa ESP32 series",
-            "Nvidia GPUs"
-        ],
-        "a": 2,
-        "e": "ESP-DL is Espressif's deep learning library for ESP32."
-    },
-    {
-        "q": "Federated Learning vs On-device Learning?",
-        "o": [
-            "FL sends weights to cloud, On-device keeps them local",
-            "FL is faster",
-            "On-device requires internet",
-            "FL uses 8-bit only"
+            "Channel Shuffling, to allow information to flow across different channel groups.",
+            "Removing group convolutions entirely.",
+            "Increasing the kernel size to 7x7.",
+            "Using floating-point 64-bit weights."
         ],
         "a": 0,
-        "e": "FL aggregates local updates on a central server."
+        "e": "Group convolutions block cross-group information flow; shuffling the channels restores this representation power.",
+        "src": "06 - Architectures for EEAI"
     },
     {
-        "q": "What is a Bottleneck Layer?",
+        "q": "What is the primary concept behind GhostNet?",
         "o": [
-            "A layer with high latency",
-            "A layer with fewer channels than the surrounding layers",
-            "A layer with large filters",
-            "A layer that causes overfitting"
+            "Using invisible layers that are skipped during inference.",
+            "Generating a few intrinsic feature maps with standard convs, and generating 'ghost' variations using cheap linear operations (e.g., depthwise convs).",
+            "Training without a loss function.",
+            "Only using 1x1 convolutions."
         ],
         "a": 1,
-        "e": "Bottlenecks compress information into a lower-dimensional space."
+        "e": "GhostNet assumes many feature maps are redundant/similar, so it generates them cheaply rather than using full convolutions.",
+        "src": "06 - Architectures for EEAI"
     },
     {
-        "q": "In MobileNetV1, how many parameters does a Depthwise layer have compared to standard?",
+        "q": "In Post-Training Quantization (PTQ), what is the difference between Symmetric and Asymmetric quantization?",
         "o": [
-            "Same",
-            "Approx 1/C",
-            "Approx 1/K^2",
-            "Zero"
+            "Symmetric maps the float 0 to a non-zero integer.",
+            "Asymmetric uses a 'Zero-Point' offset to map unbalanced float ranges, while Symmetric is centered around zero (Zero-Point = 0).",
+            "Symmetric only works on weights, Asymmetric on activations.",
+            "Asymmetric uses 4-bit, Symmetric uses 8-bit."
         ],
         "a": 1,
-        "e": "Standard: K^2 * C * F. Depthwise: K^2 * C. Ratio is 1/F."
+        "e": "Symmetric restricts the range to be equal on positive and negative sides, which is inefficient if the data is heavily skewed (like ReLU outputs).",
+        "src": "07 - Approximate Computing"
     },
     {
-        "q": "What is the advantage of using ReLU6?",
+        "q": "What is 'Quantization-Aware Training' (QAT)?",
         "o": [
-            "Faster computation",
-            "Prevents activations from growing too large, aiding fixed-point quantization",
-            "Differentiable everywhere",
-            "Requires no memory"
+            "Training a model on a quantum computer.",
+            "Inserting 'Fake Quantization' nodes during training to simulate rounding errors, allowing the network to adapt its weights.",
+            "Quantizing the dataset images before training.",
+            "Stopping the training early."
         ],
         "a": 1,
-        "e": "ReLU6 caps at 6, providing a bounded range for easier 8-bit scaling."
+        "e": "QAT simulates the low-precision forward pass so the backward pass can adjust weights to minimize the quantization accuracy drop.",
+        "src": "07 - Approximate Computing"
     },
     {
-        "q": "What is 'Fine-tuning'?",
+        "q": "Which of the following describes 'Structured Pruning'?",
         "o": [
-            "Adjusting hyperparams",
-            "Updating pre-trained weights on a new, smaller dataset",
-            "Quantizing the model",
-            "Pruning weights"
+            "Setting individual random weights to zero based on a threshold.",
+            "Removing entire rows, columns, or filters from weight matrices to maintain dense computational structures.",
+            "Pruning only the bias vectors.",
+            "Removing the training data."
         ],
         "a": 1,
-        "e": "Fine-tuning adapts an existing model to a new task."
+        "e": "Structured pruning aligns with hardware SIMD units, providing actual speedups without branching overhead.",
+        "src": "07 - Approximate Computing"
     },
     {
-        "q": "What is the purpose of Max Pooling?",
+        "q": "What is 'Weight Sharing' (or Weight Clustering) in the context of model compression?",
         "o": [
-            "Increase channels",
-            "Provide translation invariance and reduce spatial dimensions",
-            "Add non-linearity",
-            "Normalize data"
+            "Copying weights from one layer to the next.",
+            "Clustering similar weights and representing them with indices pointing to a shared codebook of centroids.",
+            "Sharing the model weights over a Wi-Fi network.",
+            "Using identical weights for all filters."
         ],
         "a": 1,
-        "e": "Pooling downsamples and adds local invariance."
+        "e": "It drastically reduces Flash footprint because you only store a small codebook and low-bit indices instead of full weights.",
+        "src": "07 - Approximate Computing"
     },
     {
-        "q": "How does Tiling affect MACs?",
+        "q": "Why is an accumulator larger than 8 bits (e.g., 32-bit) required when multiplying INT8 weights and activations?",
         "o": [
-            "Reduces them",
-            "Increases them due to overlap recomputation",
-            "No effect",
-            "Doubles them"
+            "To support floating-point operations.",
+            "Because the sum of many 16-bit products (INT8 x INT8) will quickly overflow an 8-bit or 16-bit register.",
+            "To make the MCU run faster.",
+            "To store the Zero-Point."
         ],
         "a": 1,
-        "e": "Overlapping tiles require recomputing boundary pixels."
+        "e": "A MAC operation accumulates many products; a 32-bit register provides the necessary headroom to prevent overflow.",
+        "src": "07 - Approximate Computing"
     },
     {
-        "q": "What is the 'MAC' operation?",
+        "q": "What is the primary goal of an 'Early Exit' neural network architecture?",
         "o": [
-            "Media Access Control",
-            "Multiply-Accumulate: a = a + (w * x)",
-            "Memory Access Cycle",
-            "Model Accuracy Cost"
+            "To train the model in fewer epochs.",
+            "To reduce average inference latency and energy by halting computation when an intermediate classifier is sufficiently confident.",
+            "To increase the final top-1 accuracy.",
+            "To exit the program if an error occurs."
         ],
         "a": 1,
-        "e": "MAC is the fundamental math operation in Neural Networks."
+        "e": "Easy inputs can be classified by early layers, saving the compute cost of deeper layers.",
+        "src": "08 - Early Exit Neural Networks"
     },
     {
-        "q": "Why is SRAM preferred for Activations?",
+        "q": "Which metric is commonly used to determine the 'confidence' of an intermediate Early Exit branch?",
         "o": [
-            "It is non-volatile",
-            "It has higher read/write bandwidth and lower latency than Flash",
-            "It is cheaper",
-            "It has larger capacity"
+            "The total MACs executed so far.",
+            "The Shannon Entropy or the Maximum Probability of the Softmax output.",
+            "The MCU temperature.",
+            "The variance of the input image."
         ],
         "a": 1,
-        "e": "Activations change every cycle; fast SRAM prevents the memory wall."
+        "e": "Low entropy or a high max probability indicates the classifier is highly confident in its prediction.",
+        "src": "08 - Early Exit Neural Networks"
     },
     {
-        "q": "What is 'Overfitting'?",
+        "q": "How is an Early Exit network typically trained?",
         "o": [
-            "Model is too small",
-            "Model learns training noise and fails to generalize",
-            "Model trains too fast",
-            "Model cannot be quantized"
+            "Only the final layer is trained.",
+            "A joint loss function is used, summing the loss of the final classifier and the weighted losses of all auxiliary branches.",
+            "The branches are trained on completely different datasets.",
+            "It requires unsupervised learning."
         ],
         "a": 1,
-        "e": "Overfitting happens when a model memorizes the training data."
+        "e": "Joint training forces early layers to extract discriminative features sooner, satisfying the auxiliary classifiers.",
+        "src": "08 - Early Exit Neural Networks"
     },
     {
-        "q": "What does the Softmax function output?",
+        "q": "What is a potential negative side-effect of attaching auxiliary Early Exit branches to a backbone network?",
         "o": [
-            "Binary values",
-            "A probability distribution summing to 1",
-            "Negative values",
-            "Unbounded integers"
+            "It makes the network impossible to quantize.",
+            "The auxiliary branches can interfere with the feature representation needed for the final, deepest classifier (accuracy degradation).",
+            "It requires 64-bit precision.",
+            "It stops the MCU from entering sleep mode."
         ],
         "a": 1,
-        "e": "Softmax converts logits into normalized probabilities."
+        "e": "Early branches force the backbone to prioritize immediate classification, sometimes degrading the complex features needed later.",
+        "src": "08 - Early Exit Neural Networks"
     },
     {
-        "q": "What is Cross-Entropy Loss used for?",
+        "q": "In an Early Exit inference phase, what happens if the first branch's confidence is below the threshold?",
         "o": [
-            "Regression",
-            "Classification",
-            "Clustering",
-            "Quantization"
+            "The system throws an error.",
+            "The system rejects the input as an anomaly.",
+            "Inference continues to the next block and evaluates the next branch.",
+            "The system restarts the MCU."
         ],
-        "a": 1,
-        "e": "Cross-entropy measures the difference between two probability distributions."
+        "a": 2,
+        "e": "The data simply flows deeper into the network to gain a better representation for classification.",
+        "src": "08 - Early Exit Neural Networks"
     },
     {
-        "q": "What is the 'Learning Rate'?",
+        "q": "What does 'Concept Drift' refer to in edge deployments?",
         "o": [
-            "Speed of the MCU",
-            "Step size taken in the gradient descent direction",
-            "Amount of data processed",
-            "Number of epochs"
+            "The physical movement of the sensor.",
+            "A change in the statistical properties of the target variable over time (e.g., machinery wear), causing the pre-trained model to degrade.",
+            "The gradual loss of charge in Flash memory.",
+            "The shifting of weights during quantization."
         ],
         "a": 1,
-        "e": "Learning rate controls how much weights are updated per step."
+        "e": "Concept drift breaks the IID assumption; the live data no longer matches the training data distribution.",
+        "src": "09 - On-device Learning"
     },
     {
-        "q": "What is a 'Tensor'?",
+        "q": "Why is 'Freezing' early layers critical for On-device Learning on MCUs?",
         "o": [
-            "A type of CPU",
-            "A multi-dimensional array of numbers",
-            "A training algorithm",
-            "A hardware accelerator"
+            "It prevents the MCU from overheating.",
+            "It drastically reduces SRAM requirements because activations for frozen layers do not need to be stored for backpropagation.",
+            "It makes the model open-source.",
+            "It converts the model to a decision tree."
         ],
         "a": 1,
-        "e": "Tensors are the fundamental data structures in deep learning."
+        "e": "Backprop requires storing intermediate activations; freezing layers removes this memory burden.",
+        "src": "09 - On-device Learning"
+    },
+    {
+        "q": "What is 'Catastrophic Forgetting' in incremental learning?",
+        "o": [
+            "When the Flash memory is erased.",
+            "When learning a new class or task causes the network to rapidly forget previously learned representations.",
+            "When the user forgets the MCU password.",
+            "When the quantization zero-point resets."
+        ],
+        "a": 1,
+        "e": "NNs overwrite old weights when learning new data unless mitigation strategies (like replay) are used.",
+        "src": "09 - On-device Learning"
+    },
+    {
+        "q": "What is 'Latent Replay' and how does it help on-device learning?",
+        "o": [
+            "Replaying audio files to the user.",
+            "Storing raw data in the cloud.",
+            "Storing compressed intermediate activations (latent patterns) of old data to mix with new data during training, preventing forgetting while saving memory.",
+            "A gaming term."
+        ],
+        "a": 2,
+        "e": "Storing latent vectors uses much less memory than raw data, while still reminding the network of past classes.",
+        "src": "09 - On-device Learning"
+    },
+    {
+        "q": "What differentiates 'Federated Learning' from standard 'On-device Personalization'?",
+        "o": [
+            "Federated learning happens on a single disconnected device.",
+            "In Federated Learning, local devices compute weight updates and share them with a central server to create a global model, preserving raw data privacy.",
+            "Federated learning only uses random forests.",
+            "Federated learning requires no training."
+        ],
+        "a": 1,
+        "e": "Federated Learning is a distributed collaborative approach, while standard on-device learning adapts a model for a single user locally.",
+        "src": "09 - On-device Learning"
+    },
+    {
+        "q": "In the Truesense PitchDeck context, why is UWB (Ultra-Wideband) radar at 60GHz preferred over camera vision for certain edge applications?",
+        "o": [
+            "It has a higher resolution than 4K cameras.",
+            "It provides robust structural and motion sensing (e.g., respiration) while strictly preserving visual privacy.",
+            "It requires more lighting.",
+            "It only works outdoors."
+        ],
+        "a": 1,
+        "e": "Radar doesn't capture visual identity, making it ideal for privacy-sensitive areas like healthcare or smart homes.",
+        "src": "Truesense POLIMI 18 Mar 2026 PitchDeck"
+    },
+    {
+        "q": "What is a primary ML challenge when processing UWB Radar signals on the edge?",
+        "o": [
+            "Radar data is fundamentally un-quantizable.",
+            "Processing complex multi-dimensional radar tensors (like Range-Doppler maps) requires significant memory and MACs, pushing MCU limits.",
+            "Radar sensors do not output digital data.",
+            "Radar signals are completely immune to noise."
+        ],
+        "a": 1,
+        "e": "Radar point clouds or micro-Doppler maps are dense tensors requiring aggressive optimization to fit on an MCU.",
+        "src": "Truesense POLIMI 18 Mar 2026 PitchDeck"
+    },
+    {
+        "q": "Which type of neural network is typically highly effective for recognizing sequential gestures from radar micro-Doppler signatures?",
+        "o": [
+            "A single Fully Connected Layer.",
+            "CNNs (treating the spectrogram as an image) or RNNs/LSTMs (treating it as a sequence).",
+            "K-Means Clustering.",
+            "A static lookup table."
+        ],
+        "a": 1,
+        "e": "Micro-Doppler signatures are time-frequency representations (spectrograms) perfectly suited for CNNs or RNNs.",
+        "src": "Truesense POLIMI 18 Mar 2026 PitchDeck"
+    },
+    {
+        "q": "Why is 'Edge AI' crucial for the Truesense radar use-case rather than streaming radar data to the cloud?",
+        "o": [
+            "Streaming raw 60GHz radar data requires massive continuous bandwidth and introduces privacy risks and latency.",
+            "The cloud cannot run Python.",
+            "Radar data is too small to send to the cloud.",
+            "Wi-Fi interferes with the radar."
+        ],
+        "a": 0,
+        "e": "Raw radar produces huge data streams. Processing locally extracts just the metadata (e.g., 'Person fell'), saving bandwidth and privacy.",
+        "src": "Truesense POLIMI 18 Mar 2026 PitchDeck"
+    },
+    {
+        "q": "In a radar-based classification pipeline, what usually precedes the Neural Network?",
+        "o": [
+            "A mechanical actuator.",
+            "A Heavy DSP block (e.g., FFTs, clutter removal, CFAR) to convert raw ADC data into usable features.",
+            "A text-to-speech engine.",
+            "A cloud API call."
+        ],
+        "a": 1,
+        "e": "Raw radar IF signals must be heavily processed via DSP to extract Range, Doppler, and Angle information before ML is applied.",
+        "src": "Truesense POLIMI 18 Mar 2026 PitchDeck"
     }
 ];
 
 const openPool = [
     {
-        "q": "CALCULATION: 32x32x32 Input, 3x3 Depthwise (S1), 64 Pointwise filters. Show total MACs.",
-        "a": "Depthwise: (3*3*1)*(30*30*32) = 259,200. Pointwise: (1*1*32)*(30*30*64) = 1,843,200. Total = 2,102,400.",
-        "pts": 5
+        "q": "THEORY: Define the concept of 'TinyML'. How does it differ from traditional Edge AI in terms of hardware constraints, power consumption, and typical use cases?",
+        "a": "TinyML refers to deploying ML models on Microcontrollers (MCUs). Constraints: SRAM < 512KB, Flash < 2MB. Power: mW or µW, often battery-powered for months/years. Use cases: Always-on wake-word detection, predictive maintenance, simple anomaly detection. Edge AI is broader and includes powerful gateways (Watts of power, MBs/GBs of RAM) like Jetson Nanos for complex video processing.",
+        "pts": 5,
+        "src": "01 - Intro to the course"
     },
     {
-        "q": "THEORY: Why 32-bit Bias in 8-bit networks?",
-        "a": "To match accumulator precision and avoid rounding errors during sum-product operations.",
-        "pts": 5
+        "q": "SYSTEM DESIGN: Design a high-level sensing-to-actuation pipeline for an always-on acoustic glass-break detector. Specify where DSP and ML fit in.",
+        "a": "1. Sensor: MEMS Microphone captures audio. 2. ADC: Digitizes analog signal. 3. DSP: Applies Windowing and FFT to generate a Mel-Spectrogram (frequency domain). 4. ML: A quantized CNN/DS-CNN classifies the spectrogram as 'Glass Break' or 'Noise'. 5. Actuation: If positive, trigger a GPIO pin to wake up the main alarm system.",
+        "pts": 5,
+        "src": "01 - Intro to the course"
     },
     {
-        "q": "DESIGN: Fit a 2MB model in 512KB SRAM.",
-        "a": "1. INT8 Quantization. 2. Layer Tiling. 3. Depthwise Separable refactoring.",
-        "pts": 5
+        "q": "CALCULATION: An edge device has a battery of 2000 mAh at 3.3V. If the MCU consumes 10mA during active ML inference and 10µA in deep sleep, calculate the average current and estimated battery life if inference runs for 1 second every 10 seconds.",
+        "a": "Active duty cycle: 1s / 10s = 10% (0.1). Sleep duty cycle: 90% (0.9).\nAverage Current = (10mA * 0.1) + (0.01mA * 0.9) = 1.0mA + 0.009mA = 1.009 mA.\nBattery Life = Capacity / Avg Current = 2000 mAh / 1.009 mA ≈ 1982 hours ≈ 82.5 days.",
+        "pts": 5,
+        "src": "01 - Intro to the course"
     },
     {
-        "q": "DERIVATION: Scale and Zero-Point for INT8 with Min=-3.5, Max=3.5 (Symmetric).",
-        "a": "S = 3.5/127 = 0.02756. Z = 0.",
-        "pts": 5
+        "q": "THEORY: Explain the 'Application Error Rate' (AER). Why might a neural network with 99% accuracy still result in a poor AER in a real-world edge deployment?",
+        "a": "AER covers the entire pipeline. Even with a 99% accurate NN, if the sensor is noisy, the ADC clips the signal, or the DSP windowing introduces artifacts, the input to the NN will be corrupted. The pipeline's total reliability is the product of all stage reliabilities. Also, 99% accuracy might mean a high false-positive rate in continuous 'always-on' streaming.",
+        "pts": 5,
+        "src": "01 - Intro to the course"
     },
     {
-        "q": "SYSTEM DESIGN: Convert ResNet block to Inverted Residual.",
-        "a": "Expand (1x1) -> Depthwise (3x3) -> Project (1x1 Linear).",
-        "pts": 5
+        "q": "THEORY: Discuss the privacy and latency advantages of Edge AI over Cloud AI for medical wearable devices.",
+        "a": "Privacy: Raw physiological data (e.g., ECG, voice) never leaves the body; only aggregated insights (e.g., 'Arrhythmia detected') are transmitted, complying with GDPR/HIPAA. Latency: Local processing ensures deterministic, real-time responses (milliseconds) independent of network connectivity, which is critical for medical emergencies.",
+        "pts": 5,
+        "src": "01 - Intro to the course"
     },
     {
-        "q": "THEORY: Concept Drift and On-device Learning.",
-        "a": "Distributions change over time. On-device adapts locally using self-supervised or new labels.",
-        "pts": 5
+        "q": "HARDWARE ANALYSIS: Compare SRAM and Flash memory on a standard MCU (e.g., ESP32-S3) in terms of capacity, volatility, speed, and their specific roles in running Neural Networks.",
+        "a": "SRAM: Volatile, fast read/write, small capacity (e.g., 512KB). Role: Stores input buffers, intermediate activations (feature maps), and the call stack. Flash: Non-volatile, slower read/write, larger capacity (e.g., 4-16MB). Role: Stores the compiled firmware, TFLite Micro interpreter, and the constant weights/biases of the model.",
+        "pts": 5,
+        "src": "02 - Embedded and Edge Hardware"
     },
     {
-        "q": "EXERCISE: 64x64x32 SRAM requirement in FP32 vs INT8.",
-        "a": "Elements = 131,072. FP32 = 512KB. INT8 = 128KB.",
-        "pts": 5
+        "q": "THEORY: What are SIMD instructions? Explain how the PIE (Power-efficient Instruction Extensions) on the ESP32-S3 accelerate Deep Learning.",
+        "a": "Single Instruction Multiple Data allows one CPU instruction to perform the same operation on an array of data simultaneously. PIE provides specific 128-bit vector registers and instructions for the Xtensa core, allowing it to load multiple INT8 weights and activations and perform parallel MAC (Multiply-Accumulate) operations in a single clock cycle, drastically speeding up convolutions.",
+        "pts": 5,
+        "src": "02 - Embedded and Edge Hardware"
     },
     {
-        "q": "HARDWARE: Memory Wall and Kernel Fusion.",
-        "a": "Data transfer costs > compute costs. Fusion keeps accumulators in registers.",
-        "pts": 5
+        "q": "THEORY: Explain the concept of 'Direct Memory Access' (DMA) and why it is critical for sensor-based Edge AI.",
+        "a": "DMA is a hardware feature that allows peripherals (like an ADC, I2S microphone, or SPI camera) to write incoming data directly to the SRAM without interrupting the CPU. This is critical because the CPU can remain entirely dedicated to computing the heavy ML inference MACs, rather than wasting cycles moving bytes from the peripheral to memory.",
+        "pts": 5,
+        "src": "02 - Embedded and Edge Hardware"
     },
     {
-        "q": "THEORY: Transfer Learning vs Knowledge Distillation.",
-        "a": "Transfer fine-tunes head (same size). Distillation trains smaller student from teacher outputs.",
-        "pts": 5
+        "q": "HARDWARE ANALYSIS: What is the 'Memory Wall' in edge computing? How does the energy cost of memory access compare to the energy cost of a MAC operation?",
+        "a": "The Memory Wall refers to the bottleneck where fetching data from memory (SRAM or external PSRAM) takes significantly more time and energy than performing the arithmetic MAC operation itself. For example, reading a 32-bit value from SRAM can cost orders of magnitude more pJ (picojoules) than a standard ALU addition. This necessitates optimizations like Kernel Fusion to keep data in registers.",
+        "pts": 5,
+        "src": "02 - Embedded and Edge Hardware"
     },
     {
-        "q": "EXERCISE: Branching Early Exit training mechanism.",
-        "a": "L_total = L_final + alpha*(L_aux). Forces early discriminative feature learning.",
-        "pts": 5
+        "q": "SYSTEM DESIGN: Discuss the role of a ULP (Ultra-Low-Power) co-processor in a wake-up architecture.",
+        "a": "The ULP is a tiny, highly efficient core that stays awake while the main powerful CPU (like the Xtensa dual-core) sleeps. The ULP continuously polls sensors (e.g., IMU or mic) using very basic logic or a tiny decision tree. When an interesting event (wake-word or anomaly) is detected, the ULP triggers an interrupt to wake the main CPU, which then boots up and runs the heavy CNN for verification.",
+        "pts": 5,
+        "src": "02 - Embedded and Edge Hardware"
     },
     {
-        "q": "CALCULATION: Parameters in a 5x5 Conv layer, 16 input channels, 32 output channels.",
-        "a": "Params = (5 * 5 * 16 + 1) * 32 = (400 + 1) * 32 = 12,832.",
-        "pts": 5
+        "q": "THEORY: Explain 'Spectral Leakage' in FFT and how 'Windowing' resolves it. Name two common window functions.",
+        "a": "FFT assumes the input signal is infinitely periodic. If the sampled frame doesn't contain an integer number of cycles, the edges create sharp artificial discontinuities, causing energy to 'leak' into adjacent frequency bins. Windowing multiplies the frame by a curve that tapers to zero at the edges, smoothing the transition. Examples: Hamming, Hanning (Hann) windows.",
+        "pts": 5,
+        "src": "03 - Algorithms for EEAI"
     },
     {
-        "q": "THEORY: Explain the 'Straight-Through Estimator' (STE) in QAT.",
-        "a": "Rounding is non-differentiable. STE bypasses the rounding node during backprop, passing the gradient as 1 to update the FP32 weights.",
-        "pts": 5
+        "q": "EXERCISE: A vibration sensor samples at 1000 Hz. You apply an FFT to a window of 250 samples. What is the frequency resolution (bin width) of the resulting spectrum? What is the maximum observable frequency (Nyquist)?",
+        "a": "1. Frequency Resolution = Sampling Rate / Window Size = 1000 Hz / 250 = 4 Hz per bin.\n2. Maximum Observable Frequency (Nyquist limit) = Sampling Rate / 2 = 1000 Hz / 2 = 500 Hz.",
+        "pts": 5,
+        "src": "03 - Algorithms for EEAI"
     },
     {
-        "q": "DESIGN: Architect a Wake-Word engine for an always-on MCU.",
-        "a": "Use a cascaded system: 1. ULP co-processor runs a tiny decision tree/VAD. 2. If triggered, wake up main CPU to run a lightweight CNN (MobileNet) for word verification.",
-        "pts": 5
+        "q": "THEORY: Compare FIR (Finite Impulse Response) and IIR (Infinite Impulse Response) digital filters in terms of stability, computational complexity, and phase response.",
+        "a": "FIR: Inherently stable (no feedback), linear phase response (preserves waveform shape), but computationally expensive (requires many taps/MACs for sharp cutoffs). IIR: Uses feedback, making it computationally cheap (sharp cutoffs with few taps), but introduces non-linear phase distortion and risks instability if poles move outside the unit circle.",
+        "pts": 5,
+        "src": "03 - Algorithms for EEAI"
     },
     {
-        "q": "DERIVATION: Output size of a 224x224 image after a 3x3 Conv with Stride 2 and Padding 1.",
-        "a": "Output = Floor((224 + 2*1 - 3) / 2) + 1 = Floor(223/2) + 1 = 111 + 1 = 112x112.",
-        "pts": 5
+        "q": "SYSTEM DESIGN: You need to extract features from a human speech signal for a lightweight classifier. Why is a Mel-Spectrogram preferred over a standard raw FFT spectrogram?",
+        "a": "Human hearing is non-linear; we are more sensitive to changes in low frequencies than high frequencies. A Mel-Spectrogram maps the linear FFT frequency bins onto the Mel scale (logarithmic-like) using a filter bank. This compresses the data, reducing the input dimensionality for the ML model while emphasizing the frequencies that carry the most distinct speech information.",
+        "pts": 5,
+        "src": "03 - Algorithms for EEAI"
     },
     {
-        "q": "THEORY: Discuss the trade-off of 'Weight Pruning' on standard MCUs.",
-        "a": "Pruning creates sparse matrices. While theoretical MACs decrease, standard MCUs lack sparse hardware. The branching/indexing overhead often makes execution slower unless structured pruning is used.",
-        "pts": 5
+        "q": "THEORY: What is 'Downsampling' and what theorem strictly governs how it must be performed to avoid aliasing?",
+        "a": "Downsampling reduces the sampling rate of a signal by keeping only every Nth sample. It is governed by the Nyquist-Shannon Sampling Theorem. Before downsampling, the signal MUST be passed through a low-pass anti-aliasing filter to remove any frequencies higher than half of the NEW sampling rate; otherwise, high frequencies will fold back (alias) into the lower frequencies, permanently corrupting the data.",
+        "pts": 5,
+        "src": "03 - Algorithms for EEAI"
     },
     {
-        "q": "EXERCISE: Compare MACs of standard 3x3 Conv vs Depthwise Separable (Input C=32, Output F=64).",
-        "a": "Standard: 3*3*32*64 = 18,432 per pixel. Separable: (3*3*32) + (1*1*32*64) = 288 + 2048 = 2,336 per pixel. Ratio: ~8x reduction.",
-        "pts": 5
+        "q": "EXERCISE: A dataset for a rare machine failure has 990 Normal samples and 10 Failure samples. A model predicts 'Normal' for everything. Calculate the Accuracy, Precision, and Recall for the 'Failure' class.",
+        "a": "Total = 1000. True Positives (Failure predicted correctly) = 0. False Positives (Normal predicted as Failure) = 0. False Negatives (Failure predicted as Normal) = 10. True Negatives = 990.\nAccuracy = (TP + TN) / Total = 990 / 1000 = 99%.\nPrecision = TP / (TP + FP) = 0 / 0 = Undefined (or 0).\nRecall = TP / (TP + FN) = 0 / 10 = 0%.",
+        "pts": 5,
+        "src": "04 - Machine Learning for EEAI"
     },
     {
-        "q": "HARDWARE: What is 'SIMD' and how does ESP32-S3 PIE utilize it?",
-        "a": "Single Instruction Multiple Data. PIE allows the ESP32-S3 to fetch multiple 8-bit operands and compute several MACs in a single clock cycle.",
-        "pts": 5
+        "q": "THEORY: Explain 'Data Leakage' in the context of Time-Series sensor data. How does improper random shuffling cause this?",
+        "a": "Time-series data points physically close in time are highly correlated. If you randomly shuffle and split the dataset 80/20, adjacent frames from the same continuous motion will end up in both the Train and Test sets. The model effectively 'memorizes' the specific background noise or session context rather than learning the generalized feature, resulting in artificially high test scores that fail in real-world deployment.",
+        "pts": 5,
+        "src": "04 - Machine Learning for EEAI"
     },
     {
-        "q": "THEORY: Why does MobileNetV2 use a 'Linear' bottleneck?",
-        "a": "Non-linearities like ReLU collapse values < 0. In low-dimensional spaces (bottlenecks), this destroys significant information. Linear layers preserve the manifold.",
-        "pts": 5
+        "q": "THEORY: Describe the 'Random Forest' algorithm. Why does an ensemble of trees generalize better than a single deep Decision Tree?",
+        "a": "Random Forest builds multiple independent decision trees during training. It injects randomness through 'Bagging' (training each tree on a random subset of data) and 'Feature Randomness' (considering only a random subset of features at each split). A single deep tree overfits the training noise. The ensemble averages the predictions (voting), which drastically reduces variance and prevents overfitting without sacrificing complex representation power.",
+        "pts": 5,
+        "src": "04 - Machine Learning for EEAI"
     },
     {
-        "q": "EXERCISE: Explain 'Channel Shuffling' in ShuffleNet.",
-        "a": "Group convolutions isolate channel processing. Shuffling redistributes channels across groups, enabling information exchange and improving feature representation without adding MACs.",
-        "pts": 5
+        "q": "SYSTEM DESIGN: You are deploying a model using Support Vector Machines (SVM). Discuss the trade-off between using a Linear Kernel vs an RBF (Radial Basis Function) Kernel on a microcontroller.",
+        "a": "Linear Kernel: Very efficient for inference; it boils down to a simple dot product of the input vector and a single weight vector (O(N) complexity). RBF Kernel: Can model highly complex, non-linear boundaries by mapping data to infinite dimensions. However, inference requires calculating the exponential distance between the input and EVERY Support Vector, making it highly computationally expensive (O(N * #SVs)) and memory-heavy for an MCU.",
+        "pts": 5,
+        "src": "04 - Machine Learning for EEAI"
     },
     {
-        "q": "DESIGN: How to prevent 'Data Leakage' in sensor-based datasets?",
-        "a": "Use strict 'Subject/User Partitioning' instead of random splitting. Ensure all samples from User A are only in the training set or only in the test set.",
-        "pts": 5
+        "q": "THEORY: What is 'Leave-One-Subject-Out' (LOSO) Cross Validation? Why is it the gold standard for wearable/biometric ML?",
+        "a": "In LOSO, if you have N subjects/users in your dataset, you train the model N times. Each time, you train on N-1 subjects and test exclusively on the data of the 1 held-out subject. Because biometric data (like gait or voice) is highly unique to individuals, LOSO proves that the model has learned the underlying generic concept and can successfully generalize to a completely new user who buys the wearable device.",
+        "pts": 5,
+        "src": "04 - Machine Learning for EEAI"
     },
     {
-        "q": "CALCULATION: Memory footprint of a codebook for 1000 weights clustered into 16 centroids.",
-        "a": "16 centroids (FP32) = 64 bytes. 1000 indices (4-bit to represent 16) = 500 bytes. Total = 564 bytes (vs 4000 bytes originally).",
-        "pts": 5
+        "q": "CALCULATION: Calculate the total MACs for a standard Convolution layer. Input: 16x16 feature map with 32 channels. Filter: 3x3 kernel, 64 output channels. Stride 1, Padding 'same' (output is 16x16).",
+        "a": "Output spatial dimensions: 16x16.\nMACs per output pixel (spatial spot): Kernel_H * Kernel_W * Input_Channels = 3 * 3 * 32 = 288.\nTotal MACs = Output_H * Output_W * Output_Channels * MACs_per_pixel = 16 * 16 * 64 * 288 = 4,718,592 MACs.",
+        "pts": 5,
+        "src": "05 - Deep learning for EEAI"
     },
     {
-        "q": "THEORY: What is 'Hardware-Aware NAS'?",
-        "a": "Neural Architecture Search that includes hardware metrics (Latency, SRAM usage, Energy) in the loss function, ensuring the searched model physically fits the target edge device.",
-        "pts": 5
+        "q": "CALCULATION: Calculate the number of trainable parameters (including bias) for the Conv layer described: 3x3 kernel, 32 input channels, 64 output channels.",
+        "a": "Weights per filter: 3 * 3 * 32 = 288.\nBias per filter: 1.\nTotal parameters per filter: 289.\nTotal parameters for the layer: 289 * 64 = 18,496 parameters.",
+        "pts": 5,
+        "src": "05 - Deep learning for EEAI"
     },
     {
-        "q": "DESIGN: Implement 'Freezing' for On-device Personalization.",
-        "a": "Keep the convolutional backbone weights fixed (no gradients stored). Only unfreeze the final Dense layer. Compute and store gradients only for this layer to save SRAM.",
-        "pts": 5
+        "q": "THEORY: Explain the concept of the 'Receptive Field' in deep CNNs. How do deeper layers capture global context?",
+        "a": "The receptive field is the specific region of the original input image that influences a particular neuron's activation. In early layers, a 3x3 filter sees a 3x3 pixel area. Through successive convolutions and pooling (which downsamples the image), a 3x3 filter in a deep layer 'sees' a much larger area of the original image. This hierarchical expansion allows deep neurons to recognize global, complex objects (like a face) built from local features (like edges).",
+        "pts": 5,
+        "src": "05 - Deep learning for EEAI"
     },
     {
-        "q": "EXERCISE: Calculate asymmetric quantization Scale given Min=-2.0, Max=6.0 for INT8 [-128, 127].",
-        "a": "Range = 6.0 - (-2.0) = 8.0. Scale (S) = 8.0 / 255 = 0.03137.",
-        "pts": 5
+        "q": "THEORY: What is the 'Vanishing Gradient' problem in deep neural networks, and how do activation functions like ReLU help mitigate it compared to Sigmoid?",
+        "a": "During backpropagation, gradients are calculated using the chain rule. The Sigmoid derivative maxes out at 0.25; multiplying many such small numbers in deep layers causes the gradient to vanish to zero, stopping early layers from learning. The ReLU function (f(x) = max(0, x)) has a derivative of exactly 1 for all positive inputs. This allows gradients to flow backwards through active neurons without shrinking, enabling the training of very deep networks.",
+        "pts": 5,
+        "src": "05 - Deep learning for EEAI"
     },
     {
-        "q": "HARDWARE: Why are Activations quantized dynamically in some PTQ schemes?",
-        "a": "Unlike weights, activations change per input. Dynamic PTQ calculates the min/max of activations at runtime to maximize precision, at the cost of inference latency.",
-        "pts": 5
+        "q": "THEORY: Contrast the roles of 'Max Pooling' and 'Global Average Pooling' (GAP) in a CNN architecture.",
+        "a": "Max Pooling: Operates on small windows (e.g., 2x2, stride 2) throughout the network to downsample the spatial dimensions, reduce computation, and provide local translation invariance. \nGAP: Typically used at the very end of the network. It takes the average of the entire spatial map for each channel, flattening a (H, W, Channels) tensor into a 1D vector of length Channels. It drastically reduces parameters by replacing the massive, prone-to-overfitting Fully Connected layer.",
+        "pts": 5,
+        "src": "05 - Deep learning for EEAI"
     },
     {
-        "q": "THEORY: Explain 'Federated Learning' vs 'On-Device Learning'.",
-        "a": "On-device adapts a model locally for personal use. Federated Learning trains locally but sends weight updates (not data) to a cloud server to aggregate into a global model.",
-        "pts": 5
+        "q": "DERIVATION: Contrast the MAC operations of a Standard Convolution vs a Depthwise Separable Convolution. Let Input=H*W*C, Kernel=K*K, Output Filters=F. Show the math.",
+        "a": "Standard MACs: H * W * C * F * K^2.\nDepthwise Separable is split in two:\n1. Depthwise MACs: H * W * C * K^2 (spatial filtering per channel).\n2. Pointwise MACs: H * W * C * F * 1^2 (1x1 cross-channel combination).\nTotal DS MACs: H * W * C * (K^2 + F).\nRatio (DS / Standard) = (K^2 + F) / (K^2 * F) = (1/F) + (1/K^2). For large F, the reduction is roughly 1/K^2 (e.g., ~9x reduction for 3x3 filters).",
+        "pts": 5,
+        "src": "06 - Architectures for EEAI"
     },
     {
-        "q": "EXERCISE: Derive the total parameters of a 1x1 Pointwise Convolution (In 64, Out 128).",
-        "a": "Params = (1 * 1 * 64 + 1) * 128 = (64 + 1) * 128 = 8,320.",
-        "pts": 5
+        "q": "SYSTEM DESIGN: Analyze the 'Inverted Residual' block in MobileNetV2. Detail the three sequential operations, their channel dimension changes, and the activation functions used.",
+        "a": "1. Expansion (1x1 Pointwise): Projects the low-dimensional input to a higher dimension (e.g., factor of 6). Uses ReLU6.\n2. Spatial Filtering (3x3 Depthwise): Applies spatial filters in the high-dimensional space. Uses ReLU6.\n3. Projection/Bottleneck (1x1 Pointwise): Compresses the channels back down to a low-dimensional space. Crucially, uses a LINEAR activation (no ReLU) to prevent information destruction in the low-dimensional manifold. Finally, a skip connection adds the input to the output.",
+        "pts": 5,
+        "src": "06 - Architectures for EEAI"
     },
     {
-        "q": "DESIGN: Strategy for handling 'Concept Drift' in a remote deployed sensor.",
-        "a": "Implement an On-device Learning loop. Periodically prompt the user for ground truth labels (or use weak supervision) to fine-tune the classifier head on the drifted data.",
-        "pts": 5
+        "q": "THEORY: Explain the structure of the 'Fire Module' in SqueezeNet. How does the 'Squeeze Ratio' dictate parameter reduction?",
+        "a": "The Fire Module consists of two stages: a 'Squeeze' layer consisting entirely of 1x1 filters, followed by an 'Expand' layer that concatenates the outputs of parallel 1x1 and 3x3 filters. The Squeeze Ratio ensures the number of squeeze filters is small (e.g., 1/8 of the expand filters). By bottlenecking the channel depth early, the expensive 3x3 filters in the expand layer receive very few input channels, drastically minimizing the K^2 * C * F parameter count.",
+        "pts": 5,
+        "src": "06 - Architectures for EEAI"
     },
     {
-        "q": "THEORY: What is 'Knowledge Distillation Temperature'?",
-        "a": "A parameter (T) applied to the softmax function of the teacher model. Higher T softens the probabilities, revealing the 'dark knowledge' (relationships between secondary classes) to the student.",
-        "pts": 5
+        "q": "THEORY: What is the core problem with 'Group Convolutions' and how does the 'ShuffleNet' architecture solve it with Channel Shuffling?",
+        "a": "Group convolutions divide the input channels into disjoint groups, applying filters only within each group. This reduces MACs but prevents information from flowing between groups, weakening the representation. ShuffleNet introduces a 'Channel Shuffle' operation after the group convolution. It transposes and reorganizes the channels so that the next group convolution receives input features from all previous groups, restoring cross-channel communication without adding MACs.",
+        "pts": 5,
+        "src": "06 - Architectures for EEAI"
     },
     {
-        "q": "HARDWARE: Contrast Flash and SRAM roles in an ESP32 for AI.",
-        "a": "Flash: Large (MBs), slow, non-volatile. Holds model weights and firmware. SRAM: Small (KBs), fast, volatile. Holds input buffers, intermediate activations, and stack/heap.",
-        "pts": 5
+        "q": "THEORY: Describe the fundamental hypothesis behind 'GhostNet' and how it translates into its architectural blocks.",
+        "a": "GhostNet hypothesizes that trained deep networks contain many highly similar, redundant feature maps ('ghosts' of each other). Instead of using expensive standard convolutions to generate all of them, a Ghost Module uses standard convolutions to generate a small set of 'intrinsic' feature maps. It then applies very cheap, linear operations (like depthwise convolutions) to these intrinsic maps to generate the redundant 'ghost' maps, cutting computation and parameters by half.",
+        "pts": 5,
+        "src": "06 - Architectures for EEAI"
     },
     {
-        "q": "CALCULATION: MACs for Global Average Pooling on a 7x7x1024 tensor.",
-        "a": "GAP takes the average of each 7x7 slice. 7*7 = 49 additions per channel. Total adds = 49 * 1024 = 50,176. Divisions = 1024. MACs = 0 (no multiplications with weights).",
-        "pts": 5
+        "q": "DERIVATION: Calculate the Scale (S) and Zero-Point (Z) for Asymmetric INT8 Quantization mapping the floating-point range [-1.5, 6.0] to the integer range [-128, 127].",
+        "a": "1. FP Range = Max - Min = 6.0 - (-1.5) = 7.5.\n2. INT Range = 127 - (-128) = 255.\n3. Scale (S) = FP Range / INT Range = 7.5 / 255 ≈ 0.02941.\n4. Zero-Point (Z) = Round( -Min/S + Q_Min ) = Round( -(-1.5) / 0.02941 + (-128) ) = Round( 51.0 - 128 ) = -77.\nZ = -77.",
+        "pts": 5,
+        "src": "07 - Approximate Computing"
     },
     {
-        "q": "THEORY: Why does SqueezeNet use a 'Squeeze' ratio?",
-        "a": "The ratio (e.g., 0.125) drastically reduces the input depth to the 3x3 Expand layer. Since 3x3 parameters scale quadratically with channels, this avoids parameter explosion.",
-        "pts": 5
+        "q": "THEORY: Explain the fundamental differences between Post-Training Quantization (PTQ) and Quantization-Aware Training (QAT). Mention calibration vs. fake quantization.",
+        "a": "PTQ is applied after a model is fully trained. It requires a small calibration dataset to run through the FP32 model offline, monitoring activation distributions to calculate static Scales and Zero-Points. It is fast but can cause accuracy drops. \nQAT modifies the training graph by inserting 'Fake Quantization' nodes. These nodes simulate the clipping and rounding of INT8 during the forward pass. The network learns to adapt its weights to survive the precision loss. It requires the full training dataset and longer training time, but yields accuracy near FP32 levels.",
+        "pts": 5,
+        "src": "07 - Approximate Computing"
     },
     {
-        "q": "EXERCISE: How does 'Batch Normalization Folding' work?",
-        "a": "During inference, BN is a linear transformation. Its scaling and shifting parameters (gamma, beta, mean, var) are mathematically folded into the preceding Convolution's weights and bias, removing the BN layer entirely.",
-        "pts": 5
+        "q": "HARDWARE ANALYSIS: Explain how 'Kernel Fusion' (Layer Fusion) optimizes execution on Edge hardware. Use Conv + Bias + ReLU as an example.",
+        "a": "Without fusion, the CPU reads inputs from SRAM, runs the Conv MACs, writes outputs to SRAM. Then reads them back, adds Bias, writes to SRAM. Then reads, applies ReLU, writes to SRAM. This hits the 'Memory Wall'. \nKernel Fusion rewrites the C/assembly loops so that once a pixel's convolution is computed in the CPU accumulator register, the Bias and ReLU are applied immediately in the register. The final result is written to SRAM once. This minimizes costly memory bandwidth.",
+        "pts": 5,
+        "src": "07 - Approximate Computing"
     },
     {
-        "q": "DESIGN: Choose between symmetric and asymmetric quantization for ReLU activations.",
-        "a": "ReLU outputs are purely non-negative [0, X]. Asymmetric quantization maps 0 to the lowest integer (e.g., -128) and X to 127, utilizing all 256 states. Symmetric would waste half the states on negative integers.",
-        "pts": 5
+        "q": "THEORY: Contrast 'Structured' and 'Unstructured' Pruning. Why does unstructured pruning often fail to provide actual latency speedups on generic MCUs?",
+        "a": "Unstructured pruning removes individual weights randomly based on a magnitude threshold, creating a sparse matrix. Standard MCUs rely on dense SIMD operations; processing sparse matrices requires complex indexing and branching (if weight != 0), which destroys pipeline efficiency and can make execution slower.\nStructured pruning removes entire channels, filters, or blocks. The resulting matrix remains dense (just smaller), directly translating to fewer MACs and immediate latency/memory speedups on any hardware.",
+        "pts": 5,
+        "src": "07 - Approximate Computing"
     },
     {
-        "q": "THEORY: What is the 'Vanishing Gradient' problem?",
-        "a": "In deep networks, backpropagated gradients shrink exponentially due to chain rule multiplication of small derivatives. This prevents early layers from learning. Skip connections (ResNets) solve this by providing shortcut paths.",
-        "pts": 5
+        "q": "THEORY: What is 'Weight Sharing' (Weight Clustering)? How does it affect Flash storage and SRAM usage during inference?",
+        "a": "Weight sharing groups similar weight values into K clusters (e.g., using K-means). A codebook stores the K floating-point centroids. The massive weight matrix is replaced by a matrix of small integer indices pointing to the codebook (e.g., 4-bit indices for 16 centroids). \nImpact: Flash storage is drastically reduced. During inference, the weights are decompressed via table lookup before MAC execution, so SRAM usage for activations remains unchanged.",
+        "pts": 5,
+        "src": "07 - Approximate Computing"
     },
     {
-        "q": "HARDWARE: Explain 'DMA' and its relevance to Edge AI.",
-        "a": "Direct Memory Access. Allows peripherals (e.g., Camera, SPI) to write data directly into SRAM without CPU intervention. Critical for keeping the CPU focused entirely on AI inference.",
-        "pts": 5
+        "q": "THEORY: Describe the architecture of an 'Early Exit' (Branching) Neural Network. What defines the 'Backbone' vs the 'Auxiliary Classifiers'?",
+        "a": "An Early Exit network augments a standard CNN (the Backbone) by attaching shallow Auxiliary Classifiers at intermediate depths. The Backbone extracts hierarchical features. If an input is 'easy', the early layers extract enough information for an Auxiliary Classifier to make a confident prediction. If confident, inference halts immediately, saving the latency and energy of running the rest of the deep Backbone.",
+        "pts": 5,
+        "src": "08 - Early Exit Neural Networks"
     },
     {
-        "q": "EXERCISE: A model requires 600KB of activations but the MCU has 300KB SRAM. Explain 'Patching/Tiling'.",
-        "a": "Divide the input image into 4 overlapping patches. Run inference sequentially on each patch. The peak memory drops to ~150KB. Overlap is required to preserve receptive field boundaries.",
-        "pts": 5
+        "q": "EXERCISE: Define 'Entropy' in the context of Softmax outputs. How is it used as a heuristic threshold for Early Exit?",
+        "a": "Entropy measures uncertainty. For a probability distribution P, Entropy H = -Sum(P_i * log(P_i)). \nIf a classifier outputs [0.98, 0.01, 0.01], entropy is near zero (high confidence). If it outputs [0.33, 0.33, 0.34], entropy is high (uncertainty). In Early Exit, if the calculated Entropy of an auxiliary branch is LESS than a predefined Threshold, the network accepts the prediction and exits.",
+        "pts": 5,
+        "src": "08 - Early Exit Neural Networks"
     },
     {
-        "q": "THEORY: What is 'Entropy' in the context of Early Exit?",
-        "a": "Entropy measures the uncertainty of a probability distribution. A low entropy (peaked distribution) means high confidence. Early exit architectures halt inference if entropy < Threshold.",
-        "pts": 5
+        "q": "THEORY: Explain the 'Joint Loss Function' used to train branching Early Exit networks. Why is the weighting hyperparameter (alpha) critical?",
+        "a": "The network cannot be trained normally. The Joint Loss sums the loss of the final classifier and the losses of all auxiliary branches: L_total = L_final + alpha_1*L_aux1 + alpha_2*L_aux2.\nThe alpha weights balance the gradients. If auxiliary alphas are too high, early layers focus only on immediate classification, ruining the feature representations needed by the deeper final classifier. If too low, early branches won't learn enough to trigger exits.",
+        "pts": 5,
+        "src": "08 - Early Exit Neural Networks"
     },
     {
-        "q": "DESIGN: Implement an 'Anomaly Detection' autoencoder on the edge.",
-        "a": "Train an Autoencoder to reconstruct normal data. Deploy to edge. During inference, calculate Reconstruction Error. If Error > Threshold, flag as anomaly. Useful because anomaly data is scarce.",
-        "pts": 5
+        "q": "SYSTEM DESIGN: Discuss the trade-off curve involved in tuning the Confidence Threshold of an Early Exit network. What happens at the extremes?",
+        "a": "The threshold dictates the Latency vs. Accuracy trade-off. \nHigh Confidence Requirement (Strict): Few samples exit early. Latency remains high (close to the full backbone), but accuracy is maximized.\nLow Confidence Requirement (Loose): Most samples exit at the first branch. Latency and energy consumption drop drastically, but accuracy plummets because the network accepts poor predictions from shallow features.",
+        "pts": 5,
+        "src": "08 - Early Exit Neural Networks"
     },
     {
-        "q": "CALCULATION: Receptive field after two 3x3 Convolutions (Stride 1).",
-        "a": "Layer 1: 3x3. Layer 2: 3x3. Formula: RF = RF_prev + (K-1)*Stride_product. RF = 3 + (3-1)*1 = 5. The equivalent field is 5x5.",
-        "pts": 5
+        "q": "THEORY: What is the 'Overthinking' problem in deep neural networks, and how does Early Exit mitigate it?",
+        "a": "Overthinking occurs when a very deep network processes a simple, clear input. The deep, highly complex layers might amplify noise or over-extract features, leading to misclassification of an image that a shallow layer would have easily gotten right. Early Exit allows the network to classify simple inputs using shallow features, preventing the deep layers from 'overthinking' and ruining the prediction.",
+        "pts": 5,
+        "src": "08 - Early Exit Neural Networks"
     },
     {
-        "q": "THEORY: How does 'GhostNet' achieve efficiency?",
-        "a": "Standard CNNs learn redundant feature maps. GhostNet generates a few primary features using standard convolutions, then applies cheap linear operations (like depthwise convs) to generate 'ghost' variations.",
-        "pts": 5
+        "q": "THEORY: What is 'Concept Drift' in the context of deployed IoT sensors? Give an example and explain why Cloud Training struggles to address it.",
+        "a": "Concept drift is when the statistical relationship between the sensor input and the target changes post-deployment. Example: A vibration sensor on a motor. As the motor bearings wear out over months, the baseline 'normal' vibration changes. The static pre-trained model degrades. Cloud training struggles because it requires transmitting massive amounts of raw, continuous vibration data back to servers, violating bandwidth and privacy limits.",
+        "pts": 5,
+        "src": "09 - On-device Learning"
     },
     {
-        "q": "EXERCISE: Describe 'Quantization Error'.",
-        "a": "The difference between the original floating-point value and its quantized-dequantized equivalent. Error = | X_fp - Dequant(Quant(X_fp)) |. It causes the accuracy drop in PTQ.",
-        "pts": 5
+        "q": "HARDWARE ANALYSIS: Why is full Backpropagation inherently hostile to Microcontroller architectures (like the ESP32-S3)? Focus on SRAM and Data Types.",
+        "a": "1. SRAM limits: Forward pass only requires storing two layers of activations at a time. Backpropagation requires storing ALL intermediate activations from the forward pass to compute gradients, instantly overflowing KB-sized SRAM. \n2. Data Types: Inference uses INT8. Gradients are often tiny and require FP32 precision to avoid underflow. Accumulating FP32 gradients lacks SIMD optimization on most MCUs and explodes memory.",
+        "pts": 5,
+        "src": "09 - On-device Learning"
     },
     {
-        "q": "HARDWARE: What is 'PSRAM' on the ESP32-S3?",
-        "a": "Pseudo-Static RAM. External memory chip connected via SPI. Much larger than internal SRAM (up to 8MB) but significantly slower. Used for storing large input buffers, not fast activations.",
-        "pts": 5
+        "q": "SYSTEM DESIGN: Explain the 'Freezing' technique for On-device Personalization. Which layers are frozen, which are trained, and how does this solve the SRAM bottleneck?",
+        "a": "Freezing locks the weights of the deep convolutional 'backbone' (Feature Extractor). Only the final Fully Connected classifier (Head) is left trainable. \nBecause the backbone is frozen, the network does NOT need to calculate or store gradients for those early layers. Forward activations can be discarded immediately. The MCU only needs enough SRAM to store the gradients for the final, relatively small Head layer.",
+        "pts": 5,
+        "src": "09 - On-device Learning"
     },
     {
-        "q": "THEORY: What is a 'Skip Connection'?",
-        "a": "An architectural feature that adds the input of a block to its output (F(x) + x). It mitigates vanishing gradients and smooths the loss landscape, enabling very deep networks.",
-        "pts": 5
+        "q": "THEORY: Explain 'Catastrophic Forgetting' in incremental learning. How does the 'Latent Replay' strategy mitigate this on memory-constrained devices?",
+        "a": "When an NN is fine-tuned on new data (e.g., a new user's voice), the gradient updates overwrite the old weights, causing it to completely forget previous users. \nLatent Replay stores historical data to mix with new data during training. Instead of storing massive raw images/audio, it stores the 'Latent Vectors' (the compressed output of the frozen backbone). Replaying these small vectors forces the Head to remember old classes without blowing up Flash/SRAM storage.",
+        "pts": 5,
+        "src": "09 - On-device Learning"
     },
     {
-        "q": "DESIGN: Optimizing a model for 'Battery-Powered' deployment.",
-        "a": "1. Extreme Quantization (INT8 or lower). 2. Use Early Exit to save average compute. 3. Duty cycling: keep MCU in deep sleep, wake via low-power sensor (e.g., IMU threshold).",
-        "pts": 5
+        "q": "THEORY: Contrast 'Federated Learning' with standalone 'On-device Learning'. How is privacy maintained in Federated Learning?",
+        "a": "On-device learning adapts a model strictly for the local user; the updates stay on the device. \nFederated Learning is distributed. Many edge devices train locally on their private data. Instead of sending raw data to the cloud, they send only the calculated Weight Gradients. The cloud aggregates (averages) thousands of gradient updates to improve a global Master Model, which is then sent back down. Raw data privacy is mathematically preserved.",
+        "pts": 5,
+        "src": "09 - On-device Learning"
     },
     {
-        "q": "CALCULATION: Time to execute 1 Million MACs on a 240MHz MCU capable of 2 MACs/cycle.",
-        "a": "Throughput = 240M * 2 = 480 Million MACs/sec. Time = 1M / 480M = 0.00208 seconds (2.08 ms).",
-        "pts": 5
+        "q": "SYSTEM DESIGN: Based on the Truesense PitchDeck, why is a 60GHz UWB Radar sensor chosen over a standard RGB camera for smart home and healthcare edge applications?",
+        "a": "UWB Radar preserves absolute privacy because it does not capture optical images or identities. It can operate in complete darkness, penetrate light obstacles (clothing/blankets), and detect micro-motions like respiration or heart rate, making it ideal for bathroom fall-detection or bedroom sleep monitoring where cameras are unacceptable.",
+        "pts": 5,
+        "src": "Truesense POLIMI 18 Mar 2026 PitchDeck"
     },
     {
-        "q": "THEORY: What is the 'Capacity' of a neural network?",
-        "a": "The ability of the network to model complex functions, generally correlated with the number of parameters and depth. High capacity networks can easily memorize (overfit) small datasets.",
-        "pts": 5
+        "q": "THEORY: Describe the data pipeline for processing UWB radar signals before ML inference. What is a 'Range-Doppler' or 'Micro-Doppler' map?",
+        "a": "Raw radar IF (Intermediate Frequency) signals are unintelligible to NNs. They require heavy DSP. \n1. Fast Time FFT extracts Range (distance). \n2. Slow Time FFT extracts Doppler (velocity/motion). \nThis creates a 2D Range-Doppler map. Over time, plotting Doppler shifts creates a Micro-Doppler spectrogram, which visually captures the distinct kinematic signatures of human movements (like walking vs falling) for a CNN to classify.",
+        "pts": 5,
+        "src": "Truesense POLIMI 18 Mar 2026 PitchDeck"
     },
     {
-        "q": "EXERCISE: Explain 'Calibration' in Post-Training Quantization.",
-        "a": "Calibration involves passing a small, representative dataset through the FP32 model. The system monitors the min/max values of activations at each layer to calculate the optimal Scale and Zero-Point.",
-        "pts": 5
+        "q": "HARDWARE ANALYSIS: What are the primary bottlenecks when deploying Radar-based Deep Learning on an ESP32-class MCU?",
+        "a": "1. SRAM: Radar tensors (like multi-antenna Range-Doppler-Angle cubes) are massive. Storing these alongside CNN activations easily exceeds 512KB.\n2. Compute: Calculating 2D/3D FFTs in real-time, followed by millions of CNN MAC operations, requires extreme DSP and SIMD optimization to run within the MCU's latency and thermal limits.",
+        "pts": 5,
+        "src": "Truesense POLIMI 18 Mar 2026 PitchDeck"
     },
     {
-        "q": "HARDWARE: Contrast 'Microcontroller' vs 'Microprocessor' for AI.",
-        "a": "Microcontrollers (MCUs) have integrated memory (Flash/SRAM) and peripherals, no OS (RTOS/Baremetal), low power, strict limits. Microprocessors (MPUs) require external RAM/Storage, run Linux, high power.",
-        "pts": 5
+        "q": "THEORY: In a radar gesture recognition task, why might a 1D Temporal Convolutional Network (TCN) or RNN/LSTM be preferred over a standard 2D CNN?",
+        "a": "Gestures (swipes, pushes) unfold over time. While a 2D CNN treats a spectrogram as a static image, TCNs and LSTMs are explicitly designed to model temporal dependencies and sequential state. They can maintain a memory of the gesture's trajectory, often yielding better accuracy for complex temporal radar signatures while using fewer parameters than large 2D kernels.",
+        "pts": 5,
+        "src": "Truesense POLIMI 18 Mar 2026 PitchDeck"
     },
     {
-        "q": "THEORY: What is 'Data Augmentation'?",
-        "a": "Artificially inflating the training dataset size by applying random transformations (rotation, noise, scaling) to existing samples. It improves generalization and prevents overfitting.",
-        "pts": 5
+        "q": "SYSTEM DESIGN: How does the Truesense architecture align with the 'Edge AI' philosophy regarding Cloud connectivity and bandwidth?",
+        "a": "A 60GHz radar generates megabytes of raw data per second. Streaming this continuously to the cloud requires massive Wi-Fi bandwidth, incurs high latency, and drains power. The Truesense Edge AI approach runs the DSP and NN entirely on the local MCU. It only transmits tiny metadata payloads (e.g., 'Gesture=Swipe_Left', 'Fall=True') to the cloud, ensuring real-time response and minimal network footprint.",
+        "pts": 5,
+        "src": "Truesense POLIMI 18 Mar 2026 PitchDeck"
     }
 ];

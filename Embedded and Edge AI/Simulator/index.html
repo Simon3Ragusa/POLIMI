@@ -3,98 +3,348 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EEAI Exam Simulator</title>
+    <title>EEAI Pro-Simulator</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f4f4f9; }
-        h1 { color: #2c3e50; text-align: center; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
-        .section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .question { font-weight: bold; margin-top: 15px; }
-        .options { list-style-type: none; padding-left: 0; }
-        .options li { background: #ecf0f1; margin: 5px 0; padding: 10px; border-radius: 4px; cursor: pointer; transition: background 0.3s; }
-        .options li:hover { background: #d5dbdb; }
-        .answer { display: none; margin-top: 10px; padding: 10px; background: #d5f5e3; border-left: 5px solid #2ecc71; font-style: italic; }
-        .open-question { border-top: 1px dashed #ccc; padding-top: 10px; }
-        button { background-color: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; display: block; margin: 20px auto; }
-        button:hover { background-color: #2980b9; }
-        .hidden { display: none; }
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #818cf8, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin: 40px 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #334155;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            background: #0f172a;
+            border: 1px solid #334155;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option:hover {
+            background: #1e293b;
+            border-color: var(--primary);
+        }
+
+        .option.correct {
+            border-color: var(--secondary);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .option.wrong {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .explanation {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 4px solid var(--primary);
+            font-size: 0.95rem;
+            color: var(--text-dim);
+            display: none;
+        }
+
+        button.main-cta {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+            transition: all 0.2s;
+            display: block;
+            margin: 40px auto;
+        }
+
+        button.main-cta:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .open-answer-box {
+            display: none;
+            margin-top: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: #10b981;
+            white-space: pre-wrap;
+            border-top: 1px solid #334155;
+            padding-top: 15px;
+        }
+
+        .show-ans-btn {
+            background: transparent;
+            border: 1px solid var(--text-dim);
+            color: var(--text-dim);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .show-ans-btn:hover {
+            color: var(--text);
+            border-color: var(--text);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Embedded and Edge AI - Exam Simulator</h1>
+    <div class="container">
+        <header>
+            <h1>EEAI EXAM SIMULATOR</h1>
+            <div class="badge">V2.0 - POLYTECHNIC EDITION</div>
+        </header>
 
-    <div id="exam-container">
-        <!-- Closed Questions Section -->
-        <div class="section">
-            <h2>Section 1: Closed Questions</h2>
-            <div id="closed-questions">
-                <!-- Example MCQ -->
-                <div class="question">1. Which quantization technique requires a calibration dataset?</div>
-                <ul class="options">
-                    <li onclick="toggleAnswer('ans1')">A. Dynamic Range Quantization</li>
-                    <li onclick="toggleAnswer('ans1')">B. Post-Training Integer Quantization (PTQ)</li>
-                    <li onclick="toggleAnswer('ans1')">C. Float16 Quantization</li>
-                    <li onclick="toggleAnswer('ans1')">D. None of the above</li>
-                </ul>
-                <div id="ans1" class="answer">Correct Answer: B. PTQ requires a representative dataset to calibrate the dynamic range of activations.</div>
+        <div id="exam-ui">
+            <div class="section-title">SECTION A: CLOSED QUESTIONS</div>
+            <div id="closed-container"></div>
 
-                <div class="question">2. True or False: SqueezeNet uses Depthwise Separable Convolutions to reduce parameters.</div>
-                <ul class="options">
-                    <li onclick="toggleAnswer('ans2')">True</li>
-                    <li onclick="toggleAnswer('ans2')">False</li>
-                </ul>
-                <div id="ans2" class="answer">Correct Answer: False. SqueezeNet uses "Fire Modules" (1x1 squeeze and 1x1/3x3 expand). MobileNet uses Depthwise Separable Convolutions.</div>
-            </div>
-        </div>
+            <div class="section-title">SECTION B: OPEN QUESTIONS</div>
+            <div id="open-container"></div>
 
-        <!-- Open Questions Section -->
-        <div class="section">
-            <h2>Section 2: Open Questions</h2>
-            <div id="open-questions">
-                <div class="open-question">
-                    <div class="question">Q1: Calculate MACs for a Conv layer (3x3 kernel, 64 input channels, 128 output channels, 32x32 input).</div>
-                    <button onclick="toggleAnswer('ans-o1')">Show Solution</button>
-                    <div id="ans-o1" class="answer">
-                        Solution: <br>
-                        Output size (no padding, stride 1): (32-3+1) = 30. <br>
-                        MACs = (Kernel_H * Kernel_W * Channels_In) * (Output_H * Output_W * Channels_Out) <br>
-                        MACs = (3 * 3 * 64) * (30 * 30 * 128) = 576 * 115,200 = 66,355,200 MACs.
-                    </div>
-                </div>
-
-                <div class="open-question">
-                    <div class="question">Q2: Explain the "Early Exit" mechanism and its trade-offs.</div>
-                    <button onclick="toggleAnswer('ans-o2')">Show Solution</button>
-                    <div id="ans-o2" class="answer">
-                        Solution: Early Exit inserts classifiers at intermediate layers. If the confidence (e.g., entropy) is high enough, the inference stops early. <br>
-                        Trade-off: Lower latency and energy vs. potential drop in accuracy if the exit is too early or the threshold is poorly tuned.
-                    </div>
-                </div>
-
-                <div class="open-question">
-                    <div class="question">Q3: Discuss the hardware limitations of ESP32-S3 for AI.</div>
-                    <button onclick="toggleAnswer('ans-o3')">Show Solution</button>
-                    <div id="ans-o3" class="answer">
-                        Solution: <br>
-                        - SRAM: ~512KB (shared with system). <br>
-                        - Flash: 4MB-16MB. <br>
-                        - AI Acceleration: SIMD instructions (PIE) but no dedicated NPU. <br>
-                        - Software: Supports TFLite Micro with optimized kernels for ESP-NN.
-                    </div>
-                </div>
-            </div>
+            <button class="main-cta" onclick="generateExam()">REGENERATE NEW EXAM</button>
         </div>
     </div>
 
     <script>
-        function toggleAnswer(id) {
-            var x = document.getElementById(id);
-            if (x.style.display === "block") {
-                x.style.display = "none";
-            } else {
-                x.style.display = "block";
+        const closedBank = [
+            {
+                q: "Which layer in SqueezeNet is responsible for reducing the number of input channels before the expand layers?",
+                o: ["Expand Layer", "Squeeze Layer (1x1 Conv)", "Fire Module", "Global Average Pooling"],
+                a: 1,
+                e: "The Squeeze layer uses 1x1 convolutions to reduce the depth of the input tensor, minimizing parameters."
+            },
+            {
+                q: "What is the primary advantage of Pointwise Convolution in MobileNet?",
+                o: ["Spatial filtering", "Reducing depth", "Increasing kernel size", "Combining filtered channels"],
+                a: 3,
+                e: "Pointwise (1x1) convolutions combine the results of the Depthwise layer into new features."
+            },
+            {
+                q: "In INT8 quantization, what does 'Zero-Point' represent?",
+                o: ["The minimum value of the tensor", "The value corresponding to floating point 0.0", "The saturation limit", "The mean of the distribution"],
+                a: 1,
+                e: "The Zero-Point (Z) is the integer value that maps exactly to 0.0 in the floating-point range."
+            },
+            {
+                q: "Which technique is BEST for handling non-representative training data during quantization?",
+                o: ["Dynamic Range Quantization", "PTQ", "Quantization-Aware Training (QAT)", "Float16 conversion"],
+                a: 2,
+                e: "QAT models the quantization error during training, making it more robust to varied data distributions."
+            },
+            {
+                q: "What is the ESP32-S3's primary hardware feature for AI acceleration?",
+                o: ["Integrated NPU", "Tensor Cores", "PIE (SIMD) Instructions", "CUDA support"],
+                a: 2,
+                e: "The ESP32-S3 uses PIE (Power-efficient Instruction Extensions) to perform SIMD operations for AI kernels."
+            },
+            {
+                q: "True or False: Dropout is usually disabled during inference on an edge device.",
+                o: ["True", "False"],
+                a: 0,
+                e: "Dropout is a training regularization technique; at inference, all neurons are used to maximize performance."
+            },
+            {
+                q: "What metric is most critical for 'Early Exit' decision making?",
+                o: ["Latency", "Memory usage", "Classifier Confidence (e.g. Entropy)", "Batch size"],
+                a: 2,
+                e: "Early Exit relies on a threshold of confidence (like softmax entropy) to decide if processing should stop."
             }
+        ];
+
+        const openBank = [
+            {
+                q: "Calculate the total parameters for a Fire Module with: Squeeze (1x1, 16 filters) and Expand (1x1, 64 filters + 3x3, 64 filters). Assume input has 128 channels.",
+                a: "1. Squeeze Params: (1 * 1 * 128 + 1) * 16 = 2,064\n2. Expand 1x1: (1 * 1 * 16 + 1) * 64 = 1,088\n3. Expand 3x3: (3 * 3 * 16 + 1) * 64 = 9,280\nTotal: 2,064 + 1,088 + 9,280 = 12,432 parameters."
+            },
+            {
+                q: "Discuss why 'On-device Learning' usually focuses on the final Dense layers rather than the full CNN.",
+                a: "1. Memory: Storing gradients for deep Conv layers requires massive SRAM.\n2. Compute: Backprop through many layers is slow on MCUs.\n3. Logic: The early layers act as general feature extractors; only the classifier needs adaptation to local data."
+            },
+            {
+                q: "Explain the concept of 'Sample Partitioning' in cross-validation for edge AI. Why is it often preferred over simple K-fold?",
+                a: "In Edge AI, data is often sequential (time-series). Sample partitioning ensures that chunks of data from the same session/user don't leak from training to testing, which would lead to over-optimistic results."
+            },
+            {
+                q: "Derive the MACs for a Depthwise Convolution with 3x3 kernel, 64 channels, and 32x32 input (no padding).",
+                a: "1. Output size: (32-3+1) = 30x30.\n2. Depthwise MACs = (Kernel_H * Kernel_W * 1) * (Output_H * Output_W * Channels)\n3. MACs = (3 * 3 * 1) * (30 * 30 * 64) = 9 * 57,600 = 518,400 MACs."
+            }
+        ];
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
         }
+
+        function generateExam() {
+            const closedContainer = document.getElementById('closed-container');
+            const openContainer = document.getElementById('open-container');
+            closedContainer.innerHTML = '';
+            openContainer.innerHTML = '';
+
+            // Get 5 random closed questions
+            const selectedClosed = shuffle([...closedBank]).slice(0, 5);
+            selectedClosed.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'card animate-in';
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.innerHTML = `
+                    <div class="question-text">${index + 1}. ${item.q}</div>
+                    <div class="options-grid">
+                        ${item.o.map((opt, i) => `
+                            <div class="option" onclick="checkClosed(this, ${i}, ${item.a}, 'exp-${index}')">
+                                <span>${String.fromCharCode(65 + i)}.</span> ${opt}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div id="exp-${index}" class="explanation">${item.e}</div>
+                `;
+                closedContainer.appendChild(card);
+            });
+
+            // Get 3 random open questions
+            const selectedOpen = shuffle([...openBank]).slice(0, 3);
+            selectedOpen.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'card animate-in';
+                card.style.animationDelay = `${(index + 5) * 0.1}s`;
+                card.innerHTML = `
+                    <div class="question-text">Q${index + 1}: ${item.q}</div>
+                    <button class="show-ans-btn" onclick="toggleOpen('open-${index}')">Show Solution</button>
+                    <div id="open-${index}" class="open-answer-box">${item.a}</div>
+                `;
+                openContainer.appendChild(card);
+            });
+        }
+
+        function checkClosed(el, selected, correct, expId) {
+            const parent = el.parentElement;
+            const options = parent.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('correct', 'wrong'));
+            
+            if (selected === correct) {
+                el.classList.add('correct');
+            } else {
+                el.classList.add('wrong');
+                options[correct].classList.add('correct');
+            }
+            document.getElementById(expId).style.display = 'block';
+        }
+
+        function toggleOpen(id) {
+            const el = document.getElementById(id);
+            el.style.display = el.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Init
+        generateExam();
     </script>
 </body>
 </html>

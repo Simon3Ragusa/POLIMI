@@ -3,348 +3,394 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EEAI Pro-Simulator</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>POLIMI - Embedded and Edge AI Exam</title>
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #10b981;
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --text: #f8fafc;
-            --text-dim: #94a3b8;
-            --accent: #f59e0b;
+            --polimi-blue: #004b93;
+            --academic-gray: #f8f9fa;
+            --border-color: #dee2e6;
+            --text-color: #212529;
+            --correct-green: #28a745;
+            --wrong-red: #dc3545;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
+            font-family: "Times New Roman", Times, serif;
+            background-color: #fff;
+            color: var(--text-color);
+            line-height: 1.5;
             margin: 0;
-            padding: 40px 20px;
+            padding: 0;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            border-bottom: 2px solid var(--polimi-blue);
+            background-color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: var(--polimi-blue);
+            text-transform: uppercase;
+        }
+
+        .header p {
+            margin: 5px 0;
+            font-style: italic;
+        }
+
+        .exam-info {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            justify-content: space-around;
+            background: var(--academic-gray);
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: bold;
+        }
+
+        .timer {
+            color: var(--wrong-red);
+            font-size: 1.2rem;
         }
 
         .container {
-            max-width: 900px;
-            width: 100%;
+            max-width: 850px;
+            margin: 30px auto;
+            padding: 0 20px;
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 50px;
-            border-bottom: 1px solid #334155;
+        .section-header {
+            background-color: var(--polimi-blue);
+            color: white;
+            padding: 10px 15px;
+            margin-top: 30px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .question {
+            margin: 25px 0;
             padding-bottom: 20px;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(to right, #818cf8, #34d399);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin: 0;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background: rgba(99, 102, 241, 0.2);
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-top: 10px;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            color: var(--accent);
-            margin: 40px 0 20px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-title::after {
-            content: "";
-            flex: 1;
-            height: 1px;
-            background: #334155;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 20px;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-
-        .card:hover {
-            border-color: var(--primary);
+            border-bottom: 1px solid var(--border-color);
         }
 
         .question-text {
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-weight: bold;
             margin-bottom: 15px;
         }
 
-        .options-grid {
-            display: grid;
-            gap: 12px;
+        .options {
+            list-style-type: none;
+            padding-left: 0;
         }
 
-        .option {
-            background: #0f172a;
-            border: 1px solid #334155;
-            padding: 12px 16px;
-            border-radius: 8px;
+        .options li {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
             cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            transition: background 0.2s;
         }
 
-        .option:hover {
-            background: #1e293b;
-            border-color: var(--primary);
+        .options li:hover {
+            background-color: #e9ecef;
         }
 
-        .option.correct {
-            border-color: var(--secondary);
-            background: rgba(16, 185, 129, 0.1);
+        .options li.selected {
+            background-color: #cfe2ff;
+            border-color: #b6d4fe;
         }
 
-        .option.wrong {
-            border-color: #ef4444;
-            background: rgba(239, 68, 68, 0.1);
-        }
-
-        .explanation {
-            margin-top: 15px;
-            padding: 12px;
-            background: rgba(99, 102, 241, 0.1);
-            border-left: 4px solid var(--primary);
-            font-size: 0.95rem;
-            color: var(--text-dim);
-            display: none;
-        }
-
-        button.main-cta {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
+        textarea {
+            width: 100%;
+            height: 120px;
+            margin-top: 10px;
+            font-family: inherit;
             font-size: 1rem;
-            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
-            transition: all 0.2s;
-            display: block;
-            margin: 40px auto;
+            padding: 10px;
+            border: 1px solid var(--border-color);
         }
 
-        button.main-cta:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
+        .score-box {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            margin: 20px 0;
+            border: 3px double var(--polimi-blue);
+            background: #fff;
         }
 
-        .open-answer-box {
+        .score-value {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--polimi-blue);
+        }
+
+        .feedback {
             display: none;
             margin-top: 15px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-            color: #10b981;
-            white-space: pre-wrap;
-            border-top: 1px solid #334155;
-            padding-top: 15px;
+            padding: 15px;
+            background-color: #fcf8e3;
+            border: 1px solid #faebcc;
+            font-size: 0.95rem;
         }
 
-        .show-ans-btn {
-            background: transparent;
-            border: 1px solid var(--text-dim);
-            color: var(--text-dim);
-            padding: 6px 12px;
-            border-radius: 4px;
+        .btn-container {
+            text-align: center;
+            margin: 50px 0;
+        }
+
+        button#submit-btn {
+            background-color: var(--polimi-blue);
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border: none;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-weight: bold;
         }
 
-        .show-ans-btn:hover {
-            color: var(--text);
-            border-color: var(--text);
+        button#submit-btn:hover {
+            background-color: #00366d;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .animate-in {
-            animation: fadeIn 0.4s ease-out forwards;
+        .correct { border-color: var(--correct-green) !important; background-color: #d4edda !important; }
+        .wrong { border-color: var(--wrong-red) !important; background-color: #f8d7da !important; }
+        
+        @media print {
+            .header, #submit-btn, .timer-container { display: none; }
+            .container { max-width: 100%; }
         }
     </style>
 </head>
 <body>
 
+    <div class="header">
+        <h1>Politecnico di Milano</h1>
+        <p>Embedded and Edge AI - Official Exam Simulation</p>
+    </div>
+
+    <div class="exam-info">
+        <span>Time Remaining: <span id="time" class="timer">30:00</span></span>
+        <span>Candidate: Simone Ragusa</span>
+        <span>Points: 30 / 30</span>
+    </div>
+
     <div class="container">
-        <header>
-            <h1>EEAI EXAM SIMULATOR</h1>
-            <div class="badge">V2.0 - POLYTECHNIC EDITION</div>
-        </header>
-
-        <div id="exam-ui">
-            <div class="section-title">SECTION A: CLOSED QUESTIONS</div>
-            <div id="closed-container"></div>
-
-            <div class="section-title">SECTION B: OPEN QUESTIONS</div>
-            <div id="open-container"></div>
-
-            <button class="main-cta" onclick="generateExam()">REGENERATE NEW EXAM</button>
+        <div id="score-display" class="score-box">
+            <h2>FINAL SCORE</h2>
+            <div class="score-value" id="final-score">0 / 30</div>
+            <p id="score-comment"></p>
         </div>
+
+        <form id="exam-form">
+            <div class="section-header">Part 1: Multiple Choice and True/False (2 pts each - Total 18)</div>
+            <div id="closed-questions-container"></div>
+
+            <div class="section-header">Part 2: Open Questions and Exercises (4 pts each - Total 12)</div>
+            <div id="open-questions-container"></div>
+
+            <div class="btn-container">
+                <button type="button" id="submit-btn" onclick="submitExam()">CONCLUDE AND GRADE EXAM</button>
+            </div>
+        </form>
     </div>
 
     <script>
         const closedBank = [
             {
-                q: "Which layer in SqueezeNet is responsible for reducing the number of input channels before the expand layers?",
-                o: ["Expand Layer", "Squeeze Layer (1x1 Conv)", "Fire Module", "Global Average Pooling"],
+                q: "What is the primary role of the 'Squeeze' layer in a Fire Module (SqueezeNet)?",
+                o: ["Expand the number of channels to capture more features.", "Reduce the input depth using 1x1 convolutions to minimize MACs/parameters.", "Apply spatial downsampling to reduce resolution.", "Normalize activations before the ReLU layer."],
                 a: 1,
-                e: "The Squeeze layer uses 1x1 convolutions to reduce the depth of the input tensor, minimizing parameters."
+                e: "The Squeeze layer uses 1x1 convolutions to reduce the number of channels entering the Expand layer, significantly reducing the total number of parameters."
             },
             {
-                q: "What is the primary advantage of Pointwise Convolution in MobileNet?",
-                o: ["Spatial filtering", "Reducing depth", "Increasing kernel size", "Combining filtered channels"],
-                a: 3,
-                e: "Pointwise (1x1) convolutions combine the results of the Depthwise layer into new features."
+                q: "In MobileNetV1, how is a standard convolution decomposed?",
+                o: ["Into 3x3 depthwise and 3x3 pointwise convolutions.", "Into 1x1 depthwise and 3x3 pointwise convolutions.", "Into 3x3 depthwise and 1x1 pointwise convolutions.", "Into 5x5 spatial and 1x1 depthwise convolutions."],
+                a: 2,
+                e: "MobileNetV1 uses Depthwise Separable Convolutions: a depthwise 3x3 convolution for spatial filtering and a pointwise 1x1 convolution for channel combination."
             },
             {
-                q: "In INT8 quantization, what does 'Zero-Point' represent?",
-                o: ["The minimum value of the tensor", "The value corresponding to floating point 0.0", "The saturation limit", "The mean of the distribution"],
+                q: "Which quantization method is most suitable when the weights distribution has significant outliers?",
+                o: ["Uniform Quantization", "Non-Uniform (Logarithmic) Quantization", "Dynamic Range Quantization", "Symmetric Quantization"],
                 a: 1,
-                e: "The Zero-Point (Z) is the integer value that maps exactly to 0.0 in the floating-point range."
+                e: "Non-uniform or logarithmic quantization can better represent distributions with a high dynamic range or long tails (outliers)."
             },
             {
-                q: "Which technique is BEST for handling non-representative training data during quantization?",
-                o: ["Dynamic Range Quantization", "PTQ", "Quantization-Aware Training (QAT)", "Float16 conversion"],
-                a: 2,
-                e: "QAT models the quantization error during training, making it more robust to varied data distributions."
-            },
-            {
-                q: "What is the ESP32-S3's primary hardware feature for AI acceleration?",
-                o: ["Integrated NPU", "Tensor Cores", "PIE (SIMD) Instructions", "CUDA support"],
-                a: 2,
-                e: "The ESP32-S3 uses PIE (Power-efficient Instruction Extensions) to perform SIMD operations for AI kernels."
-            },
-            {
-                q: "True or False: Dropout is usually disabled during inference on an edge device.",
+                q: "True or False: Quantization-Aware Training (QAT) usually results in lower accuracy loss compared to Post-Training Quantization (PTQ).",
                 o: ["True", "False"],
                 a: 0,
-                e: "Dropout is a training regularization technique; at inference, all neurons are used to maximize performance."
+                e: "True. QAT fine-tunes the model to compensate for quantization errors during the training process itself."
             },
             {
-                q: "What metric is most critical for 'Early Exit' decision making?",
-                o: ["Latency", "Memory usage", "Classifier Confidence (e.g. Entropy)", "Batch size"],
-                a: 2,
-                e: "Early Exit relies on a threshold of confidence (like softmax entropy) to decide if processing should stop."
+                q: "What is the main limitation of 'Static PTQ' compared to 'Dynamic PTQ'?",
+                o: ["It requires more memory for weights.", "It requires a calibration dataset to estimate activation ranges.", "It is slower during inference.", "It only works for convolutional layers."],
+                a: 1,
+                e: "Static PTQ requires a representative dataset (calibration) to pre-calculate the scale and zero-point for activations."
+            },
+            {
+                q: "In the context of ESP32-S3, what is the 'PIE' instruction set?",
+                o: ["A Python Interpreter for Embedded systems.", "A set of SIMD instructions for accelerating AI/DSP workloads.", "A power-management interface for low-power sleep.", "An encryption engine for secure AI models."],
+                a: 1,
+                e: "PIE (Processor Instruction Extensions) provides SIMD capabilities to perform multiple MAC operations in a single cycle on the ESP32-S3."
+            },
+            {
+                q: "When using 'Early Exit', what happens if the confidence of an intermediate classifier is below the threshold?",
+                o: ["The inference stops and returns the best guess.", "The inference continues to the next layer/exit.", "The model re-trains the classifier on-the-fly.", "The input is discarded as an outlier."],
+                a: 1,
+                e: "If the confidence is low, the data proceeds to deeper layers to gain a more robust representation."
+            },
+            {
+                q: "Which memory type is typically used to store the weights of a quantized model on an MCU?",
+                o: ["SRAM", "Flash (Non-volatile)", "L1 Cache", "External SD Card"],
+                a: 1,
+                e: "Weights are constant and are typically stored in the Flash memory, which is larger than SRAM but slower."
+            },
+            {
+                q: "What is the primary motivation for 'On-device Learning'?",
+                o: ["To reduce the initial training time in the cloud.", "To adapt the model to specific user data and environment while maintaining privacy.", "To increase the model size beyond MCU limits.", "To replace the need for labeled data."],
+                a: 1,
+                e: "On-device learning allows personalization and local adaptation without sending raw data to external servers."
             }
         ];
 
         const openBank = [
             {
-                q: "Calculate the total parameters for a Fire Module with: Squeeze (1x1, 16 filters) and Expand (1x1, 64 filters + 3x3, 64 filters). Assume input has 128 channels.",
-                a: "1. Squeeze Params: (1 * 1 * 128 + 1) * 16 = 2,064\n2. Expand 1x1: (1 * 1 * 16 + 1) * 64 = 1,088\n3. Expand 3x3: (3 * 3 * 16 + 1) * 64 = 9,280\nTotal: 2,064 + 1,088 + 9,280 = 12,432 parameters."
+                q: "Calculate the total MAC operations for a standard convolution layer with: Input 32x32x3, Kernel 3x3, 16 Filters, Stride 1, No Padding. Show the steps.",
+                a: "1. Output dimensions: (32-3+1) = 30x30.\n2. MACs per output pixel: (Kernel_H * Kernel_W * Channels_In) = 3 * 3 * 3 = 27.\n3. Total MACs: (Output_H * Output_W * Filters) * MACs_per_pixel = (30 * 30 * 16) * 27 = 14,400 * 27 = 388,800 MACs.",
+                points: 4
             },
             {
-                q: "Discuss why 'On-device Learning' usually focuses on the final Dense layers rather than the full CNN.",
-                a: "1. Memory: Storing gradients for deep Conv layers requires massive SRAM.\n2. Compute: Backprop through many layers is slow on MCUs.\n3. Logic: The early layers act as general feature extractors; only the classifier needs adaptation to local data."
+                q: "Explain the 'Vanishing Gradient' problem in deep networks and how architectural choices like ResNet (Skip Connections) address it.",
+                a: "The vanishing gradient occurs when gradients become extremely small during backprop, preventing weight updates in early layers. Skip connections allow the gradient to flow directly through the identity mapping, bypassing the non-linearities and preserving signal strength.",
+                points: 4
             },
             {
-                q: "Explain the concept of 'Sample Partitioning' in cross-validation for edge AI. Why is it often preferred over simple K-fold?",
-                a: "In Edge AI, data is often sequential (time-series). Sample partitioning ensures that chunks of data from the same session/user don't leak from training to testing, which would lead to over-optimistic results."
+                q: "Derive the memory footprint (in bytes) for storing the activations of a layer with output 16x16x64, using INT8 quantization.",
+                a: "1. Total elements: 16 * 16 * 64 = 16,384.\n2. Bytes per element (INT8): 1 byte.\n3. Total footprint: 16,384 * 1 = 16,384 Bytes (approx 16 KB).",
+                points: 4
             },
             {
-                q: "Derive the MACs for a Depthwise Convolution with 3x3 kernel, 64 channels, and 32x32 input (no padding).",
-                a: "1. Output size: (32-3+1) = 30x30.\n2. Depthwise MACs = (Kernel_H * Kernel_W * 1) * (Output_H * Output_W * Channels)\n3. MACs = (3 * 3 * 1) * (30 * 30 * 64) = 9 * 57,600 = 518,400 MACs."
+                q: "Discuss the trade-off between using a small calibration dataset vs a large one for PTQ. What are the risks of using biased data?",
+                a: "A small dataset is faster but might not represent the full dynamic range of activations, leading to poor quantization parameters. Biased data can cause saturation or high quantization error on 'normal' inputs that were not seen during calibration.",
+                points: 4
             }
         ];
+
+        let timeLeft = 30 * 60;
+        let timerInterval;
+        let selectedClosed = [];
+        let selectedOpen = [];
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('time').innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    submitExam();
+                }
+                timeLeft--;
+            }, 1000);
+        }
 
         function shuffle(array) {
             return array.sort(() => Math.random() - 0.5);
         }
 
-        function generateExam() {
-            const closedContainer = document.getElementById('closed-container');
-            const openContainer = document.getElementById('open-container');
-            closedContainer.innerHTML = '';
-            openContainer.innerHTML = '';
+        function initExam() {
+            selectedClosed = shuffle([...closedBank]).slice(0, 9);
+            selectedOpen = shuffle([...openBank]).slice(0, 3);
 
-            // Get 5 random closed questions
-            const selectedClosed = shuffle([...closedBank]).slice(0, 5);
-            selectedClosed.forEach((item, index) => {
-                const card = document.createElement('div');
-                card.className = 'card animate-in';
-                card.style.animationDelay = `${index * 0.1}s`;
-                card.innerHTML = `
-                    <div class="question-text">${index + 1}. ${item.q}</div>
-                    <div class="options-grid">
-                        ${item.o.map((opt, i) => `
-                            <div class="option" onclick="checkClosed(this, ${i}, ${item.a}, 'exp-${index}')">
-                                <span>${String.fromCharCode(65 + i)}.</span> ${opt}
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div id="exp-${index}" class="explanation">${item.e}</div>
+            const closedContainer = document.getElementById('closed-questions-container');
+            selectedClosed.forEach((item, idx) => {
+                const qDiv = document.createElement('div');
+                qDiv.className = 'question';
+                qDiv.innerHTML = `
+                    <div class="question-text">${idx + 1}. ${item.q}</div>
+                    <ul class="options" id="options-${idx}">
+                        ${item.o.map((opt, i) => `<li onclick="selectOption(${idx}, ${i})">${opt}</li>`).join('')}
+                    </ul>
+                    <div class="feedback" id="feedback-${idx}"><strong>Explanation:</strong> ${item.e}</div>
                 `;
-                closedContainer.appendChild(card);
+                closedContainer.appendChild(qDiv);
             });
 
-            // Get 3 random open questions
-            const selectedOpen = shuffle([...openBank]).slice(0, 3);
-            selectedOpen.forEach((item, index) => {
-                const card = document.createElement('div');
-                card.className = 'card animate-in';
-                card.style.animationDelay = `${(index + 5) * 0.1}s`;
-                card.innerHTML = `
-                    <div class="question-text">Q${index + 1}: ${item.q}</div>
-                    <button class="show-ans-btn" onclick="toggleOpen('open-${index}')">Show Solution</button>
-                    <div id="open-${index}" class="open-answer-box">${item.a}</div>
+            const openContainer = document.getElementById('open-questions-container');
+            selectedOpen.forEach((item, idx) => {
+                const qDiv = document.createElement('div');
+                qDiv.className = 'question';
+                qDiv.innerHTML = `
+                    <div class="question-text">Question ${idx + 10}: ${item.q}</div>
+                    <textarea placeholder="Write your answer here..." id="open-ans-${idx}"></textarea>
+                    <div class="feedback" id="open-feedback-${idx}"><strong>Reference Solution:</strong><br>${item.a}</div>
                 `;
-                openContainer.appendChild(card);
+                openContainer.appendChild(qDiv);
             });
+
+            startTimer();
         }
 
-        function checkClosed(el, selected, correct, expId) {
-            const parent = el.parentElement;
-            const options = parent.querySelectorAll('.option');
-            options.forEach(opt => opt.classList.remove('correct', 'wrong'));
+        let userClosedAnswers = new Array(9).fill(null);
+
+        window.selectOption = function(qIdx, oIdx) {
+            if (document.getElementById('submit-btn').disabled) return;
+            userClosedAnswers[qIdx] = oIdx;
+            const options = document.querySelectorAll(`#options-${qIdx} li`);
+            options.forEach((li, i) => {
+                li.classList.toggle('selected', i === oIdx);
+            });
+        };
+
+        window.submitExam = function() {
+            clearInterval(timerInterval);
+            document.getElementById('submit-btn').disabled = true;
             
-            if (selected === correct) {
-                el.classList.add('correct');
-            } else {
-                el.classList.add('wrong');
-                options[correct].classList.add('correct');
-            }
-            document.getElementById(expId).style.display = 'block';
-        }
+            let closedScore = 0;
+            selectedClosed.forEach((item, idx) => {
+                const options = document.querySelectorAll(`#options-${idx} li`);
+                const feedback = document.getElementById(`feedback-${idx}`);
+                feedback.style.display = 'block';
 
-        function toggleOpen(id) {
-            const el = document.getElementById(id);
-            el.style.display = el.style.display === 'block' ? 'none' : 'block';
-        }
+                if (userClosedAnswers[idx] === item.a) {
+                    closedScore += 2;
+                    options[item.a].classList.add('correct');
+                } else {
+                    if (userClosedAnswers[idx] !== null) {
+                        options[userClosedAnswers[idx]].classList.add('wrong');
+                    }
+                    options[item.a].classList.add('correct');
+                }
+            });
 
-        // Init
-        generateExam();
+            // For open questions, show feedback (self-grading is implied for the user)
+            selectedOpen.forEach((item, idx) => {
+                document.getElementById(`open-feedback-${idx}`).style.display = 'block';
+            });
+
+            const totalScore = closedScore + 12; // Giving full open score for simulation, or user can decide
+            const finalScoreVal = Math.min(30, closedScore + Math.floor(Math.random() * 5 + 7)); // Simulated open scoring
+
+            document.getElementById('score-display').style.display = 'block';
+            document.getElementById('final-score').innerText = `${finalScoreVal} / 30`;
+            
+            let comment = "";
+            if (finalScoreVal >= 28) comment = "Eccellente! Ready for the official exam.";
+            else if (finalScoreVal >= 18) comment = "Passed. Review the specific topics in the feedback.";
+            else comment = "Insufficient. Re-read the lecture nodes in the Wiki.";
+            
+            document.getElementById('score-comment').innerText = comment;
+            window.scrollTo(0, 0);
+        };
+
+        initExam();
     </script>
 </body>
 </html>

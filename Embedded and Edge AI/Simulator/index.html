@@ -3,394 +3,340 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POLIMI - Embedded and Edge AI Exam</title>
+    <title>POLIMI - EEAI Exam Simulation (2026 Standards)</title>
     <style>
-        :root {
-            --polimi-blue: #004b93;
-            --academic-gray: #f8f9fa;
-            --border-color: #dee2e6;
-            --text-color: #212529;
-            --correct-green: #28a745;
-            --wrong-red: #dc3545;
-        }
-
         body {
             font-family: "Times New Roman", Times, serif;
+            color: #000;
+            line-height: 1.4;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
             background-color: #fff;
-            color: var(--text-color);
-            line-height: 1.5;
-            margin: 0;
-            padding: 0;
         }
 
-        .header {
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .header-table td {
+            border: 1px solid #000;
+            padding: 10px;
+            vertical-align: top;
+        }
+
+        .polimi-logo {
+            font-size: 1.4rem;
+            font-weight: bold;
+            text-transform: uppercase;
             text-align: center;
-            padding: 20px;
-            border-bottom: 2px solid var(--polimi-blue);
-            background-color: #fff;
+        }
+
+        .exam-meta {
+            text-align: right;
+            font-size: 0.9rem;
+        }
+
+        .timer-bar {
+            background: #f0f0f0;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #000;
+            margin-bottom: 20px;
             position: sticky;
             top: 0;
             z-index: 100;
         }
 
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-            color: var(--polimi-blue);
-            text-transform: uppercase;
-        }
+        .timer-critical { color: red; }
 
-        .header p {
-            margin: 5px 0;
-            font-style: italic;
-        }
-
-        .exam-info {
-            display: flex;
-            justify-content: space-around;
-            background: var(--academic-gray);
-            padding: 10px;
-            border-bottom: 1px solid var(--border-color);
-            font-weight: bold;
-        }
-
-        .timer {
-            color: var(--wrong-red);
+        h2 {
             font-size: 1.2rem;
-        }
-
-        .container {
-            max-width: 850px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-
-        .section-header {
-            background-color: var(--polimi-blue);
-            color: white;
-            padding: 10px 15px;
+            text-decoration: underline;
             margin-top: 30px;
-            font-weight: bold;
-            font-size: 1.1rem;
         }
 
         .question {
-            margin: 25px 0;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 25px;
         }
 
         .question-text {
             font-weight: bold;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
         }
 
         .options {
-            list-style-type: none;
-            padding-left: 0;
+            list-style-type: lower-alpha;
+            padding-left: 25px;
         }
 
         .options li {
-            margin-bottom: 10px;
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
+            margin-bottom: 5px;
             cursor: pointer;
-            transition: background 0.2s;
+            padding: 4px;
         }
 
-        .options li:hover {
-            background-color: #e9ecef;
-        }
+        .options li:hover { background: #f9f9f9; }
+        .options li.selected { background: #e0e0e0; border: 1px solid #000; }
 
-        .options li.selected {
-            background-color: #cfe2ff;
-            border-color: #b6d4fe;
-        }
-
-        textarea {
+        .open-question textarea {
             width: 100%;
-            height: 120px;
-            margin-top: 10px;
-            font-family: inherit;
-            font-size: 1rem;
+            height: 150px;
+            border: 1px solid #000;
             padding: 10px;
-            border: 1px solid var(--border-color);
+            font-family: "Times New Roman", serif;
+            font-size: 1rem;
+            margin-top: 5px;
         }
 
-        .score-box {
-            display: none;
+        #submit-container {
             text-align: center;
-            padding: 30px;
-            margin: 20px 0;
-            border: 3px double var(--polimi-blue);
-            background: #fff;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #000;
         }
 
-        .score-value {
-            font-size: 3rem;
-            font-weight: bold;
-            color: var(--polimi-blue);
+        #submit-btn {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 10px 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-transform: uppercase;
         }
+
+        #submit-btn:hover { background: #333; }
+
+        .result-box {
+            display: none;
+            border: 2px solid #000;
+            padding: 20px;
+            margin-bottom: 30px;
+            background: #f9f9f9;
+        }
+
+        .score-val { font-size: 1.5rem; font-weight: bold; }
 
         .feedback {
             display: none;
-            margin-top: 15px;
-            padding: 15px;
-            background-color: #fcf8e3;
-            border: 1px solid #faebcc;
-            font-size: 0.95rem;
+            margin-top: 10px;
+            font-style: italic;
+            color: #444;
+            padding: 10px;
+            border-left: 3px solid #000;
+            background: #f0f0f0;
         }
 
-        .btn-container {
-            text-align: center;
-            margin: 50px 0;
-        }
+        .correct { color: green; font-weight: bold; }
+        .wrong { color: red; font-weight: bold; text-decoration: line-through; }
 
-        button#submit-btn {
-            background-color: var(--polimi-blue);
-            color: white;
-            padding: 15px 40px;
-            font-size: 1.1rem;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        button#submit-btn:hover {
-            background-color: #00366d;
-        }
-
-        .correct { border-color: var(--correct-green) !important; background-color: #d4edda !important; }
-        .wrong { border-color: var(--wrong-red) !important; background-color: #f8d7da !important; }
-        
         @media print {
-            .header, #submit-btn, .timer-container { display: none; }
-            .container { max-width: 100%; }
+            .timer-bar, #submit-container { display: none; }
+            body { margin: 0; padding: 0; }
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>Politecnico di Milano</h1>
-        <p>Embedded and Edge AI - Official Exam Simulation</p>
+    <table class="header-table">
+        <tr>
+            <td class="polimi-logo">Politecnico di Milano<br><span style="font-size: 0.8rem;">Dipartimento di Elettronica, Informazione e Bioingegneria</span></td>
+            <td class="exam-meta">
+                <strong>Course:</strong> Embedded and Edge AI (056953)<br>
+                <strong>Date:</strong> Academic Year 2025/2026<br>
+                <strong>Student:</strong> Simone Ragusa (Matr: ------)
+            </td>
+        </tr>
+    </table>
+
+    <div class="timer-bar">
+        TIME REMAINING: <span id="timer">30:00</span>
     </div>
 
-    <div class="exam-info">
-        <span>Time Remaining: <span id="time" class="timer">30:00</span></span>
-        <span>Candidate: Simone Ragusa</span>
-        <span>Points: 30 / 30</span>
+    <div id="results" class="result-box">
+        <div class="score-val">EXAM GRADE: <span id="final-score">--</span> / 30</div>
+        <p id="grade-comment"></p>
     </div>
 
-    <div class="container">
-        <div id="score-display" class="score-box">
-            <h2>FINAL SCORE</h2>
-            <div class="score-value" id="final-score">0 / 30</div>
-            <p id="score-comment"></p>
+    <form id="exam-form">
+        <h2>Section 1: Multiple Choice Questions (1.5 pts each - Total 15)</h2>
+        <div id="closed-questions"></div>
+
+        <h2>Section 2: Open Questions and Exercises (5 pts each - Total 15)</h2>
+        <div id="open-questions"></div>
+
+        <div id="submit-container">
+            <button type="button" id="submit-btn" onclick="submitExam()">Submit Exam</button>
         </div>
-
-        <form id="exam-form">
-            <div class="section-header">Part 1: Multiple Choice and True/False (2 pts each - Total 18)</div>
-            <div id="closed-questions-container"></div>
-
-            <div class="section-header">Part 2: Open Questions and Exercises (4 pts each - Total 12)</div>
-            <div id="open-questions-container"></div>
-
-            <div class="btn-container">
-                <button type="button" id="submit-btn" onclick="submitExam()">CONCLUDE AND GRADE EXAM</button>
-            </div>
-        </form>
-    </div>
+    </form>
 
     <script>
-        const closedBank = [
+        const closedPool = [
             {
-                q: "What is the primary role of the 'Squeeze' layer in a Fire Module (SqueezeNet)?",
-                o: ["Expand the number of channels to capture more features.", "Reduce the input depth using 1x1 convolutions to minimize MACs/parameters.", "Apply spatial downsampling to reduce resolution.", "Normalize activations before the ReLU layer."],
+                q: "Based on the 2026 syllabus, which hardware block in the ESP32-S3 is specifically designed to accelerate MAC operations for AI?",
+                o: ["The RISC-V Ultra-Low-Power Co-processor", "The Power-efficient Instruction Extensions (PIE) SIMD set", "The dedicated Tensor Processing Unit (TPU)", "The Hardware H.264 Encoder"],
                 a: 1,
-                e: "The Squeeze layer uses 1x1 convolutions to reduce the number of channels entering the Expand layer, significantly reducing the total number of parameters."
+                e: "The PIE instructions are the primary SIMD acceleration for AI workloads on the Xtensa LX7 core."
             },
             {
-                q: "In MobileNetV1, how is a standard convolution decomposed?",
-                o: ["Into 3x3 depthwise and 3x3 pointwise convolutions.", "Into 1x1 depthwise and 3x3 pointwise convolutions.", "Into 3x3 depthwise and 1x1 pointwise convolutions.", "Into 5x5 spatial and 1x1 depthwise convolutions."],
-                a: 2,
-                e: "MobileNetV1 uses Depthwise Separable Convolutions: a depthwise 3x3 convolution for spatial filtering and a pointwise 1x1 convolution for channel combination."
-            },
-            {
-                q: "Which quantization method is most suitable when the weights distribution has significant outliers?",
-                o: ["Uniform Quantization", "Non-Uniform (Logarithmic) Quantization", "Dynamic Range Quantization", "Symmetric Quantization"],
+                q: "In a SqueezeNet Fire Module, what is the exact configuration of the 'Expand' layer?",
+                o: ["A single 3x3 convolution layer followed by a 1x1 layer.", "A mix of 1x1 and 3x3 convolution layers concatenated in depth.", "A depthwise separable convolution followed by a pointwise convolution.", "A series of three 3x3 convolutions with decreasing filters."],
                 a: 1,
-                e: "Non-uniform or logarithmic quantization can better represent distributions with a high dynamic range or long tails (outliers)."
+                e: "The expand layer concatenates the output of 1x1 and 3x3 filters to balance model size and accuracy."
             },
             {
-                q: "True or False: Quantization-Aware Training (QAT) usually results in lower accuracy loss compared to Post-Training Quantization (PTQ).",
+                q: "Regarding PTQ (Post-Training Quantization), what is the function of the 'Scale' factor?",
+                o: ["It defines the bias added to every quantized value.", "It maps the floating-point range to the integer range (e.g., -128 to 127).", "It determines the number of bits used for weights.", "It scales the learning rate during calibration."],
+                a: 1,
+                e: "Scale (S) is the ratio that relates the real value range to the integer range: Real = Scale * (Quant - ZeroPoint)."
+            },
+            {
+                q: "Which technique is MOST effective for reducing the memory footprint of activations in a deep CNN?",
+                o: ["Weight Pruning", "INT8 Quantization of Activations", "Using a larger Batch Size", "Increasing the Stride of early layers"],
+                a: 1,
+                e: "Quantizing activations directly reduces the SRAM required during inference."
+            },
+            {
+                q: "True or False: In MobileNetV2, the 'Inverted Residual' block expands the number of channels before applying a depthwise convolution.",
                 o: ["True", "False"],
                 a: 0,
-                e: "True. QAT fine-tunes the model to compensate for quantization errors during the training process itself."
+                e: "True. MobileNetV2 uses an expansion factor to project data into a higher dimensional space for depthwise filtering."
             },
             {
-                q: "What is the main limitation of 'Static PTQ' compared to 'Dynamic PTQ'?",
-                o: ["It requires more memory for weights.", "It requires a calibration dataset to estimate activation ranges.", "It is slower during inference.", "It only works for convolutional layers."],
+                q: "What is the primary risk of 'Zero-Point' misalignment in asymmetric quantization?",
+                o: ["Higher latency during MAC operations", "Increased quantization noise/error when representing values around zero", "The model becomes incompatible with Flash memory", "The bias values cannot be quantized"],
                 a: 1,
-                e: "Static PTQ requires a representative dataset (calibration) to pre-calculate the scale and zero-point for activations."
+                e: "Asymmetric quantization handles non-uniform distributions but introduces complexity in zero-mapping."
             },
             {
-                q: "In the context of ESP32-S3, what is the 'PIE' instruction set?",
-                o: ["A Python Interpreter for Embedded systems.", "A set of SIMD instructions for accelerating AI/DSP workloads.", "A power-management interface for low-power sleep.", "An encryption engine for secure AI models."],
+                q: "When implementing 'Early Exit', which metric is typically used to trigger the exit?",
+                o: ["The total execution time of the previous layer", "The entropy or maximum value of the intermediate softmax output", "The temperature of the ESP32-S3 CPU", "The amount of free SRAM remaining"],
                 a: 1,
-                e: "PIE (Processor Instruction Extensions) provides SIMD capabilities to perform multiple MAC operations in a single cycle on the ESP32-S3."
+                e: "Exit is triggered if a confidence threshold (e.g. low entropy) is met at an intermediate classifier."
             },
             {
-                q: "When using 'Early Exit', what happens if the confidence of an intermediate classifier is below the threshold?",
-                o: ["The inference stops and returns the best guess.", "The inference continues to the next layer/exit.", "The model re-trains the classifier on-the-fly.", "The input is discarded as an outlier."],
-                a: 1,
-                e: "If the confidence is low, the data proceeds to deeper layers to gain a more robust representation."
+                q: "Which AI workflow step is specific to 'Edge AI' compared to traditional 'Cloud AI'?",
+                o: ["Data Labeling", "Hyperparameter Tuning", "Hardware-Aware Model Conversion/Quantization", "Model Architecture Search (NAS)"],
+                a: 2,
+                e: "Edge AI requires specific steps to fit models into strict hardware constraints (Flash/SRAM)."
             },
             {
-                q: "Which memory type is typically used to store the weights of a quantized model on an MCU?",
-                o: ["SRAM", "Flash (Non-volatile)", "L1 Cache", "External SD Card"],
+                q: "How does 'Pointwise' convolution contribute to MAC reduction in MobileNets?",
+                o: ["It reduces the spatial resolution of the feature maps.", "It performs cross-channel combinations using 1x1 kernels, which are computationally cheaper than 3x3.", "It replaces the need for activation functions.", "It prevents the weights from being stored in Flash."],
                 a: 1,
-                e: "Weights are constant and are typically stored in the Flash memory, which is larger than SRAM but slower."
+                e: "1x1 convolutions are significantly more efficient than standard 3x3 convolutions when combining channels."
             },
             {
-                q: "What is the primary motivation for 'On-device Learning'?",
-                o: ["To reduce the initial training time in the cloud.", "To adapt the model to specific user data and environment while maintaining privacy.", "To increase the model size beyond MCU limits.", "To replace the need for labeled data."],
+                q: "In the ESP-DL library, what is the primary benefit of 'Fused' layers (e.g., Conv+ReLU)?",
+                o: ["They increase the accuracy of the model.", "They reduce memory access overhead by combining operations in a single kernel call.", "They allow the model to run on the ULP co-processor.", "They double the number of available filters."],
                 a: 1,
-                e: "On-device learning allows personalization and local adaptation without sending raw data to external servers."
+                e: "Fusing operations minimizes 'data movement' between SRAM and registers, which is a major bottleneck in edge systems."
             }
         ];
 
-        const openBank = [
+        const openPool = [
             {
-                q: "Calculate the total MAC operations for a standard convolution layer with: Input 32x32x3, Kernel 3x3, 16 Filters, Stride 1, No Padding. Show the steps.",
-                a: "1. Output dimensions: (32-3+1) = 30x30.\n2. MACs per output pixel: (Kernel_H * Kernel_W * Channels_In) = 3 * 3 * 3 = 27.\n3. Total MACs: (Output_H * Output_W * Filters) * MACs_per_pixel = (30 * 30 * 16) * 27 = 14,400 * 27 = 388,800 MACs.",
-                points: 4
+                q: "EXERCISE: Calculate the MACs for a 'Depthwise Separable Convolution' block. \nInput: 32x32x64. \nDepthwise: 3x3 kernel, Stride 1, No Padding. \nPointwise: 128 filters. \nShow the breakdown for both layers.",
+                a: "1. Depthwise Layer:\n   Output size: 30x30.\n   MACs = (3 * 3 * 1) * (30 * 30 * 64) = 9 * 57,600 = 518,400.\n2. Pointwise Layer:\n   Input size: 30x30x64.\n   MACs = (1 * 1 * 64) * (30 * 30 * 128) = 64 * 115,200 = 7,372,800.\nTotal MACs: 518,400 + 7,372,800 = 7,891,200 MACs.",
+                pts: 5
             },
             {
-                q: "Explain the 'Vanishing Gradient' problem in deep networks and how architectural choices like ResNet (Skip Connections) address it.",
-                a: "The vanishing gradient occurs when gradients become extremely small during backprop, preventing weight updates in early layers. Skip connections allow the gradient to flow directly through the identity mapping, bypassing the non-linearities and preserving signal strength.",
-                points: 4
+                q: "THEORY: Compare 'Quantization-Aware Training' (QAT) and 'Post-Training Quantization' (PTQ) based on the 2026 syllabus. Discuss the hardware-software trade-offs and the typical accuracy drop expected.",
+                a: "PTQ is applied to a pre-trained model using a calibration dataset. It is fast but can cause significant accuracy drops (1-5%). QAT simulates quantization during training, allowing the weights to adapt to the 8-bit range, resulting in <1% drop. QAT requires full training infrastructure and more time.",
+                pts: 5
             },
             {
-                q: "Derive the memory footprint (in bytes) for storing the activations of a layer with output 16x16x64, using INT8 quantization.",
-                a: "1. Total elements: 16 * 16 * 64 = 16,384.\n2. Bytes per element (INT8): 1 byte.\n3. Total footprint: 16,384 * 1 = 16,384 Bytes (approx 16 KB).",
-                points: 4
-            },
-            {
-                q: "Discuss the trade-off between using a small calibration dataset vs a large one for PTQ. What are the risks of using biased data?",
-                a: "A small dataset is faster but might not represent the full dynamic range of activations, leading to poor quantization parameters. Biased data can cause saturation or high quantization error on 'normal' inputs that were not seen during calibration.",
-                points: 4
+                q: "DESIGN: Propose a strategy for 'On-device Learning' on an ESP32-S3 with 512KB SRAM. Which layers would you freeze, which would you train, and how would you manage the gradient memory?",
+                a: "Freeze all Convolutional layers (acting as fixed feature extractors). Train only the final Dense/Softmax layer. To save memory, use 'Frozen Gradients' for the early backbone and only store gradients for the head. Use INT8 for weights and keep activations in SRAM for the head during backprop.",
+                pts: 5
             }
         ];
 
         let timeLeft = 30 * 60;
-        let timerInterval;
         let selectedClosed = [];
         let selectedOpen = [];
+        let userClosed = new Array(10).fill(null);
 
-        function startTimer() {
-            timerInterval = setInterval(() => {
-                const minutes = Math.floor(timeLeft / 60);
-                const seconds = timeLeft % 60;
-                document.getElementById('time').innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    submitExam();
-                }
+        function init() {
+            selectedClosed = closedPool.sort(() => 0.5 - Math.random()).slice(0, 10);
+            selectedOpen = openPool.sort(() => 0.5 - Math.random()).slice(0, 3);
+
+            const cCont = document.getElementById('closed-questions');
+            selectedClosed.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'question';
+                div.innerHTML = `
+                    <div class="question-text">${idx + 1}. ${item.q}</div>
+                    <ol class="options" id="opt-group-${idx}">
+                        ${item.o.map((o, i) => `<li onclick="select(${idx}, ${i})">${o}</li>`).join('')}
+                    </ol>
+                    <div class="feedback" id="feed-${idx}"><strong>Key Concept:</strong> ${item.e}</div>
+                `;
+                cCont.appendChild(div);
+            });
+
+            const oCont = document.getElementById('open-questions');
+            selectedOpen.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'question open-question';
+                div.innerHTML = `
+                    <div class="question-text">Question ${idx + 11}: ${item.q}</div>
+                    <textarea placeholder="Candidate's Answer..." id="open-text-${idx}"></textarea>
+                    <div class="feedback" id="open-feed-${idx}"><strong>Ref Solution:</strong><br>${item.a}</div>
+                `;
+                oCont.appendChild(div);
+            });
+
+            setInterval(() => {
+                let mins = Math.floor(timeLeft / 60);
+                let secs = timeLeft % 60;
+                const timerEl = document.getElementById('timer');
+                timerEl.innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                if (timeLeft <= 300) timerEl.className = 'timer-critical';
+                if (timeLeft <= 0) submitExam();
                 timeLeft--;
             }, 1000);
         }
 
-        function shuffle(array) {
-            return array.sort(() => Math.random() - 0.5);
-        }
-
-        function initExam() {
-            selectedClosed = shuffle([...closedBank]).slice(0, 9);
-            selectedOpen = shuffle([...openBank]).slice(0, 3);
-
-            const closedContainer = document.getElementById('closed-questions-container');
-            selectedClosed.forEach((item, idx) => {
-                const qDiv = document.createElement('div');
-                qDiv.className = 'question';
-                qDiv.innerHTML = `
-                    <div class="question-text">${idx + 1}. ${item.q}</div>
-                    <ul class="options" id="options-${idx}">
-                        ${item.o.map((opt, i) => `<li onclick="selectOption(${idx}, ${i})">${opt}</li>`).join('')}
-                    </ul>
-                    <div class="feedback" id="feedback-${idx}"><strong>Explanation:</strong> ${item.e}</div>
-                `;
-                closedContainer.appendChild(qDiv);
-            });
-
-            const openContainer = document.getElementById('open-questions-container');
-            selectedOpen.forEach((item, idx) => {
-                const qDiv = document.createElement('div');
-                qDiv.className = 'question';
-                qDiv.innerHTML = `
-                    <div class="question-text">Question ${idx + 10}: ${item.q}</div>
-                    <textarea placeholder="Write your answer here..." id="open-ans-${idx}"></textarea>
-                    <div class="feedback" id="open-feedback-${idx}"><strong>Reference Solution:</strong><br>${item.a}</div>
-                `;
-                openContainer.appendChild(qDiv);
-            });
-
-            startTimer();
-        }
-
-        let userClosedAnswers = new Array(9).fill(null);
-
-        window.selectOption = function(qIdx, oIdx) {
+        window.select = (qIdx, oIdx) => {
             if (document.getElementById('submit-btn').disabled) return;
-            userClosedAnswers[qIdx] = oIdx;
-            const options = document.querySelectorAll(`#options-${qIdx} li`);
-            options.forEach((li, i) => {
-                li.classList.toggle('selected', i === oIdx);
-            });
+            userClosed[qIdx] = oIdx;
+            const lis = document.querySelectorAll(`#opt-group-${qIdx} li`);
+            lis.forEach((li, i) => li.classList.toggle('selected', i === oIdx));
         };
 
-        window.submitExam = function() {
-            clearInterval(timerInterval);
+        window.submitExam = () => {
             document.getElementById('submit-btn').disabled = true;
-            
-            let closedScore = 0;
+            let score = 0;
             selectedClosed.forEach((item, idx) => {
-                const options = document.querySelectorAll(`#options-${idx} li`);
-                const feedback = document.getElementById(`feedback-${idx}`);
-                feedback.style.display = 'block';
-
-                if (userClosedAnswers[idx] === item.a) {
-                    closedScore += 2;
-                    options[item.a].classList.add('correct');
+                const lis = document.querySelectorAll(`#opt-group-${idx} li`);
+                document.getElementById(`feed-${idx}`).style.display = 'block';
+                if (userClosed[idx] === item.a) {
+                    score += 1.5;
+                    lis[item.a].className = 'correct';
                 } else {
-                    if (userClosedAnswers[idx] !== null) {
-                        options[userClosedAnswers[idx]].classList.add('wrong');
-                    }
-                    options[item.a].classList.add('correct');
+                    if (userClosed[idx] !== null) lis[userClosed[idx]].className = 'wrong';
+                    lis[item.a].className = 'correct';
                 }
             });
 
-            // For open questions, show feedback (self-grading is implied for the user)
             selectedOpen.forEach((item, idx) => {
-                document.getElementById(`open-feedback-${idx}`).style.display = 'block';
+                document.getElementById(`open-feed-${idx}`).style.display = 'block';
             });
 
-            const totalScore = closedScore + 12; // Giving full open score for simulation, or user can decide
-            const finalScoreVal = Math.min(30, closedScore + Math.floor(Math.random() * 5 + 7)); // Simulated open scoring
-
-            document.getElementById('score-display').style.display = 'block';
-            document.getElementById('final-score').innerText = `${finalScoreVal} / 30`;
-            
-            let comment = "";
-            if (finalScoreVal >= 28) comment = "Eccellente! Ready for the official exam.";
-            else if (finalScoreVal >= 18) comment = "Passed. Review the specific topics in the feedback.";
-            else comment = "Insufficient. Re-read the lecture nodes in the Wiki.";
-            
-            document.getElementById('score-comment').innerText = comment;
+            // Simulated open score (between 10 and 15) for feedback
+            const final = Math.min(30, score + 12.5); 
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('final-score').innerText = final;
+            document.getElementById('grade-comment').innerText = final >= 18 ? "PASSED. Verify open answers against references." : "FAILED. In-depth review required.";
             window.scrollTo(0, 0);
         };
 
-        initExam();
+        init();
     </script>
 </body>
 </html>

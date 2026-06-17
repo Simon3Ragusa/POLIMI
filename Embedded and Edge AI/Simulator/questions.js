@@ -70,6 +70,48 @@ const closedPool = [
         o: ["Bias is caused by non-zero mean activations and is mitigated by using a zero-point.", "Bias is the loss of small weights and is mitigated by increasing the number of filters.", "Bias is the overflow of 8-bit registers and is mitigated by 16-bit accumulators.", "Bias is the mismatch between training and test sets."],
         a: 0,
         e: "Symmetric quantization (zero-point = 0) can suffer from bias if the range is not centered; asymmetric quantization with a zero-point is the common solution."
+    },
+    {
+        q: "Which specific layer in the MobileNetV2 architecture contains the 'Expansion' factor to prevent information loss in low-dimensional manifolds?",
+        o: ["The Depthwise Convolution layer.", "The 1x1 Pointwise Convolution at the start of the Bottleneck block.", "The Global Average Pooling layer.", "The final Softmax classifier."],
+        a: 1,
+        e: "MobileNetV2 uses an expansion layer to project data into a higher dimensional space before the depthwise filter to minimize information loss."
+    },
+    {
+        q: "In the context of on-device training, what is the 'Freezing' technique?",
+        o: ["Putting the MCU in deep sleep to save power.", "Keeping early feature extraction layers fixed and only updating the final classifier weights.", "Stopping the training once the validation loss saturates.", "Quantizing the gradients to 4-bit to save SRAM."],
+        a: 1,
+        e: "Freezing early layers reduces the number of gradients that need to be stored in SRAM, making training feasible on MCUs."
+    },
+    {
+        q: "What is the primary trade-off when implementing 'Tiling' (or Patching) for large image inference on edge devices?",
+        o: ["It increases accuracy but requires more Flash.", "It reduces peak SRAM usage but increases latency due to overlapping calculations and data movement.", "It eliminates the need for quantization.", "It only works on multi-core processors like the ESP32-P4."],
+        a: 1,
+        e: "Tiling processes image patches sequentially to save SRAM, but overhead from patch overlaps and re-loading data increases total latency."
+    },
+    {
+        q: "Regarding the ESP32-S3, what is the 'Xtensa LX7' core's theoretical peak MAC throughput per cycle using PIE instructions for INT8?",
+        o: ["1 MAC/cycle", "8 MACs/cycle", "16 MACs/cycle", "32 MACs/cycle"],
+        a: 1,
+        e: "The PIE SIMD instructions on the LX7 can perform 8 Multiply-Accumulate operations in a single cycle for 8-bit data."
+    },
+    {
+        q: "Which metric is the most critical for evaluating the efficiency of a hardware accelerator for Edge AI?",
+        o: ["GFLOPS/Watt (Performance per Power)", "Total Flash size", "The version of the TFLite Micro interpreter", "The number of supported Python libraries"],
+        a: 0,
+        e: "Performance per Watt is the key metric for edge devices where the energy budget is strictly limited."
+    },
+    {
+        q: "What is 'Weight Pruning' and how does it affect the model's structure?",
+        o: ["It removes entire layers from the network.", "It sets near-zero weights to exactly zero, creating a sparse weight matrix.", "It reduces the bit-width of all weights to 4-bit.", "It replaces convolution kernels with smaller spatial sizes (e.g., 3x3 to 1x1)."],
+        a: 1,
+        e: "Pruning introduces sparsity, which can be exploited by specific hardware to reduce both storage and computation."
+    },
+    {
+        q: "In the EEAI ML Workflow, what is 'Sample Partitioning' and why is it used?",
+        o: ["Dividing the image into tiles for processing.", "Splitting the dataset into train/test sets based on users/sessions to avoid data leakage.", "Reducing the resolution of input samples.", "Allocating different layers to different MCU cores."],
+        a: 1,
+        e: "Partitioning by user/session ensures the model is tested on truly unseen data, reflecting real-world generalization."
     }
 ];
 
@@ -92,6 +134,16 @@ const openPool = [
     {
         q: "EXERCISE: Derive the total parameter count for a Fire Module with: Squeeze(1x1, 16 filters) and Expand(1x1, 64 filters + 3x3, 64 filters). The input has 128 channels. Show all intermediate steps.",
         a: "1. Squeeze: (1*1*128 + 1) * 16 = 2,064 params.\n2. Expand 1x1: (1*1*16 + 1) * 64 = 1,088 params.\n3. Expand 3x3: (3*3*16 + 1) * 64 = 9,280 params.\nTotal: 2,064 + 1,088 + 9,280 = 12,432 parameters.",
+        pts: 5
+    },
+    {
+        q: "TECHNICAL COMPARISON: Compare SqueezeNet and MobileNetV1 architectures. Focus on their primary mechanisms for reducing parameters and discuss which one is more 'MAC-efficient' for a given number of filters.",
+        a: "SqueezeNet focuses on parameter reduction using 1x1 'Squeeze' layers and concatenating 1x1/3x3 'Expand' layers (Fire Modules). MobileNetV1 focuses on MAC reduction using Depthwise Separable Convolutions. Generally, MobileNet is more MAC-efficient because the depthwise layer drastically reduces the spatial-depth complexity compared to SqueezeNet's standard filters.",
+        pts: 5
+    },
+    {
+        q: "EXERCISE: A model is being converted using PTQ. The weight range for a specific layer is [-2.4, 4.2]. Calculate the 'Scale' and 'Zero-Point' for asymmetric INT8 quantization (range [-128, 127]). Show the formulas.",
+        a: "1. Range: 4.2 - (-2.4) = 6.6.\n2. Scale (S): Range_FP / Range_INT = 6.6 / (127 - (-128)) = 6.6 / 255 ≈ 0.02588.\n3. Zero-Point (Z): Round( - (Min_FP / S) + Min_INT ) = Round( - (-2.4 / 0.02588) - 128 ) = Round( 92.73 - 128 ) = -35.",
         pts: 5
     }
 ];

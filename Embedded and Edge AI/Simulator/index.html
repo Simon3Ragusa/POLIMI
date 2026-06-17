@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EEAI Pro-Simulator | 2026 Edition</title>
+    <title>EEAI Exam Simulator | 2026 Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -34,7 +34,6 @@
             min-height: 100vh;
         }
 
-        /* Glassmorphism Navigation */
         .navbar {
             backdrop-filter: blur(12px);
             background: rgba(255, 255, 255, 0.7);
@@ -62,12 +61,10 @@
 
         .container { max-width: 900px; margin: 3rem auto; padding: 0 1.5rem; }
 
-        /* Modern Hero Section */
         .hero { text-align: center; margin-bottom: 4rem; color: white; }
         .hero h1 { font-size: 3.5rem; font-weight: 800; margin: 0; letter-spacing: -2px; }
         .hero p { opacity: 0.8; font-size: 1.1rem; }
 
-        /* Card Styling */
         .glass-card {
             background: rgba(255, 255, 255, 0.95);
             border-radius: var(--radius);
@@ -92,7 +89,6 @@
 
         .question-text { font-size: 1.4rem; font-weight: 700; margin-bottom: 2rem; display: block; }
 
-        /* Modern Options */
         .options-grid { display: flex; flex-direction: column; gap: 1rem; }
         
         .option-pill {
@@ -110,8 +106,8 @@
 
         .option-pill:hover { background: #f1f5f9; transform: translateX(8px); }
         .option-pill.selected { border-color: var(--primary); background: var(--primary-glow); }
-        .option-pill.correct { background: #ecfdf5; border-color: var(--success); color: #065f46; }
-        .option-pill.wrong { background: #fef2f2; border-color: var(--danger); color: #991b1b; }
+        .option-pill.correct { background: #ecfdf5 !important; border-color: var(--success) !important; color: #065f46 !important; }
+        .option-pill.wrong { background: #fef2f2 !important; border-color: var(--danger) !important; color: #991b1b !important; }
 
         .idx-circle {
             width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; 
@@ -119,36 +115,36 @@
         }
         .selected .idx-circle { background: var(--primary); color: white; }
 
-        /* Input Area */
         textarea {
             width: 100%; min-height: 180px; border-radius: var(--radius); border: 2px solid #e2e8f0;
             padding: 1.5rem; font-family: inherit; font-size: 1rem; transition: all 0.2s;
         }
         textarea:focus { outline: none; border-color: var(--primary); background: #fdf2ff; }
 
-        /* History Tracker */
-        .history-section { background: rgba(15, 23, 42, 0.8); color: white; border-radius: var(--radius); padding: 2rem; margin-top: 5rem; }
-        .history-list { list-style: none; padding: 0; margin-top: 1.5rem; }
-        .history-item { 
-            display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); 
-            font-size: 0.9rem;
-        }
-
-        /* Result Animation */
         .result-panel {
             display: none; text-align: center; padding: 3rem; background: var(--primary); color: white;
             border-radius: var(--radius); margin-bottom: 3rem;
         }
         .score-num { font-size: 5rem; font-weight: 800; }
 
-        /* Main Button */
+        .btn-group { display: flex; flex-direction: column; gap: 1rem; align-items: center; margin: 4rem auto; }
+
         .cta-btn {
             background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
             color: white; border: none; padding: 1.2rem 3rem; border-radius: 99px;
             font-size: 1.2rem; font-weight: 800; cursor: pointer; transition: all 0.3s;
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4); display: block; margin: 4rem auto;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
         }
         .cta-btn:hover { transform: scale(1.05); box-shadow: 0 15px 40px rgba(99, 102, 241, 0.6); }
+        .cta-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .secondary-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white; border: 2px solid white; padding: 1rem 2.5rem; border-radius: 99px;
+            font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+            display: none;
+        }
+        .secondary-btn:hover { background: white; color: var(--primary); }
 
         .explanation { display: none; margin-top: 1.5rem; font-size: 0.95rem; color: var(--text-dim); padding: 1rem; background: #f8fafc; border-radius: 12px; }
 
@@ -161,40 +157,33 @@
 <body>
 
     <nav class="navbar">
-        <div class="logo">🚀 EEAI Simulator <span style="font-size: 0.7rem; opacity: 0.5;">v4.0</span></div>
+        <div class="logo">🚀 EEAI Simulator <span style="font-size: 0.7rem; opacity: 0.5;">v4.1</span></div>
         <div id="timer" class="timer-badge">30:00</div>
     </nav>
 
     <div class="container">
         <div class="hero">
             <h1>Elite Training</h1>
-            <p>The Ultimate 2026 Embedded AI Simulator for Class Collaboration</p>
+            <p>Class Simulation | Embedded and Edge AI 2026</p>
         </div>
 
         <div id="result-panel" class="result-panel">
-            <p style="font-weight: 700; margin: 0; opacity: 0.8;">YOUR FINAL SCORE</p>
+            <p style="font-weight: 700; margin: 0; opacity: 0.8;">FINAL SCORE</p>
             <div class="score-num" id="final-score">0 / 30</div>
             <p id="grade-comment" style="font-size: 1.2rem; font-weight: 600;"></p>
         </div>
 
         <form id="exam-form">
             <div id="questions-area"></div>
-            <button type="button" class="cta-btn" id="submit-btn" onclick="submitExam()">SUBMIT & RECORD RESULTS</button>
+            
+            <div class="btn-group">
+                <button type="button" class="cta-btn" id="submit-btn" onclick="submitExam()">SUBMIT FOR GRADING</button>
+                <button type="button" class="secondary-btn" id="restart-btn" onclick="restartExam()">RESTART NEW EXAM</button>
+            </div>
         </form>
-
-        <div class="history-section">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="margin: 0;">📈 Progress History</h3>
-                <button onclick="clearHistory()" style="background: transparent; color: #94a3b8; border: none; cursor: pointer; font-size: 0.8rem;">Clear All</button>
-            </div>
-            <div id="history-list-container" class="history-list">
-                <!-- History items injected here -->
-            </div>
-        </div>
     </div>
 
     <script>
-        // Question Pool (2026 Syllabus Standard)
         const closedPool = [
             { q: "Which instruction set handles SIMD acceleration on the ESP32-S3?", o: ["ULP-RV", "Xtensa PIE", "ESP-NN", "ARM Neon"], a: 1, e: "PIE (Power-efficient Instruction Extensions) is the custom SIMD set on the ESP32-S3." },
             { q: "What's the 'Fire Module' config in SqueezeNet?", o: ["Conv -> MaxPool", "Squeeze (1x1) then Expand (1x1 & 3x3)", "Depthwise then Pointwise", "Inverted Residual with ReLU6"], a: 1, e: "SqueezeNet uses a 1x1 squeeze layer followed by concatenated 1x1 and 3x3 expand layers." },
@@ -209,23 +198,30 @@
         ];
 
         const openPool = [
-            { q: "MAC CALC: 32x32x32 Input, 3x3 Depthwise (S1), 64 Pointwise filters. Show total.", a: "Depthwise: (3*3*1)*(30*30*32) = 259,200. Pointwise: (1*1*32)*(30*30*64) = 1,843,200. Total = 2,102,400 MACs." },
-            { q: "THEORY: Why 32-bit Bias in 8-bit networks?", a: "To match the precision of the accumulator and avoid rounding errors during sum-product operations." },
-            { q: "DESIGN: Strategy to fit a 2MB model in 512KB SRAM?", a: "1. INT8 Quantization. 2. Layer Streaming/Tiling. 3. Depthwise Separable refactoring." }
+            { q: "MAC CALC: 32x32x32 Input, 3x3 Depthwise (S1), 64 Pointwise filters. Show total.", a: "Depthwise: (3*3*1)*(30*30*32) = 259,200. Pointwise: (1*1*32)*(30*30*64) = 1,843,200. Total = 2,102,400 MACs.", pts: 5 },
+            { q: "THEORY: Why 32-bit Bias in 8-bit networks?", a: "To match the precision of the accumulator and avoid rounding errors during sum-product operations.", pts: 5 },
+            { q: "DESIGN: Strategy to fit a 2MB model in 512KB SRAM?", a: "1. INT8 Quantization. 2. Layer Streaming/Tiling. 3. Depthwise Separable refactoring.", pts: 5 }
         ];
 
         let timeLeft = 30 * 60;
+        let timerInterval;
         let userClosed = new Array(10).fill(null);
         let currentClosed = [], currentOpen = [];
 
         function init() {
+            clearInterval(timerInterval);
+            timeLeft = 30 * 60;
+            userClosed = new Array(10).fill(null);
+            document.getElementById('submit-btn').disabled = false;
+            document.getElementById('restart-btn').style.display = 'none';
+            document.getElementById('result-panel').style.display = 'none';
+            
             currentClosed = [...closedPool].sort(() => Math.random() - 0.5).slice(0, 10);
             currentOpen = [...openPool].sort(() => Math.random() - 0.5).slice(0, 3);
             
             const area = document.getElementById('questions-area');
             area.innerHTML = '';
 
-            // Render Closed
             currentClosed.forEach((item, idx) => {
                 const card = document.createElement('div');
                 card.className = 'glass-card';
@@ -245,7 +241,6 @@
                 area.appendChild(card);
             });
 
-            // Render Open
             currentOpen.forEach((item, idx) => {
                 const card = document.createElement('div');
                 card.className = 'glass-card';
@@ -259,15 +254,14 @@
             });
 
             startTimer();
-            loadHistory();
         }
 
         function startTimer() {
             const timerEl = document.getElementById('timer');
-            const interval = setInterval(() => {
+            timerInterval = setInterval(() => {
                 let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
                 timerEl.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-                if (timeLeft <= 0) { clearInterval(interval); submitExam(); }
+                if (timeLeft <= 0) { clearInterval(timerInterval); submitExam(); }
                 timeLeft--;
             }, 1000);
         }
@@ -279,48 +273,42 @@
             pills.forEach((p, i) => p.classList.toggle('selected', i === oIdx));
         };
 
+        window.restartExam = () => {
+            init();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
         window.submitExam = () => {
+            clearInterval(timerInterval);
             document.getElementById('submit-btn').disabled = true;
+            document.getElementById('restart-btn').style.display = 'block';
+            
             let score = 0;
             currentClosed.forEach((item, idx) => {
                 const pills = document.querySelectorAll(`#opt-group-${idx} .option-pill`);
                 document.getElementById(`feed-${idx}`).style.display = 'block';
-                if (userClosed[idx] === item.a) { score += 1.5; pills[item.a].classList.add('correct'); }
-                else { if (userClosed[idx] !== null) pills[userClosed[idx]].classList.add('wrong'); pills[item.a].classList.add('correct'); }
+                if (userClosed[idx] === item.a) { 
+                    score += 1.5; 
+                    pills[item.a].classList.add('correct'); 
+                }
+                else { 
+                    if (userClosed[idx] !== null) pills[userClosed[idx]].classList.add('wrong'); 
+                    pills[item.a].classList.add('correct'); 
+                }
             });
 
+            // FIXED SCORING: No automatic base score. Open questions show feedback for self-grading.
             currentOpen.forEach((_, idx) => document.getElementById(`open-feed-${idx}`).style.display = 'block');
 
-            const final = score + 12.5; // Final score simulation
+            // Note: In a real exam, open questions are worth 15 points. Here we just show the closed score.
+            // But to avoid the "12.5" issue, we only show what the user actually earned in the MCQ.
+            const final = score; 
             document.getElementById('result-panel').style.display = 'block';
-            document.getElementById('final-score').innerText = `${final} / 30`;
-            document.getElementById('grade-comment').innerText = final >= 18 ? "Passed. Excellent focus! 🚀" : "Keep grinding. Review the basics. 📚";
+            document.getElementById('final-score').innerText = `${final} / 15 (Part 1 Only)`;
+            document.getElementById('grade-comment').innerText = "Review Part 2 solutions manually to estimate your total grade.";
             
-            saveHistory(final);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
-
-        // --- Simple History Tracker Logic ---
-        function saveHistory(score) {
-            const history = JSON.parse(localStorage.getItem('eeai_history') || '[]');
-            history.unshift({ score, date: new Date().toLocaleString() });
-            localStorage.setItem('eeai_history', JSON.stringify(history.slice(0, 5))); // Keep last 5
-            loadHistory();
-        }
-
-        function loadHistory() {
-            const history = JSON.parse(localStorage.getItem('eeai_history') || '[]');
-            const container = document.getElementById('history-list-container');
-            container.innerHTML = history.length ? '' : '<p style="opacity: 0.5;">No records yet. Finish an exam to track progress!</p>';
-            history.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'history-item';
-                div.innerHTML = `<span>${item.date}</span> <span style="font-weight: 700; color: #a855f7;">${item.score} / 30</span>`;
-                container.appendChild(div);
-            });
-        }
-
-        window.clearHistory = () => { localStorage.removeItem('eeai_history'); loadHistory(); };
 
         init();
     </script>

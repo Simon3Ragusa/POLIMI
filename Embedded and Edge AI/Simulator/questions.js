@@ -1,149 +1,805 @@
 const closedPool = [
-    { 
-        q: "In the context of the ESP32-S3, which architectural feature is primarily responsible for the SIMD acceleration of Neural Network (NN) kernels?", 
-        o: ["The RISC-V Ultra-Low-Power (ULP) co-processor.", "The Power-efficient Instruction Extensions (PIE) in the Xtensa LX7 core.", "The dedicated hardware Neural Processing Unit (NPU).", "The internal DMA-to-Flash decryption engine."], 
-        a: 1, 
-        e: "The PIE instructions in the Xtensa LX7 core provide the necessary SIMD support to perform multiple MAC operations per cycle." 
-    },
-    { 
-        q: "What is the specific internal connectivity and purpose of a 'Squeeze' layer within a SqueezeNet Fire Module?", 
-        o: ["It applies 3x3 kernels to reduce the spatial resolution of activations.", "It utilizes 1x1 convolutions to reduce the channel depth before the Expand layer, minimizing parameters.", "It concatenates the output of multiple Conv layers to increase feature diversity.", "It serves as a depthwise separable filter to replace standard convolutions."], 
-        a: 1, 
-        e: "The Squeeze layer uses 1x1 convolutions to 'squeeze' the number of input channels, reducing the computation for the subsequent Expand layer." 
-    },
-    { 
-        q: "In asymmetric INT8 quantization, how is the Zero-Point (Z) parameter formally defined?", 
-        o: ["The integer value in the quantized range that maps precisely to the real-valued zero (0.0).", "The standard deviation of the weight distribution scaled to 8 bits.", "The minimum possible floating-point value in the calibration dataset.", "A static bias added to the accumulator to prevent integer overflow."], 
-        a: 0, 
-        e: "Zero-point is the integer offset used to ensure that the real-valued zero is exactly representable in the quantized space." 
-    },
-    { 
-        q: "To minimize the peak SRAM footprint of a model during inference, which optimization target is MOST effective?", 
-        o: ["Aggressive weight pruning and sparsity regularization.", "INT8 quantization of the activation buffers (feature maps).", "Storing model parameters in the off-chip external Flash memory.", "Enabling the Global Average Pooling layer before the classifier."], 
-        a: 1, 
-        e: "Activations are stored in SRAM during inference; quantizing them from Float32 to INT8 reduces the peak memory demand by 4x." 
-    },
-    { 
-        q: "What is the fundamental objective of the 'Expansion' (1x1) layer in a MobileNetV2 Inverted Residual block?", 
-        o: ["To reduce the channel depth and minimize the number of MACs in the depthwise layer.", "To project the low-dimensional input into a higher-dimensional space, allowing the depthwise layer to filter more complex features.", "To apply a 3x3 spatial filter across the entire input volume.", "To implement a skip connection between layers of different spatial resolutions."], 
-        a: 1, 
-        e: "Inverted residuals use an expansion layer to increase the internal depth, as filtering in low-dimensional space is less effective." 
-    },
-    { 
-        q: "In an 'Early Exit' neural network architecture, what typically triggers the decision to stop inference at an intermediate classifier?", 
-        o: ["A pre-defined timer based on the target device's CPU frequency.", "A confidence metric (e.g., softmax entropy or max probability) exceeding a set threshold.", "The detection of a low-battery state on the edge device.", "The spatial resolution of the intermediate feature map falling below a certain limit."], 
-        a: 1, 
-        e: "If the intermediate classifier is 'confident' enough about the prediction, the system exits to save latency and energy." 
-    },
-    { 
-        q: "Why is 'Static Post-Training Quantization (PTQ)' generally preferred over 'Dynamic PTQ' for real-time inference on Microcontrollers?", 
-        o: ["Static PTQ does not require a representative calibration dataset.", "It avoids the on-the-fly calculation of activation scales, significantly reducing per-layer latency.", "It allows for the dynamic re-training of the model weights on the device.", "It is the only method that supports non-linear activation functions like Swish."], 
-        a: 1, 
-        e: "Static PTQ calculates scales and zero-points offline during calibration, making inference faster by using fixed parameters." 
-    },
-    { 
-        q: "What does 'Hardware-Aware' optimization specifically imply in the Embedded AI development lifecycle?", 
-        o: ["The process of selecting the most expensive hardware available in the market.", "Optimizing the model architecture (e.g., through NAS) considering the specific constraints (SRAM, MACs, Flash) of the target MCU.", "Training the model exclusively on the target microcontroller instead of a GPU.", "Using cloud-based servers to prune a model until it fits into a smartphone's memory."], 
-        a: 1, 
-        e: "Hardware-aware design ensures that the model's peak memory and computational complexity align with the device's specific capabilities." 
-    },
-    { 
-        q: "In a Depthwise Separable Convolution block, which sub-layer typically accounts for the majority of the total MAC (Multiply-Accumulate) operations?", 
-        o: ["The Depthwise Convolution layer (3x3 spatial filtering).", "The Pointwise Convolution layer (1x1 cross-channel combination).", "The Batch Normalization layer.", "The ReLU6 activation layer."], 
-        a: 1, 
-        e: "While the depthwise layer handles spatial filtering, the pointwise layer (1x1) usually consumes ~90% of the total MACs." 
-    },
-    { 
-        q: "What is the primary operational benefit of 'Kernel/Layer Fusion' (e.g., combining Conv, Bias, and ReLU) in libraries like ESP-DL?", 
-        o: ["It significantly increases the top-1 accuracy of the quantized model.", "It reduces memory bandwidth overhead by avoiding multiple reads/writes of intermediate results to SRAM.", "It allows the CPU to enter a low-power sleep mode between layers.", "It enables the use of larger kernels (e.g., 7x7) without increasing memory usage."], 
-        a: 1, 
-        e: "Fusion minimizes memory bandwidth by keeping intermediate data in the CPU registers, minimizing the energy and time spent accessing the SRAM." 
+    {
+        "q": "Which instruction set handles SIMD acceleration on the ESP32-S3?",
+        "o": [
+            "ULP-RV",
+            "Xtensa PIE",
+            "ESP-NN",
+            "ARM Neon"
+        ],
+        "a": 1,
+        "e": "PIE (Power-efficient Instruction Extensions) is the custom SIMD set on the ESP32-S3."
     },
     {
-        q: "In the ESP-NN library, which optimization is primarily used to speed up INT8 convolutions?",
-        o: ["Auto-vectorization using the RISC-V F-extension.", "Manual assembly optimization using Xtensa PIE SIMD instructions.", "Offloading the entire kernel to the external PSRAM.", "Using Float32 emulation on the ULP co-processor."],
-        a: 1,
-        e: "ESP-NN provides hand-optimized assembly kernels for Xtensa PIE to maximize MAC throughput."
+        "q": "What's the 'Fire Module' config in SqueezeNet?",
+        "o": [
+            "Conv -> MaxPool",
+            "Squeeze (1x1) then Expand (1x1 & 3x3)",
+            "Depthwise then Pointwise",
+            "Inverted Residual with ReLU6"
+        ],
+        "a": 1,
+        "e": "SqueezeNet uses a 1x1 squeeze layer followed by concatenated 1x1 and 3x3 expand layers."
     },
     {
-        q: "What is the 'Quantization Bias' issue and how is it mitigated in symmetric quantization?",
-        o: ["Bias is caused by non-zero mean activations and is mitigated by using a zero-point.", "Bias is the loss of small weights and is mitigated by increasing the number of filters.", "Bias is the overflow of 8-bit registers and is mitigated by 16-bit accumulators.", "Bias is the mismatch between training and test sets."],
-        a: 0,
-        e: "Symmetric quantization (zero-point = 0) can suffer from bias if the range is not centered; asymmetric quantization with a zero-point is the common solution."
+        "q": "Zero-Point (Z) mapping in Asymmetric Quantization?",
+        "o": [
+            "Maps real 0.0 to integer value",
+            "Maps weights to mean 0",
+            "Static bias for all layers",
+            "Floating point scaling factor"
+        ],
+        "a": 0,
+        "e": "Zero-point is the integer representation of the floating-point value 0.0."
     },
     {
-        q: "Which specific layer in the MobileNetV2 architecture contains the 'Expansion' factor to prevent information loss in low-dimensional manifolds?",
-        o: ["The Depthwise Convolution layer.", "The 1x1 Pointwise Convolution at the start of the Bottleneck block.", "The Global Average Pooling layer.", "The final Softmax classifier."],
-        a: 1,
-        e: "MobileNetV2 uses an expansion layer to project data into a higher dimensional space before the depthwise filter to minimize information loss."
+        "q": "How to minimize activation SRAM footprint?",
+        "o": [
+            "Weight pruning",
+            "Quantize activations to INT8",
+            "Disable bias",
+            "Flash weights storage"
+        ],
+        "a": 1,
+        "e": "INT8 activations consume 4x less SRAM than Float32."
     },
     {
-        q: "In the context of on-device training, what is the 'Freezing' technique?",
-        o: ["Putting the MCU in deep sleep to save power.", "Keeping early feature extraction layers fixed and only updating the final classifier weights.", "Stopping the training once the validation loss saturates.", "Quantizing the gradients to 4-bit to save SRAM."],
-        a: 1,
-        e: "Freezing early layers reduces the number of gradients that need to be stored in SRAM, making training feasible on MCUs."
+        "q": "Inverted Residual block (MobileNetV2)?",
+        "o": [
+            "Reduce channels then filter",
+            "Expand channels then filter",
+            "Single 5x5 filter",
+            "Always use skip connection"
+        ],
+        "a": 1,
+        "e": "Inverted residuals expand depth before applying a depthwise convolution."
     },
     {
-        q: "What is the primary trade-off when implementing 'Tiling' (or Patching) for large image inference on edge devices?",
-        o: ["It increases accuracy but requires more Flash.", "It reduces peak SRAM usage but increases latency due to overlapping calculations and data movement.", "It eliminates the need for quantization.", "It only works on multi-core processors like the ESP32-P4."],
-        a: 1,
-        e: "Tiling processes image patches sequentially to save SRAM, but overhead from patch overlaps and re-loading data increases total latency."
+        "q": "Early Exit trigger metric?",
+        "o": [
+            "Latency timer",
+            "Confidence (e.g. Entropy)",
+            "Battery level",
+            "Kernel size"
+        ],
+        "a": 1,
+        "e": "Exit is triggered when the model is confident enough (low entropy)."
     },
     {
-        q: "Regarding the ESP32-S3, what is the 'Xtensa LX7' core's theoretical peak MAC throughput per cycle using PIE instructions for INT8?",
-        o: ["1 MAC/cycle", "8 MACs/cycle", "16 MACs/cycle", "32 MACs/cycle"],
-        a: 1,
-        e: "The PIE SIMD instructions on the LX7 can perform 8 Multiply-Accumulate operations in a single cycle for 8-bit data."
+        "q": "Why use Static PTQ over Dynamic?",
+        "o": [
+            "No data needed",
+            "Faster inference (no on-the-fly scaling)",
+            "Better accuracy",
+            "Smaller model size"
+        ],
+        "a": 1,
+        "e": "Static PTQ pre-calculates scaling factors offline, saving CPU cycles during inference."
     },
     {
-        q: "Which metric is the most critical for evaluating the efficiency of a hardware accelerator for Edge AI?",
-        o: ["GFLOPS/Watt (Performance per Power)", "Total Flash size", "The version of the TFLite Micro interpreter", "The number of supported Python libraries"],
-        a: 0,
-        e: "Performance per Watt is the key metric for edge devices where the energy budget is strictly limited."
+        "q": "Hardware-Aware search in Edge AI?",
+        "o": [
+            "Finding cheap MCUs",
+            "Architecture optimization for target constraints",
+            "GPU-only training",
+            "Cloud pruning"
+        ],
+        "a": 1,
+        "e": "Optimizing the model specifically for target hardware constraints like SRAM and MACs."
     },
     {
-        q: "What is 'Weight Pruning' and how does it affect the model's structure?",
-        o: ["It removes entire layers from the network.", "It sets near-zero weights to exactly zero, creating a sparse weight matrix.", "It reduces the bit-width of all weights to 4-bit.", "It replaces convolution kernels with smaller spatial sizes (e.g., 3x3 to 1x1)."],
-        a: 1,
-        e: "Pruning introduces sparsity, which can be exploited by specific hardware to reduce both storage and computation."
+        "q": "Most MAC-intensive layer in Depthwise Separable?",
+        "o": [
+            "Depthwise",
+            "Pointwise (1x1)",
+            "BN",
+            "ReLU"
+        ],
+        "a": 1,
+        "e": "Pointwise layers often account for >90% of total MACs."
     },
     {
-        q: "In the EEAI ML Workflow, what is 'Sample Partitioning' and why is it used?",
-        o: ["Dividing the image into tiles for processing.", "Splitting the dataset into train/test sets based on users/sessions to avoid data leakage.", "Reducing the resolution of input samples.", "Allocating different layers to different MCU cores."],
-        a: 1,
-        e: "Partitioning by user/session ensures the model is tested on truly unseen data, reflecting real-world generalization."
+        "q": "Layer Fusion (ESP-DL)?",
+        "o": [
+            "Weight merging",
+            "Kernel op combination (Conv+Bias+ReLU)",
+            "Multi-core sync",
+            "Model compression"
+        ],
+        "a": 1,
+        "e": "Combining operations reduces memory bandwidth overhead by avoiding SRAM writes."
+    },
+    {
+        "q": "What is the primary function of Pointwise convolution?",
+        "o": [
+            "Spatial downsampling",
+            "Cross-channel combination",
+            "Increasing non-linearity",
+            "Reducing input channels"
+        ],
+        "a": 1,
+        "e": "Pointwise linearly combines depthwise outputs across channels."
+    },
+    {
+        "q": "Structured vs Unstructured Pruning on MCUs?",
+        "o": [
+            "Unstructured is faster",
+            "Structured aligns better with hardware acceleration",
+            "Structured removes only FC layers",
+            "Unstructured reduces more MACs in theory but is slower in practice"
+        ],
+        "a": 1,
+        "e": "Structured pruning removes organized groups, fitting SIMD paradigms."
+    },
+    {
+        "q": "Why Asymmetric over Symmetric Quantization?",
+        "o": [
+            "Requires less memory",
+            "Handles non-zero mean distributions better",
+            "No Zero-Point needed",
+            "Uses 4-bit precision"
+        ],
+        "a": 1,
+        "e": "Perfectly maps unbalanced distributions."
+    },
+    {
+        "q": "On-device Learning limitation?",
+        "o": [
+            "Data privacy",
+            "High latency",
+            "SRAM constrained for backpropagation",
+            "Cannot use Conv layers"
+        ],
+        "a": 2,
+        "e": "Backprop exhausts MCU SRAM quickly because intermediate activations must be stored."
+    },
+    {
+        "q": "What is Tiling/Patching?",
+        "o": [
+            "Dividing source code",
+            "Processing input map in smaller spatial blocks",
+            "Distributing to multiple MCUs",
+            "Data augmentation"
+        ],
+        "a": 1,
+        "e": "Manages peak memory by processing sub-regions."
+    },
+    {
+        "q": "Early Exit evaluation metric?",
+        "o": [
+            "Training loss",
+            "Latency vs Accuracy trade-off curve",
+            "Epochs to converge",
+            "Camera size"
+        ],
+        "a": 1,
+        "e": "Evaluates saved latency against accuracy drop."
+    },
+    {
+        "q": "Linear Bottleneck in MobileNetV2?",
+        "o": [
+            "Prevents information destruction by ReLU in low-dims",
+            "Reduces spatial resolution",
+            "Increases channels",
+            "Applies dropout"
+        ],
+        "a": 0,
+        "e": "Linear activation preserves low-dimensional manifolds."
+    },
+    {
+        "q": "Knowledge Distillation?",
+        "o": [
+            "FP32 to INT8",
+            "Student mimics Teacher's soft outputs",
+            "L1-norm filter removal",
+            "Kernel fusion"
+        ],
+        "a": 1,
+        "e": "Transfers generalized knowledge to a compact model."
+    },
+    {
+        "q": "Sample Partitioning importance?",
+        "o": [
+            "Class balance",
+            "Prevents data leakage from correlated user samples",
+            "Reduces dataset size",
+            "Speeds training"
+        ],
+        "a": 1,
+        "e": "Ensures unseen-user generalization."
+    },
+    {
+        "q": "QAT Fake Quantization?",
+        "o": [
+            "Effect of pruning",
+            "Device latency",
+            "Simulates rounding/clipping errors",
+            "Battery usage"
+        ],
+        "a": 2,
+        "e": "Adapts weights to precision loss during training."
+    },
+    {
+        "q": "Memory Wall in Edge AI refers to:",
+        "o": [
+            "Lack of Flash",
+            "SRAM bandwidth bottleneck",
+            "Cloud latency",
+            "DRAM cost"
+        ],
+        "a": 1,
+        "e": "Memory Wall refers to the high cost of moving data compared to computing."
+    },
+    {
+        "q": "ESP32-S3 Flash memory is typically used for:",
+        "o": [
+            "Storing activations",
+            "Storing constant model weights",
+            "Storing gradients",
+            "Dynamic routing"
+        ],
+        "a": 1,
+        "e": "Flash is non-volatile and slower, ideal for fixed weights."
+    },
+    {
+        "q": "Weight Sharing in model compression:",
+        "o": [
+            "Clustering weights to a codebook",
+            "Copying weights across layers",
+            "Sharing across devices",
+            "Broadcasting to multiple cores"
+        ],
+        "a": 0,
+        "e": "Reduces memory by storing indices to a shared codebook."
+    },
+    {
+        "q": "Receptive Field expansion strategy:",
+        "o": [
+            "Decrease filter size",
+            "Use Dilated/Atrous Convolutions",
+            "Use ReLU",
+            "Increase bit-width"
+        ],
+        "a": 1,
+        "e": "Dilated convs expand receptive field without increasing parameters."
+    },
+    {
+        "q": "Feature Map size after 3x3 Conv, Stride 1, No Padding on 32x32?",
+        "o": [
+            "32x32",
+            "30x30",
+            "16x16",
+            "28x28"
+        ],
+        "a": 1,
+        "e": "(32 - 3)/1 + 1 = 30."
+    },
+    {
+        "q": "Concept Drift means:",
+        "o": [
+            "Sensor moves",
+            "Target distribution changes over time",
+            "Weights decay",
+            "Latency increases"
+        ],
+        "a": 1,
+        "e": "Concept drift is when statistical properties of the target change."
+    },
+    {
+        "q": "Freezing layers in On-device training:",
+        "o": [
+            "Saves power",
+            "Prevents updating feature extractors, saving SRAM",
+            "Quantizes to INT4",
+            "Increases MACs"
+        ],
+        "a": 1,
+        "e": "Freezing avoids storing activations for backprop in those layers."
+    },
+    {
+        "q": "GhostNet main idea:",
+        "o": [
+            "Invisible layers",
+            "Generating more feature maps from cheap linear operations",
+            "Removing residual connections",
+            "Using 1-bit weights"
+        ],
+        "a": 1,
+        "e": "GhostNet generates 'ghost' features using cheap depthwise operations."
+    },
+    {
+        "q": "ShuffleNet Channel Shuffle:",
+        "o": [
+            "Randomizes weights",
+            "Enables information flow across group convolutions",
+            "Shuffles input pixels",
+            "Reorders batches"
+        ],
+        "a": 1,
+        "e": "Channel shuffling overcomes the isolation of group convolutions."
+    },
+    {
+        "q": "Straight-Through Estimator (STE) in QAT:",
+        "o": [
+            "Bypasses backprop",
+            "Passes gradient of rounding function as 1",
+            "Estimates loss without labels",
+            "Prunes zeros"
+        ],
+        "a": 1,
+        "e": "STE allows gradients to flow through non-differentiable rounding nodes."
+    },
+    {
+        "q": "Symmetric Quantization Range for 8-bit?",
+        "o": [
+            "0 to 255",
+            "-128 to 127",
+            "-127 to 127",
+            "0 to 127"
+        ],
+        "a": 2,
+        "e": "Typically -127 to 127 to maintain strict symmetry around zero."
+    },
+    {
+        "q": "Why use 1x1 Convolutions?",
+        "o": [
+            "Spatial filtering",
+            "Channel projection and dimensionality reduction",
+            "Data augmentation",
+            "Increasing resolution"
+        ],
+        "a": 1,
+        "e": "1x1 convolutions linearly combine channels without spatial extent."
+    },
+    {
+        "q": "What is an Epoch?",
+        "o": [
+            "One batch update",
+            "One full pass over the entire training dataset",
+            "One forward pass",
+            "One gradient calculation"
+        ],
+        "a": 1,
+        "e": "An epoch is a complete pass over the training data."
+    },
+    {
+        "q": "What does Dropout do during Inference?",
+        "o": [
+            "Drops random neurons",
+            "Multiplies by dropout probability",
+            "Nothing, it is disabled",
+            "Quantizes neurons"
+        ],
+        "a": 2,
+        "e": "Dropout is a training-only regularization technique."
+    },
+    {
+        "q": "What is the role of Batch Normalization at inference?",
+        "o": [
+            "Normalizes the batch",
+            "Is fused into the preceding Convolution layer",
+            "Calculates new mean/variance",
+            "Is ignored"
+        ],
+        "a": 1,
+        "e": "BN parameters are folded into Conv weights for faster inference."
+    },
+    {
+        "q": "ESP-DL library targets:",
+        "o": [
+            "ARM Cortex",
+            "RISC-V",
+            "Xtensa ESP32 series",
+            "Nvidia GPUs"
+        ],
+        "a": 2,
+        "e": "ESP-DL is Espressif's deep learning library for ESP32."
+    },
+    {
+        "q": "Federated Learning vs On-device Learning?",
+        "o": [
+            "FL sends weights to cloud, On-device keeps them local",
+            "FL is faster",
+            "On-device requires internet",
+            "FL uses 8-bit only"
+        ],
+        "a": 0,
+        "e": "FL aggregates local updates on a central server."
+    },
+    {
+        "q": "What is a Bottleneck Layer?",
+        "o": [
+            "A layer with high latency",
+            "A layer with fewer channels than the surrounding layers",
+            "A layer with large filters",
+            "A layer that causes overfitting"
+        ],
+        "a": 1,
+        "e": "Bottlenecks compress information into a lower-dimensional space."
+    },
+    {
+        "q": "In MobileNetV1, how many parameters does a Depthwise layer have compared to standard?",
+        "o": [
+            "Same",
+            "Approx 1/C",
+            "Approx 1/K^2",
+            "Zero"
+        ],
+        "a": 1,
+        "e": "Standard: K^2 * C * F. Depthwise: K^2 * C. Ratio is 1/F."
+    },
+    {
+        "q": "What is the advantage of using ReLU6?",
+        "o": [
+            "Faster computation",
+            "Prevents activations from growing too large, aiding fixed-point quantization",
+            "Differentiable everywhere",
+            "Requires no memory"
+        ],
+        "a": 1,
+        "e": "ReLU6 caps at 6, providing a bounded range for easier 8-bit scaling."
+    },
+    {
+        "q": "What is 'Fine-tuning'?",
+        "o": [
+            "Adjusting hyperparams",
+            "Updating pre-trained weights on a new, smaller dataset",
+            "Quantizing the model",
+            "Pruning weights"
+        ],
+        "a": 1,
+        "e": "Fine-tuning adapts an existing model to a new task."
+    },
+    {
+        "q": "What is the purpose of Max Pooling?",
+        "o": [
+            "Increase channels",
+            "Provide translation invariance and reduce spatial dimensions",
+            "Add non-linearity",
+            "Normalize data"
+        ],
+        "a": 1,
+        "e": "Pooling downsamples and adds local invariance."
+    },
+    {
+        "q": "How does Tiling affect MACs?",
+        "o": [
+            "Reduces them",
+            "Increases them due to overlap recomputation",
+            "No effect",
+            "Doubles them"
+        ],
+        "a": 1,
+        "e": "Overlapping tiles require recomputing boundary pixels."
+    },
+    {
+        "q": "What is the 'MAC' operation?",
+        "o": [
+            "Media Access Control",
+            "Multiply-Accumulate: a = a + (w * x)",
+            "Memory Access Cycle",
+            "Model Accuracy Cost"
+        ],
+        "a": 1,
+        "e": "MAC is the fundamental math operation in Neural Networks."
+    },
+    {
+        "q": "Why is SRAM preferred for Activations?",
+        "o": [
+            "It is non-volatile",
+            "It has higher read/write bandwidth and lower latency than Flash",
+            "It is cheaper",
+            "It has larger capacity"
+        ],
+        "a": 1,
+        "e": "Activations change every cycle; fast SRAM prevents the memory wall."
+    },
+    {
+        "q": "What is 'Overfitting'?",
+        "o": [
+            "Model is too small",
+            "Model learns training noise and fails to generalize",
+            "Model trains too fast",
+            "Model cannot be quantized"
+        ],
+        "a": 1,
+        "e": "Overfitting happens when a model memorizes the training data."
+    },
+    {
+        "q": "What does the Softmax function output?",
+        "o": [
+            "Binary values",
+            "A probability distribution summing to 1",
+            "Negative values",
+            "Unbounded integers"
+        ],
+        "a": 1,
+        "e": "Softmax converts logits into normalized probabilities."
+    },
+    {
+        "q": "What is Cross-Entropy Loss used for?",
+        "o": [
+            "Regression",
+            "Classification",
+            "Clustering",
+            "Quantization"
+        ],
+        "a": 1,
+        "e": "Cross-entropy measures the difference between two probability distributions."
+    },
+    {
+        "q": "What is the 'Learning Rate'?",
+        "o": [
+            "Speed of the MCU",
+            "Step size taken in the gradient descent direction",
+            "Amount of data processed",
+            "Number of epochs"
+        ],
+        "a": 1,
+        "e": "Learning rate controls how much weights are updated per step."
+    },
+    {
+        "q": "What is a 'Tensor'?",
+        "o": [
+            "A type of CPU",
+            "A multi-dimensional array of numbers",
+            "A training algorithm",
+            "A hardware accelerator"
+        ],
+        "a": 1,
+        "e": "Tensors are the fundamental data structures in deep learning."
     }
 ];
 
 const openPool = [
-    { 
-        q: "CALCULATION EXERCISE: Given an input volume of 32x32x32, calculate the total MAC operations for a Depthwise Separable Convolution block consisting of: \n1. A Depthwise layer (3x3 kernel, Stride 1, No Padding). \n2. A Pointwise layer (1x1 kernel, 64 filters). \nDetail your derivation for both sub-layers.", 
-        a: "1. Output Dimensions: (32 - 3 + 1) = 30x30.\n2. Depthwise MACs: (Kernel_H * Kernel_W * 1) * (Output_H * Output_W * Input_Channels) = (3 * 3 * 1) * (30 * 30 * 32) = 259,200.\n3. Pointwise MACs: (1 * 1 * Input_Channels) * (Output_H * Output_W * Output_Filters) = (1 * 1 * 32) * (30 * 30 * 64) = 1,843,200.\nTotal MACs: 259,200 + 1,843,200 = 2,102,400 MACs.", 
-        pts: 5 
-    },
-    { 
-        q: "THEORETICAL ANALYSIS: Explain why a 32-bit integer accumulator is typically used during the inference of an 8-bit quantized neural network. Discuss the relationship with the Scaling Factor (S) and the prevention of precision loss.", 
-        a: "The product of two 8-bit integers results in a 16-bit value. Summing these products (as in a MAC) can quickly exceed 16 bits. A 32-bit accumulator provides the necessary headroom to prevent overflow and preserve the precision of the resulting sum before it is re-scaled and back-quantized to 8 bits for the next layer.", 
-        pts: 5 
-    },
-    { 
-        q: "SYSTEM DESIGN: You are tasked with deploying a 'Human Activity Recognition' model on an ESP32-S3 (512KB SRAM). If the original model occupies 1.5MB of weights and 800KB of peak activation memory, propose three specific optimizations to fit the model within the SRAM limits.", 
-        a: "1. Apply INT8 Quantization: Reduces weight size to ~375KB and peak activations to ~200KB.\n2. Layer Streaming/Tiling: Process segments of the feature map sequentially to keep the peak SRAM demand below 512KB.\n3. Architecture Refactoring: Replace standard convolutions with Depthwise Separable ones to reduce both weight storage and MACs.", 
-        pts: 5 
+    {
+        "q": "CALCULATION: 32x32x32 Input, 3x3 Depthwise (S1), 64 Pointwise filters. Show total MACs.",
+        "a": "Depthwise: (3*3*1)*(30*30*32) = 259,200. Pointwise: (1*1*32)*(30*30*64) = 1,843,200. Total = 2,102,400.",
+        "pts": 5
     },
     {
-        q: "EXERCISE: Derive the total parameter count for a Fire Module with: Squeeze(1x1, 16 filters) and Expand(1x1, 64 filters + 3x3, 64 filters). The input has 128 channels. Show all intermediate steps.",
-        a: "1. Squeeze: (1*1*128 + 1) * 16 = 2,064 params.\n2. Expand 1x1: (1*1*16 + 1) * 64 = 1,088 params.\n3. Expand 3x3: (3*3*16 + 1) * 64 = 9,280 params.\nTotal: 2,064 + 1,088 + 9,280 = 12,432 parameters.",
-        pts: 5
+        "q": "THEORY: Why 32-bit Bias in 8-bit networks?",
+        "a": "To match accumulator precision and avoid rounding errors during sum-product operations.",
+        "pts": 5
     },
     {
-        q: "TECHNICAL COMPARISON: Compare SqueezeNet and MobileNetV1 architectures. Focus on their primary mechanisms for reducing parameters and discuss which one is more 'MAC-efficient' for a given number of filters.",
-        a: "SqueezeNet focuses on parameter reduction using 1x1 'Squeeze' layers and concatenating 1x1/3x3 'Expand' layers (Fire Modules). MobileNetV1 focuses on MAC reduction using Depthwise Separable Convolutions. Generally, MobileNet is more MAC-efficient because the depthwise layer drastically reduces the spatial-depth complexity compared to SqueezeNet's standard filters.",
-        pts: 5
+        "q": "DESIGN: Fit a 2MB model in 512KB SRAM.",
+        "a": "1. INT8 Quantization. 2. Layer Tiling. 3. Depthwise Separable refactoring.",
+        "pts": 5
     },
     {
-        q: "EXERCISE: A model is being converted using PTQ. The weight range for a specific layer is [-2.4, 4.2]. Calculate the 'Scale' and 'Zero-Point' for asymmetric INT8 quantization (range [-128, 127]). Show the formulas.",
-        a: "1. Range: 4.2 - (-2.4) = 6.6.\n2. Scale (S): Range_FP / Range_INT = 6.6 / (127 - (-128)) = 6.6 / 255 ≈ 0.02588.\n3. Zero-Point (Z): Round( - (Min_FP / S) + Min_INT ) = Round( - (-2.4 / 0.02588) - 128 ) = Round( 92.73 - 128 ) = -35.",
-        pts: 5
+        "q": "DERIVATION: Scale and Zero-Point for INT8 with Min=-3.5, Max=3.5 (Symmetric).",
+        "a": "S = 3.5/127 = 0.02756. Z = 0.",
+        "pts": 5
+    },
+    {
+        "q": "SYSTEM DESIGN: Convert ResNet block to Inverted Residual.",
+        "a": "Expand (1x1) -> Depthwise (3x3) -> Project (1x1 Linear).",
+        "pts": 5
+    },
+    {
+        "q": "THEORY: Concept Drift and On-device Learning.",
+        "a": "Distributions change over time. On-device adapts locally using self-supervised or new labels.",
+        "pts": 5
+    },
+    {
+        "q": "EXERCISE: 64x64x32 SRAM requirement in FP32 vs INT8.",
+        "a": "Elements = 131,072. FP32 = 512KB. INT8 = 128KB.",
+        "pts": 5
+    },
+    {
+        "q": "HARDWARE: Memory Wall and Kernel Fusion.",
+        "a": "Data transfer costs > compute costs. Fusion keeps accumulators in registers.",
+        "pts": 5
+    },
+    {
+        "q": "THEORY: Transfer Learning vs Knowledge Distillation.",
+        "a": "Transfer fine-tunes head (same size). Distillation trains smaller student from teacher outputs.",
+        "pts": 5
+    },
+    {
+        "q": "EXERCISE: Branching Early Exit training mechanism.",
+        "a": "L_total = L_final + alpha*(L_aux). Forces early discriminative feature learning.",
+        "pts": 5
+    },
+    {
+        "q": "CALCULATION: Parameters in a 5x5 Conv layer, 16 input channels, 32 output channels.",
+        "a": "Params = (5 * 5 * 16 + 1) * 32 = (400 + 1) * 32 = 12,832.",
+        "pts": 5
+    },
+    {
+        "q": "THEORY: Explain the 'Straight-Through Estimator' (STE) in QAT.",
+        "a": "Rounding is non-differentiable. STE bypasses the rounding node during backprop, passing the gradient as 1 to update the FP32 weights.",
+        "pts": 5
+    },
+    {
+        "q": "DESIGN: Architect a Wake-Word engine for an always-on MCU.",
+        "a": "Use a cascaded system: 1. ULP co-processor runs a tiny decision tree/VAD. 2. If triggered, wake up main CPU to run a lightweight CNN (MobileNet) for word verification.",
+        "pts": 5
+    },
+    {
+        "q": "DERIVATION: Output size of a 224x224 image after a 3x3 Conv with Stride 2 and Padding 1.",
+        "a": "Output = Floor((224 + 2*1 - 3) / 2) + 1 = Floor(223/2) + 1 = 111 + 1 = 112x112.",
+        "pts": 5
+    },
+    {
+        "q": "THEORY: Discuss the trade-off of 'Weight Pruning' on standard MCUs.",
+        "a": "Pruning creates sparse matrices. While theoretical MACs decrease, standard MCUs lack sparse hardware. The branching/indexing overhead often makes execution slower unless structured pruning is used.",
+        "pts": 5
+    },
+    {
+        "q": "EXERCISE: Compare MACs of standard 3x3 Conv vs Depthwise Separable (Input C=32, Output F=64).",
+        "a": "Standard: 3*3*32*64 = 18,432 per pixel. Separable: (3*3*32) + (1*1*32*64) = 288 + 2048 = 2,336 per pixel. Ratio: ~8x reduction.",
+        "pts": 5
+    },
+    {
+        "q": "HARDWARE: What is 'SIMD' and how does ESP32-S3 PIE utilize it?",
+        "a": "Single Instruction Multiple Data. PIE allows the ESP32-S3 to fetch multiple 8-bit operands and compute several MACs in a single clock cycle.",
+        "pts": 5
+    },
+    {
+        "q": "THEORY: Why does MobileNetV2 use a 'Linear' bottleneck?",
+        "a": "Non-linearities like ReLU collapse values < 0. In low-dimensional spaces (bottlenecks), this destroys significant information. Linear layers preserve the manifold.",
+        "pts": 5
+    },
+    {
+        "q": "EXERCISE: Explain 'Channel Shuffling' in ShuffleNet.",
+        "a": "Group convolutions isolate channel processing. Shuffling redistributes channels across groups, enabling information exchange and improving feature representation without adding MACs.",
+        "pts": 5
+    },
+    {
+        "q": "DESIGN: How to prevent 'Data Leakage' in sensor-based datasets?",
+        "a": "Use strict 'Subject/User Partitioning' instead of random splitting. Ensure all samples from User A are only in the training set or only in the test set.",
+        "pts": 5
+    },
+    {
+        "q": "CALCULATION: Memory footprint of a codebook for 1000 weights clustered into 16 centroids.",
+        "a": "16 centroids (FP32) = 64 bytes. 1000 indices (4-bit to represent 16) = 500 bytes. Total = 564 bytes (vs 4000 bytes originally).",
+        "pts": 5
+    },
+    {
+        "q": "THEORY: What is 'Hardware-Aware NAS'?",
+        "a": "Neural Architecture Search that includes hardware metrics (Latency, SRAM usage, Energy) in the loss function, ensuring the searched model physically fits the target edge device.",
+        "pts": 5
+    },
+    {
+        "q": "DESIGN: Implement 'Freezing' for On-device Personalization.",
+        "a": "Keep the convolutional backbone weights fixed (no gradients stored). Only unfreeze the final Dense layer. Compute and store gradients only for this layer to save SRAM.",
+        "pts": 5
+    },
+    {
+        "q": "EXERCISE: Calculate asymmetric quantization Scale given Min=-2.0, Max=6.0 for INT8 [-128, 127].",
+        "a": "Range = 6.0 - (-2.0) = 8.0. Scale (S) = 8.0 / 255 = 0.03137.",
+        "pts": 5
+    },
+    {
+        "q": "HARDWARE: Why are Activations quantized dynamically in some PTQ schemes?",
+        "a": "Unlike weights, activations change per input. Dynamic PTQ calculates the min/max of activations at runtime to maximize precision, at the cost of inference latency.",
+        "pts": 5
+    },
+    {
+        "q": "THEORY: Explain 'Federated Learning' vs 'On-Device Learning'.",
+        "a": "On-device adapts a model locally for personal use. Federated Learning trains locally but sends weight updates (not data) to a cloud server to aggregate into a global model.",
+        "pts": 5
+    },
+    {
+        "q": "EXERCISE: Derive the total parameters of a 1x1 Pointwise Convolution (In 64, Out 128).",
+        "a": "Params = (1 * 1 * 64 + 1) * 128 = (64 + 1) * 128 = 8,320.",
+        "pts": 5
+    },
+    {
+        "q": "DESIGN: Strategy for handling 'Concept Drift' in a remote deployed sensor.",
+        "a": "Implement an On-device Learning loop. Periodically prompt the user for ground truth labels (or use weak supervision) to fine-tune the classifier head on the drifted data.",
+        "pts": 5
+    },
+    {
+        "q": "THEORY: What is 'Knowledge Distillation Temperature'?",
+        "a": "A parameter (T) applied to the softmax function of the teacher model. Higher T softens the probabilities, revealing the 'dark knowledge' (relationships between secondary classes) to the student.",
+        "pts": 5
+    },
+    {
+        "q": "HARDWARE: Contrast Flash and SRAM roles in an ESP32 for AI.",
+        "a": "Flash: Large (MBs), slow, non-volatile. Holds model weights and firmware. SRAM: Small (KBs), fast, volatile. Holds input buffers, intermediate activations, and stack/heap.",
+        "pts": 5
+    },
+    {
+        "q": "CALCULATION: MACs for Global Average Pooling on a 7x7x1024 tensor.",
+        "a": "GAP takes the average of each 7x7 slice. 7*7 = 49 additions per channel. Total adds = 49 * 1024 = 50,176. Divisions = 1024. MACs = 0 (no multiplications with weights).",
+        "pts": 5
+    },
+    {
+        "q": "THEORY: Why does SqueezeNet use a 'Squeeze' ratio?",
+        "a": "The ratio (e.g., 0.125) drastically reduces the input depth to the 3x3 Expand layer. Since 3x3 parameters scale quadratically with channels, this avoids parameter explosion.",
+        "pts": 5
+    },
+    {
+        "q": "EXERCISE: How does 'Batch Normalization Folding' work?",
+        "a": "During inference, BN is a linear transformation. Its scaling and shifting parameters (gamma, beta, mean, var) are mathematically folded into the preceding Convolution's weights and bias, removing the BN layer entirely.",
+        "pts": 5
+    },
+    {
+        "q": "DESIGN: Choose between symmetric and asymmetric quantization for ReLU activations.",
+        "a": "ReLU outputs are purely non-negative [0, X]. Asymmetric quantization maps 0 to the lowest integer (e.g., -128) and X to 127, utilizing all 256 states. Symmetric would waste half the states on negative integers.",
+        "pts": 5
+    },
+    {
+        "q": "THEORY: What is the 'Vanishing Gradient' problem?",
+        "a": "In deep networks, backpropagated gradients shrink exponentially due to chain rule multiplication of small derivatives. This prevents early layers from learning. Skip connections (ResNets) solve this by providing shortcut paths.",
+        "pts": 5
+    },
+    {
+        "q": "HARDWARE: Explain 'DMA' and its relevance to Edge AI.",
+        "a": "Direct Memory Access. Allows peripherals (e.g., Camera, SPI) to write data directly into SRAM without CPU intervention. Critical for keeping the CPU focused entirely on AI inference.",
+        "pts": 5
+    },
+    {
+        "q": "EXERCISE: A model requires 600KB of activations but the MCU has 300KB SRAM. Explain 'Patching/Tiling'.",
+        "a": "Divide the input image into 4 overlapping patches. Run inference sequentially on each patch. The peak memory drops to ~150KB. Overlap is required to preserve receptive field boundaries.",
+        "pts": 5
+    },
+    {
+        "q": "THEORY: What is 'Entropy' in the context of Early Exit?",
+        "a": "Entropy measures the uncertainty of a probability distribution. A low entropy (peaked distribution) means high confidence. Early exit architectures halt inference if entropy < Threshold.",
+        "pts": 5
+    },
+    {
+        "q": "DESIGN: Implement an 'Anomaly Detection' autoencoder on the edge.",
+        "a": "Train an Autoencoder to reconstruct normal data. Deploy to edge. During inference, calculate Reconstruction Error. If Error > Threshold, flag as anomaly. Useful because anomaly data is scarce.",
+        "pts": 5
+    },
+    {
+        "q": "CALCULATION: Receptive field after two 3x3 Convolutions (Stride 1).",
+        "a": "Layer 1: 3x3. Layer 2: 3x3. Formula: RF = RF_prev + (K-1)*Stride_product. RF = 3 + (3-1)*1 = 5. The equivalent field is 5x5.",
+        "pts": 5
+    },
+    {
+        "q": "THEORY: How does 'GhostNet' achieve efficiency?",
+        "a": "Standard CNNs learn redundant feature maps. GhostNet generates a few primary features using standard convolutions, then applies cheap linear operations (like depthwise convs) to generate 'ghost' variations.",
+        "pts": 5
+    },
+    {
+        "q": "EXERCISE: Describe 'Quantization Error'.",
+        "a": "The difference between the original floating-point value and its quantized-dequantized equivalent. Error = | X_fp - Dequant(Quant(X_fp)) |. It causes the accuracy drop in PTQ.",
+        "pts": 5
+    },
+    {
+        "q": "HARDWARE: What is 'PSRAM' on the ESP32-S3?",
+        "a": "Pseudo-Static RAM. External memory chip connected via SPI. Much larger than internal SRAM (up to 8MB) but significantly slower. Used for storing large input buffers, not fast activations.",
+        "pts": 5
+    },
+    {
+        "q": "THEORY: What is a 'Skip Connection'?",
+        "a": "An architectural feature that adds the input of a block to its output (F(x) + x). It mitigates vanishing gradients and smooths the loss landscape, enabling very deep networks.",
+        "pts": 5
+    },
+    {
+        "q": "DESIGN: Optimizing a model for 'Battery-Powered' deployment.",
+        "a": "1. Extreme Quantization (INT8 or lower). 2. Use Early Exit to save average compute. 3. Duty cycling: keep MCU in deep sleep, wake via low-power sensor (e.g., IMU threshold).",
+        "pts": 5
+    },
+    {
+        "q": "CALCULATION: Time to execute 1 Million MACs on a 240MHz MCU capable of 2 MACs/cycle.",
+        "a": "Throughput = 240M * 2 = 480 Million MACs/sec. Time = 1M / 480M = 0.00208 seconds (2.08 ms).",
+        "pts": 5
+    },
+    {
+        "q": "THEORY: What is the 'Capacity' of a neural network?",
+        "a": "The ability of the network to model complex functions, generally correlated with the number of parameters and depth. High capacity networks can easily memorize (overfit) small datasets.",
+        "pts": 5
+    },
+    {
+        "q": "EXERCISE: Explain 'Calibration' in Post-Training Quantization.",
+        "a": "Calibration involves passing a small, representative dataset through the FP32 model. The system monitors the min/max values of activations at each layer to calculate the optimal Scale and Zero-Point.",
+        "pts": 5
+    },
+    {
+        "q": "HARDWARE: Contrast 'Microcontroller' vs 'Microprocessor' for AI.",
+        "a": "Microcontrollers (MCUs) have integrated memory (Flash/SRAM) and peripherals, no OS (RTOS/Baremetal), low power, strict limits. Microprocessors (MPUs) require external RAM/Storage, run Linux, high power.",
+        "pts": 5
+    },
+    {
+        "q": "THEORY: What is 'Data Augmentation'?",
+        "a": "Artificially inflating the training dataset size by applying random transformations (rotation, noise, scaling) to existing samples. It improves generalization and prevents overfitting.",
+        "pts": 5
     }
 ];

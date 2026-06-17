@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EEAI Pro-Simulator | 2026 Edition</title>
+    <title>EEAI Exam Simulator | 2026 Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -138,13 +138,12 @@
         .cta-btn:hover { transform: scale(1.05); box-shadow: 0 15px 40px rgba(99, 102, 241, 0.6); }
         .cta-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-        .secondary-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white; border: 2px solid white; padding: 1rem 2.5rem; border-radius: 99px;
-            font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
-            display: none;
+        .restart-btn {
+            background: white; color: var(--primary); border: 2px solid var(--primary); 
+            padding: 1rem 2.5rem; border-radius: 99px; font-size: 1rem; font-weight: 700; 
+            cursor: pointer; transition: all 0.2s; display: none; margin-top: 1rem;
         }
-        .secondary-btn:hover { background: white; color: var(--primary); }
+        .restart-btn:hover { background: var(--primary); color: white; }
 
         .explanation { display: none; margin-top: 1.5rem; font-size: 0.95rem; color: var(--text-dim); padding: 1rem; background: #f8fafc; border-radius: 12px; }
 
@@ -157,7 +156,7 @@
 <body>
 
     <nav class="navbar">
-        <div class="logo">🚀 EEAI Simulator <span style="font-size: 0.7rem; opacity: 0.5;">v4.2</span></div>
+        <div class="logo">🚀 EEAI Simulator <span style="font-size: 0.7rem; opacity: 0.5;">v4.3</span></div>
         <div id="timer" class="timer-badge">30:00</div>
     </nav>
 
@@ -178,13 +177,12 @@
             
             <div class="btn-group">
                 <button type="button" class="cta-btn" id="submit-btn" onclick="submitExam()">SUBMIT FOR GRADING</button>
-                <button type="button" class="secondary-btn" id="restart-btn" onclick="restartExam()">RESTART NEW EXAM</button>
+                <button type="button" class="restart-btn" id="restart-btn" onclick="restartExam()">RETRY ANOTHER EXAM</button>
             </div>
         </form>
     </div>
 
     <script>
-        // Question Pool (Strictly Formulated for 2026 Academic Standards)
         const closedPool = [
             { 
                 q: "In the context of the ESP32-S3, which architectural feature is primarily responsible for the SIMD acceleration of Neural Network (NN) kernels?", 
@@ -244,7 +242,7 @@
                 q: "What is the primary operational benefit of 'Kernel/Layer Fusion' (e.g., combining Conv, Bias, and ReLU) in libraries like ESP-DL?", 
                 o: ["It significantly increases the top-1 accuracy of the quantized model.", "It reduces memory bandwidth overhead by avoiding multiple reads/writes of intermediate results to SRAM.", "It allows the CPU to enter a low-power sleep mode between layers.", "It enables the use of larger kernels (e.g., 7x7) without increasing memory usage."], 
                 a: 1, 
-                e: "Fusion keeps intermediate data in the CPU registers, minimizing the energy and time spent accessing the SRAM." 
+                e: "Fusion minimizes memory bandwidth by keeping intermediate data in the CPU registers, minimizing the energy and time spent accessing the SRAM." 
             }
         ];
 
@@ -273,9 +271,13 @@
 
         function init() {
             clearInterval(timerInterval);
+            // Completely clear any potential leftover history/storage
+            localStorage.removeItem('eeai_history');
+            
             timeLeft = 30 * 60;
             userClosed = new Array(10).fill(null);
             document.getElementById('submit-btn').disabled = false;
+            document.getElementById('submit-btn').style.display = 'block';
             document.getElementById('restart-btn').style.display = 'none';
             document.getElementById('result-panel').style.display = 'none';
             
@@ -344,6 +346,7 @@
         window.submitExam = () => {
             clearInterval(timerInterval);
             document.getElementById('submit-btn').disabled = true;
+            document.getElementById('submit-btn').style.display = 'none';
             document.getElementById('restart-btn').style.display = 'block';
             
             let score = 0;

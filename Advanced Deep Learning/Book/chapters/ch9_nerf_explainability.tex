@@ -1,0 +1,139 @@
+\chapter{Advanced Architectures: NeRF and Explainability} \label{ch:nerf_explainability}
+\index{Neural Radiance Fields (NeRF)}
+\index{Explainable Artificial Intelligence (XAI)}
+
+This chapter explores two advanced frontiers of deep learning: the representation of 3D scenes for novel view synthesis using Neural Radiance Fields (NeRF), and the methodologies to interpret and understand the opaque decision-making processes of Deep Neural Networks (DNNs) through Explainable AI (XAI).
+
+\section{Deep Learning as 3D Scene Optimization} \label{sec:nerf}
+\index{Novel View Synthesis}
+\index{Computer Graphics}
+\index{Computer Vision}
+
+Historically, the fields of Computer Vision and Computer Graphics have approached the 3D world from opposite directions. Computer Vision tackles the inverse problem: recovering 3D geometry (e.g., Structure from Motion or Multi-view Stereo) from 2D images. Conversely, Computer Graphics solves the forward problem: projecting known geometry, appearance, lighting, and camera parameters to simulate how light interacts with surfaces, thus producing a 2D image. Novel View Synthesis sits at the intersection of these two domains: generating novel views of a scene from a limited set of acquired RGB images with calibrated cameras (where intrinsic matrix $K$ and extrinsic parameters $R, t$ are known) for a virtual camera pose $K_{new}[R_{new}, t_{new}]$.
+
+\subsection{The Rendering Equation} \label{subsec:rendering_equation}
+\index{Rendering Equation}
+\index{Radiance}
+\index{BRDF}
+
+The color of a pixel is obtained by collecting the radiance arriving along its camera ray and converting its spectrum into RGB through the camera sensor. Let $L(x, \bm{d})$ denote the amount of light traveling at a point $x$ in a given direction $\bm{d}$. The outgoing radiance $L(x, \bm{d}_o)$ depends on the incoming radiance $L_i(x, \bm{d}_i)$, the viewing direction $\bm{d}_o$, the surface properties modeled by the Bidirectional Reflectance Distribution Function (BRDF) $f_r(x, \bm{d}_i, \bm{d}_o)$, and the surface normal $\bm{n}(x)$. The rendering equation is thus formulated as:
+\begin{equation}
+L(x, \bm{d}_o) = \int_\Omega f_r(x, \bm{d}_i, \bm{d}_o) L_i(x, \bm{d}_i) \max(0, \bm{n}(x)^\top \bm{d}_i) d\omega
+\end{equation}
+Depending on the material, the BRDF $f_r$ can range from a simple constant $\rho$ (albedo) for a Lambertian surface, to complex functions modeling diffuse and specular components (e.g., Blinn-Phong, Cook-Torrance). However, explicit rendering requires complete knowledge of geometry and global light transport, making it notoriously difficult.
+
+\subsection{Neural Radiance Fields (NeRF)} \label{subsec:nerf_formulation}
+\index{NeRF!Formulation}
+\index{Implicit 3D Structure}
+
+Instead of explicitly modeling geometry, materials, and lighting, Neural Radiance Fields (NeRF) combine both vision and graphics by implicitly modeling the scene as a continuous, view-dependent, volumetric field with density. The 3D structure is implicit and optimized solely for rendering images.
+A NeRF represents the scene as a function $F_\theta$ parameterized by a Multilayer Perceptron (MLP) that maps a 3D position $\bm{x} \in \mathbb{R}^3$ and a viewing direction $\bm{d} \in S^2$ to an RGB color $\bm{c} \in \mathbb{R}^3$ and a volume density $\sigma \in \mathbb{R}^+$:
+\begin{equation}
+F_\theta: \mathbb{R}^3 \times S^2 \rightarrow \mathbb{R}^3 \times \mathbb{R}^+ \quad \text{such that} \quad (\bm{x}, \bm{d}) \mapsto (\bm{c}, \sigma)
+\end{equation}
+The density $\sigma$ depends only on the 3D position, determining how much matter is present at $\bm{x}$. The color $\bm{c}$ depends on both position and viewing direction, allowing the model to represent view-dependent effects like specularities and reflections.
+
+\begin{insightbox}[NeRF Intuition: Learning to Trace Rays]
+Think of NeRF not as a 3D mesh, but as a continuous block of colored fog. The network $F_\theta$ acts as an oracle. If you query it with a specific 3D coordinate and the angle you are looking from, it tells you two things: the color of the fog at that exact point and its opacity (density). By shooting a virtual ray through this fog and accumulating the colors according to the opacities, we can render the scene from any angle. Because it is continuous, it perfectly bypasses the discrete limitations of voxels or point clouds.
+\end{insightbox}
+
+\subsubsection{Architecture and Positional Encoding} \label{subsubsec:nerf_arch}
+\index{Positional Encoding}
+A plain MLP struggles to learn high-frequency functions from raw low-dimensional coordinates, leading to blurred geometry and textures. To overcome this, the input coordinates are mapped to a higher-dimensional space using high-frequency functions before being passed to the network. The positional encoding $\gamma(\cdot)$ is applied to both $\bm{x}$ and $\bm{d}$:
+\begin{equation}
+\gamma(p) = (\sin(2^0 \pi p), \cos(2^0 \pi p), \dots, \sin(2^{L-1} \pi p), \cos(2^{L-1} \pi p))
+\end{equation}
+where $L=10$ for position $\bm{x}$ and $L=4$ for direction $\bm{d}$. The architecture typically consists of several fully connected layers (e.g., 256 hidden units, ReLU). The geometry trunk processes only $\bm{x}$ to predict $\sigma$, while the viewing direction $\bm{d}$ is injected near the end to predict the color $\bm{c}$.
+
+\subsection{Differentiable Volume Rendering} \label{subsec:volume_rendering}
+\index{Volume Rendering}
+\index{Transmittance}
+To train NeRF, we must render images from the implicit density and color fields in a differentiable manner. Let a camera ray be $\bm{r}(t) = \bm{o} + t\bm{d}$, where $\bm{o}$ is the camera center. The volume density $\sigma(\bm{r}(t))$ can be interpreted as the differential probability of a ray terminating at an infinitesimal particle at location $\bm{r}(t)$.
+
+Let $X$ be the random variable representing the depth of the first hit along the ray. The Transmittance $T(t) = \text{Prob}(X > t)$ is the probability that the ray travels from $t_n$ to $t$ without hitting any particle. The local rate of absorption is defined as:
+\begin{equation}
+\sigma(t) = \lim_{\Delta t \to 0} \frac{\text{Prob}(t \leq X < t + \Delta t | X > t)}{\Delta t}
+\end{equation}
+By solving the differential equation $T(t + dt) = T(t)(1 - \sigma(t)dt)$, we obtain $T(t) = \exp(-\int_{t_n}^t \sigma(s)ds)$. The expected color $C(\bm{r})$ of the ray is the integral of the colors along the ray, weighted by the probability density of the first hit $p(t) = T(t)\sigma(t)$:
+\begin{equation}
+C(\bm{r}) = \int_{t_n}^{t_f} T(t)\sigma(t)\bm{c}(\bm{r}(t), \bm{d}) dt
+\end{equation}
+
+In practice, this continuous integral is numerically approximated using stratified sampling. For a set of discrete samples $t_i$ sorted along the ray, the color is computed as:
+\begin{equation}
+C(\bm{r}) \approx C_\theta(\bm{r}) = \sum_{i=1}^N T_i \alpha_i \bm{c}_i
+\end{equation}
+where $\alpha_i = 1 - \exp(-\sigma_i \delta_i)$ is the opacity of the $i$-th segment with length $\delta_i = t_{i+1} - t_i$, and $T_i = \prod_{j=1}^{i-1} (1 - \alpha_j)$ is the discrete transmittance.
+
+\subsubsection{Loss Optimization and Hierarchical Sampling} \label{subsubsec:nerf_loss}
+\index{Hierarchical Sampling}
+The model is optimized using a photometric loss against the ground truth pixel colors $C_{gt}(\bm{r})$:
+\begin{equation}
+\mathcal{L}(\theta) = \sum_{\bm{r}} ||C_{gt}(\bm{r}) - C_\theta(\bm{r})||_2^2
+\end{equation}
+Because evaluating the MLP at every point along every ray is computationally intensive, NeRF employs hierarchical volume sampling. A "coarse" network is evaluated at uniformly sampled points. The resulting discrete weights $w_i = T_i \alpha_i$ are normalized to form a piecewise constant probability density function along the ray. A "fine" network is then evaluated by sampling more points from this distribution, focusing computation on visible structures.
+
+\subsection{Beyond NeRF: Gaussian Splatting} \label{subsec:gaussian_splatting}
+\index{Gaussian Splatting}
+While NeRF produces stunning results, it is slow to train and render due to the sheer number of MLP evaluations required per ray. 3D Gaussian Splatting changes the representation from an implicit neural field to a set of explicit 3D Gaussian primitives. Each primitive is parameterized by a position, covariance matrix, opacity, and appearance (e.g., spherical harmonics). Initialized typically from SfM point clouds, these primitives are optimized directly. Rendering bypasses ray marching by utilizing a highly efficient tile-based rasterizer (sort $\rightarrow$ splat $\rightarrow$ blend), granting real-time performance without sacrificing continuous differentiability during training.
+
+\section{Explainability in Deep Neural Networks} \label{sec:explainability}
+\index{Explainability}
+Modern Deep Neural Networks (DNNs) have millions of parameters, rendering their inner workings totally obscure. Applying such black-box models in critical tasks (e.g., healthcare, autonomous driving, finance) demands a healthy skepticism. Explainable AI (XAI) seeks to provide understandable insights into why a network made a specific prediction, helping to identify biases (the "Clever Hans" effect) and debug the learning process.
+
+\begin{insightbox}[The "Clever Hans" Phenomenon]
+In XAI, the "Clever Hans" effect refers to a model that appears to have learned the underlying concept perfectly, but has actually learned a spurious correlation or dataset bias. For example, a network might distinguish wolves from huskies simply by looking for snow in the background, or classify horses based on a watermark present in the training images. Saliency maps are the primary tool to spot such catastrophic shortcuts.
+\end{insightbox}
+
+\subsection{Saliency and Attribution Maps} \label{subsec:saliency_maps}
+\index{Saliency Maps}
+\index{Attribution Maps}
+Saliency maps, or attribution maps, are the most common form of explainability for images. Formally, given a network function $S_c: \mathbb{R}^{H \times W \times C} \rightarrow [0,1]$ representing the score for class $c$, and an input image $I$, an attribution is an output $A(\bm{x}) = \{a_i\} \in \mathbb{R}^{H \times W \times C}$ where $a_i$ quantifies the contribution of the pixel $x_i$ to the prediction $S_c(I)$. These maps are class-specific: computing the map for a "cat" class on an image containing a cat and a dog will yield high attributions over the cat, while querying the "dog" class will shift the heatmap over the dog.
+
+\subsection{Gradient-Based Methods} \label{subsec:gradient_based}
+\index{Vanilla Gradients}
+\index{SmoothGrad}
+\index{Integrated Gradients}
+
+Because DNNs are highly complex, we can approximate the local behavior of the function $S_c(\bm{x})$ using a first-order Taylor expansion: $S_c(\bm{x}) \approx \bm{w}^\top \bm{x} + b$, where $\bm{w} = \frac{\partial S_c}{\partial \bm{x}}(I)$. 
+Vanilla Gradients simply compute this derivative $\frac{\partial S_c}{\partial x_i}(I)$ via backpropagation. However, raw gradients are notoriously noisy and suffer from shattered gradients, indicating local sensitivity rather than global importance.
+
+To mitigate this, \textbf{SmoothGrad} removes noise by adding noise. It computes the gradients for $n$ noisy versions of the input image $I_j = I + \epsilon_j$ where $\epsilon \sim \mathcal{N}(0, \sigma^2)$, and averages them. The noise level $\sigma$ is typically set to $10\%-20\%$ of the data range.
+
+\textbf{Integrated Gradients (IG)} addresses the saturation of gradients (where gradients vanish once a feature is strongly present) by integrating gradients along a straight-line path from an uninformative baseline image $I'$ (e.g., all zeros) to the actual input $I$:
+\begin{equation}
+\text{IntegratedGrad}_{c, i}(I) = (I - I') \int_{\alpha=0}^1 \frac{\partial S_c}{\partial x_i}(I' + \alpha(I - I')) d\alpha
+\end{equation}
+IG satisfies the Completeness Property: the sum of the attributions across all dimensions equals the difference between the model's output at the input and the baseline $S_c(I) - S_c(I')$. In practice, the integral is approximated using a discrete sum over $m$ interpolated images.
+
+\subsection{Class Activation Mapping (CAM) and Grad-CAM} \label{subsec:gradcam}
+\index{Grad-CAM}
+\index{Class Activation Mapping (CAM)}
+While gradients are computed at the pixel level, the deepest convolutional layers in a CNN capture rich, high-level semantic information while preserving coarse spatial structure. 
+
+\textbf{Grad-CAM} exploits this by using the gradient information flowing into the last convolutional layer. Let $A^k$ be the $k$-th feature map of the last convolutional layer. The neuron importance weights $w_k^c$ for class $c$ are obtained by performing Global Average Pooling (GAP) on the gradients:
+\begin{equation}
+w_k^c = \frac{1}{nm} \sum_i \sum_j \frac{\partial S_c}{\partial A^k_{i,j}}
+\end{equation}
+These weights represent a partial linearization of the network downstream of the feature maps. The final Grad-CAM heatmap is a weighted combination of the forward-pass feature maps, passed through a ReLU to only highlight features with a positive influence on the target class:
+\begin{equation}
+g^c = \text{ReLU}\left(\sum_k w_k^c A^k\right)
+\end{equation}
+
+Grad-CAM can explain any differentiable activation (e.g., image captioning output or visual question answering). Furthermore, since Grad-CAM provides a coarse heatmap, it can be combined with pixel-level gradient methods (like Guided Backpropagation) via element-wise multiplication to yield \textbf{Guided Grad-CAM}, which provides high-resolution, class-discriminative visualizations.
+
+To further push the resolution limits, \textbf{Augmented Grad-CAM} utilizes a Super-Resolution (SR) framework. By taking advantage of multiple low-resolution heatmaps computed from the same input under different known spatial transformations $\mathcal{A}_\ell$, it reconstructs a high-resolution heatmap $\bm{h}$ by solving an inverse problem regularized with Anisotropic Total Variation (TV).
+
+\subsection{Perturbation-Based Saliency Maps} \label{subsec:perturbation}
+\index{Perturbation Methods}
+\index{RISE}
+\index{Score-CAM}
+Unlike gradient-based methods which require access to the network's internal parameters and a backward pass, perturbation-based methods treat the model as a black box. The core idea is to perturb the input image and assess how the output score changes.
+
+\textbf{RISE (Randomized Input Sampling for Explanation)} generates a large set of $N$ random masks $M_i$. The image is masked ($I \odot M_i$) and passed through the network to yield a probability $p_i$ for the target class. The final saliency map is the expected value of the masks, weighted by their corresponding scores: $S = \frac{1}{\sum M_i} \sum_{i=1}^N p_i M_i$.
+
+\textbf{Score-CAM} bridges CAM and perturbation by replacing the gradient-based weights $w_k^c$ in Grad-CAM with scores obtained via perturbation. Each forward-pass feature map $A^k$ is upsampled, normalized, and used to mask the input image. A forward pass on this masked image yields the target class score, which serves as the weight $w_k^c$, effectively bypassing the need for backpropagation and eliminating noisy gradient artifacts.
+
+\subsection{Perception Visualization (PV)} \label{subsec:pv}
+\index{Perception Visualization}
+While saliency maps tell us \textit{where} the network is looking, they do not tell us \textit{what} the network actually perceives. \textbf{Perception Visualization (PV)} aims to shed light on both. It introduces a separate Decoder network $\mathcal{D}$, trained to invert the latent representations produced by the Encoder $\mathcal{E}$ (the network to be explained). By decoding the latent representation back into the input domain, PV provides a reconstruction that visually represents the features retained by the network. When combined with Grad-CAM, PV highlights not just the location, but the structural distortions and semantic abstractions the DNN employs to make its decision, offering a more holistic explanation of the network's perception.

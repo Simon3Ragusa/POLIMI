@@ -35,9 +35,9 @@ The Autoencoder is trained to minimize a reconstruction loss over a batch $S$. T
 \end{equation}
 Training is performed end-to-end via standard backpropagation algorithms (e.g., Stochastic Gradient Descent, Adam). The objective is to learn the identity mapping $s \approx \mathcal{D}(\mathcal{E}(s))$, but the severe dimensionality bottleneck ($d \ll n$) prevents the network from merely copying the input. Instead, the network must learn a compact, meaningful representation of the dataset's principal components.
 
-\begin{feynmanbox}[Autoencoders as Forced Summarizers]
+\begin{insightbox}[Autoencoders as Forced Summarizers]
 Think of an Autoencoder like a student taking notes during a fast-paced lecture. The student cannot transcribe every single word the professor says (this is the $d \ll n$ bottleneck). Instead, they must synthesize the core meaning of the lecture into brief bullet points (the \textit{latent representation} $z$). Later, when studying, the student uses those brief notes to reconstruct the full lecture in their head (the Decoder). If the notes are too short (too small a latent space), details are lost; if the notes are literally a transcript, no actual learning or compression took place.
-\end{feynmanbox}
+\end{insightbox}
 
 \subsection{Latent Space Dimensionality and Regularization}
 The size of the latent representation $d$ directly dictates the reconstruction fidelity. As $d \to n$, the network can perfectly reconstruct the image, degenerating into a trivial identity mapping. Conversely, if $d$ is very small, reconstructions will be blurry and lack high-frequency details. 
@@ -73,9 +73,12 @@ Because the latent vector is a structurally sound representation of the input sp
     \item The network is fine-tuned on the \textbf{downstream ultimate task} (e.g., classification, detection).
 \end{enumerate}
 
-\begin{feynmanbox}[SSL vs. Autoencoders]
+\begin{insightbox}[What is an Autoencoder?]
+Imagine asking someone to describe a complex painting to you over a walkie-talkie using only 5 words, and then asking you to paint the exact same picture. To do this successfully, the person (the \textit{Encoder}) must identify the most crucial, defining features of the painting, and you (the \textit{Decoder}) must know how to reconstruct a full scene from those hints. 
+\end{insightbox}
+\begin{insightbox}[SSL vs. Autoencoders]
 An Autoencoder looks at a picture of a dog, compresses it, and tries to paint the exact same dog pixel-by-pixel. It cares intensely about the exact color of the grass and the exact lighting. SSL, on the other hand, plays games. We might take the dog image, rotate it upside down, and ask the network, "Is this dog upside down?" To answer correctly, the network doesn't need to memorize the pixel colors; it needs to understand the concept of gravity, legs, and a head. SSL trades pixel-perfect reconstruction for deep semantic understanding.
-\end{feynmanbox}
+\end{insightbox}
 
 \subsection{Pretext Tasks and Trivial Shortcuts}
 The design of the pretext task is the central challenge in SSL. If the task is poorly designed, the network will exploit \textbf{trivial shortcuts} to solve it without learning any useful semantics.
@@ -159,6 +162,6 @@ SimCLR maximizes the cosine similarity between the positive pair while pushing a
 \end{equation}
 where $\text{sim}(u, v) = \frac{u^T v}{||u|| ||v||}$ is the cosine similarity, and $\tau$ is a temperature scaling parameter.
 
-\begin{feynmanbox}[Why Does SimCLR Work So Well?]
+\begin{insightbox}[Why Does SimCLR Work So Well?]
 Imagine taking a photo of a golden retriever, cropping out just its nose, and heavily tinting it green. Then, you take the same original photo, crop out its tail, and blur it heavily. SimCLR forces the network to map the "green nose" and the "blurry tail" to the exact same point in the latent space. To achieve this, the network must abandon trivial shortcuts like color histograms or edge matching. It is forced to understand the high-level semantic concept of "Golden Retriever" that inextricably links the two augmented views, resulting in an exceptionally powerful and robust latent representation.
-\end{feynmanbox}
+\end{insightbox}

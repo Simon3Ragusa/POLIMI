@@ -10,12 +10,12 @@
 \usepackage{xcolor}
 \usepackage{tcolorbox}
 
-% Feynman-style insight box
-\newtcolorbox{feynmanbox}[1][]{
+% Insight box
+\newtcolorbox{insightbox}[1][]{
     colback=blue!5!white,
     colframe=blue!75!black,
     fonttitle=\bfseries,
-    title=Feynman Insight: #1
+    title=Insight: #1
 }
 
 \title{\textbf{Advanced Deep Learning}\\ \Large Complete Course Synthesis \& Mental Models}
@@ -29,13 +29,13 @@
 \newpage
 
 \input{chapters/ch1_self_supervised.tex}
-% \input{chapters/ch2_transformers.tex}
-% \input{chapters/ch3_anomaly_detection.tex}
-% \input{chapters/ch4_restoration.tex}
-% \input{chapters/ch5_generative_models.tex}
-% \input{chapters/ch6_diffusion.tex}
-% \input{chapters/ch7_3d_spatial.tex}
-% \input{chapters/ch8_graphs.tex}
-% \input{chapters/ch9_nerf_explainability.tex}
+\input{chapters/ch2_transformers.tex}
+\input{chapters/ch3_anomaly_detection.tex}
+\input{chapters/ch4_restoration.tex}
+\input{chapters/ch5_generative_models.tex}
+\input{chapters/ch6_diffusion.tex}
+\input{chapters/ch7_3d_spatial.tex}
+\input{chapters/ch8_graphs.tex}
+\input{chapters/ch9_nerf_explainability.tex}
 
 \end{document}

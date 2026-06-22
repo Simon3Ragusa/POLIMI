@@ -1,0 +1,133 @@
+\chapter{Sequential Modeling and Transformers} \label{ch:transformers}
+
+Sequence modeling encompasses a wide range of tasks where the input, the output, or both are sequences of tokens. These tasks can be broadly categorized into:
+\begin{itemize}
+    \item \textbf{Sequence Classification:} The input is an ordered sequence of tokens $(w_1, w_2, \dots, w_n)$, and the output is a single prediction $y$ (e.g., Sentiment Analysis). \index{Sequence Classification}
+    \item \textbf{Sequence Labelling:} The input is an ordered sequence, and the output is a sequence of predictions $(y_1, y_2, \dots, y_n)$ of the same length (e.g., Part-of-Speech Tagging). \index{Sequence Labelling}
+    \item \textbf{Sequence Transformation:} The input is an ordered sequence, and the output is another sequence of predictions $(y_1, y_2, \dots, y_m)$, potentially of a varying length (e.g., Machine Translation). \index{Sequence Transformation}
+\end{itemize}
+
+These problems map to different sequential data paradigms, such as one-to-one (fixed-sized input to fixed-sized output), one-to-many (image captioning), many-to-one (sentiment analysis), many-to-many (machine translation), and synced many-to-many (video classification).
+
+\section{Sequence-to-Sequence Basics} \label{sec:seq2seq}
+
+A language model represents the probability of a sequence of tokens. A \textit{Conditional Language Model} \index{Conditional Language Model} predicts a target sequence $y = y_1, y_2, \dots, y_n$ conditioned on a source sequence $x = x_1, x_2, \dots, x_m$. The goal is to find the sequence that maximizes the conditional probability $P(y|x)$:
+\begin{equation}
+    y^* = \arg\max_{y} P(y_1, y_2, \dots, y_n | x_1, x_2, \dots, x_m)
+\end{equation}
+
+This conditional language model can be factorized autoregressively:
+\begin{equation}
+    P(y_1, y_2, \dots, y_n | x_1, x_2, \dots, x_m) = \prod_{t=1}^{n} p(y_t | y_{<t}, x_1, x_2, \dots, x_m)
+\end{equation}
+
+\subsection{The Encoder-Decoder Framework}
+Sequence-to-sequence models are typically formulated as encoder-decoder architectures. The \textbf{Encoder} \index{Encoder} builds a representation of the source sentence and gives it to the decoder. The \textbf{Decoder} \index{Decoder} uses this source representation, along with the previous history (previously generated tokens), to generate the target sentence one token at a time.
+
+For training, given a sample $\langle x, y \rangle$, at time $t$ the model predicts the token probability $p_t = p(\cdot | y_{<t}, x_1, x_2, \dots, x_m)$. Using a one-hot vector for the ground truth $y_t$, we optimize the cross-entropy loss:
+\begin{equation}
+    loss_t(p_t, y_t) = -\sum_{i=1}^{|V|} y_t^{(i)} \log(p_t^{(i)}) = -y_t^T \log(p_t)
+\end{equation}
+Over the entire sequence, the cross-entropy becomes $-\sum_{t=0}^n y_t^T \log(p_t)$. During training, special tokens are used, such as \texttt{<PAD>} for batching sequences of varying lengths, \texttt{<EOS>} to indicate the end of a sentence, \texttt{<UNK>} for out-of-vocabulary words, and \texttt{<SOS>} (or \texttt{<GO>}) as the initial input to the decoder.
+
+To compute the argmax over all possible sequences during inference, we can use \textit{Greedy Decoding} (picking the most probable token at each step) or \textit{Beam Search} \index{Beam Search} (keeping track of the $k$ most probable hypotheses).
+
+\section{The Attention Mechanism} \label{sec:attention}
+
+In basic encoder-decoder frameworks relying on Recurrent Neural Networks (RNNs) \index{RNN} or LSTMs, the encoder compresses the full source sequence into a single, fixed-size vector. This fixed source representation becomes a \textit{representation bottleneck}, as it struggles to compress long sentences effectively.
+
+\begin{insightbox}[The Intuition behind Attention]
+Attention solves the representation bottleneck. Instead of forcing the encoder to condense the entire input into a single vector, attention allows the decoder to "look back" at all the hidden states of the encoder at every generation step. It learns a soft alignment, deciding dynamically which source parts are more important for predicting the current target token.
+\end{insightbox}
+
+The decoder uses the attention mechanism to compute a weighted sum of encoder states, yielding a \textit{source context} for the decoder step $t$:
+\begin{equation}
+    c^{(t)} = \sum_{k=1}^{m} a_k^{(t)} s_k
+\end{equation}
+where $s_k$ are the encoder states, and $a_k^{(t)}$ are the attention weights computed via a softmax over attention scores:
+\begin{equation}
+    a_k^{(t)} = \frac{\exp(score(h_t, s_k))}{\sum_{i=1}^m \exp(score(h_t, s_i))}
+\end{equation}
+
+Different mechanisms to compute the attention score have been proposed:
+\begin{itemize}
+    \item \textbf{Dot-product:} $score(h_t, s_k) = h_t^T s_k$
+    \item \textbf{Bilinear (Luong Attention):} $score(h_t, s_k) = h_t^T W s_k$ \index{Luong Attention}
+    \item \textbf{Multi-Layer Perceptron (Bahdanau Attention):} $score(h_t, s_k) = w_2^T \tanh(W_1 [h_t, s_k])$ \index{Bahdanau Attention}
+\end{itemize}
+
+\section{The Transformer Architecture} \label{sec:transformer}
+
+Despite the success of LSTMs with attention, recurrent models suffer from a fundamental limitation: inference and training are sequential in nature. This precludes parallelization at the sample level, leading to memory constraints and bottlenecks for long sequences.
+
+To address this, the \textbf{Transformer} \index{Transformer} relies entirely on attention mechanisms to draw global dependencies between input and output, eschewing recurrence completely.
+
+\subsection{Self-Attention and Queries, Keys, Values}
+
+Self-attention \index{Self-Attention} operates between representations of the same nature, allowing tokens to look at each other and update their representations based on the entire sequence.
+
+\begin{insightbox}[Queries, Keys, and Values]
+The Transformer implements self-attention using three distinct linear projections for each token: Queries, Keys, and Values. 
+\begin{itemize}
+    \item \textbf{Query} ($Q$): Asks for information ("What am I looking for?").
+    \item \textbf{Key} ($K$): States the information it holds ("What do I contain?").
+    \item \textbf{Value} ($V$): Gives the actual information to be aggregated.
+\end{itemize}
+By computing the dot-product between a Query and all Keys, we obtain scores that dictate how much of each Value should be aggregated into the token's new representation. This purely matrix-multiplication approach enables massive parallel execution.
+\end{insightbox}
+
+The scaled dot-product attention is defined as:
+\begin{equation}
+    Attention(Q, K, V) = \text{softmax}\left(\frac{Q K^T}{\sqrt{d_k}}\right) V
+\end{equation}
+
+\subsection{Multi-Head Attention and Masking}
+Attention defines the role of a word in a sentence (e.g., verb inflection, case of objects). To allow the model to jointly attend to information from different representation subspaces at different positions, the Transformer employs \textbf{Multi-Head Attention} \index{Multi-Head Attention}:
+\begin{equation}
+    MultiHead(Q, K, V) = Concat(head_1, head_2, \dots, head_n) W_O
+\end{equation}
+\begin{equation}
+    head_i = Attention(Q W_Q^i, K W_K^i, V W_V^i)
+\end{equation}
+
+In the decoder, the self-attention mechanism must not "look ahead" at future tokens during training, to preserve the auto-regressive property. This is achieved through \textbf{Masked Self-Attention} \index{Masked Self-Attention}, which masks out future tokens (setting their scores to $-\infty$ before the softmax).
+
+\subsection{Positional Encoding}
+Since self-attention is permutation invariant by nature, it does not inherently capture the order of the sequence. To inject positional information, the Transformer adds \textbf{Positional Encodings} \index{Positional Encoding} to the input embeddings. The original Transformer uses fixed sinusoidal functions:
+\begin{align}
+    PE_{(pos, 2i)} &= \sin(pos / 10000^{2i / d_{model}}) \\
+    PE_{(pos, 2i+1)} &= \cos(pos / 10000^{2i / d_{model}})
+\end{align}
+This formulation is a smart choice because for every sine-cosine pair, there exists a linear transformation (a rotation matrix) independent of $pos$ that relates $PE_{pos}$ and $PE_{pos+k}$, allowing the model to easily learn to attend by relative positions. However, many state-of-the-art models (like BERT and GPT-2) opt to learn positional embeddings directly from data.
+
+\subsection{Complexity and Interpretability}
+The self-attention layer has an $\mathcal{O}(1)$ maximum path length, allowing it to capture long-range dependencies easily compared to $\mathcal{O}(n)$ in recurrent layers. The complexity per layer is $\mathcal{O}(n^2 \cdot d)$, making it highly efficient when the sequence length $n$ is smaller than the representation dimension $d$.
+
+Interestingly, Transformer heads play interpretable roles. Analyses show that specialized heads handle specific functions:
+\begin{itemize}
+    \item \textbf{Positional Heads:} Attend to a token's immediate neighbors.
+    \item \textbf{Syntactic Heads:} Track major syntactic relations (e.g., subject-verb, verb-object).
+    \item \textbf{Rare Token Heads:} Attend to the least frequent tokens in a sentence.
+\end{itemize}
+
+\section{Vision Transformers (ViT)} \label{sec:vit}
+
+Convolutional Neural Networks (CNNs) \index{CNN} have historically dominated visual recognition due to built-in inductive biases: \textit{spatial locality} and \textit{translation equivariance}. However, deeper networks result in an Effective Receptive Field (ERF) that is only a fraction of the theoretical one, limiting the capture of long-distance dependencies essential for global image understanding.
+
+\begin{insightbox}[Vision Transformers]
+The Vision Transformer (ViT) treats an image as a sequence of patches, bridging the gap between NLP and Computer Vision. The image is divided into non-overlapping patches, which are flattened and linearly projected into vectors. These vectors act as the "tokens" of a sentence. ViTs lack the strong inductive biases of CNNs, meaning they must learn all spatial relations from scratch. While they require massive datasets for pre-training, they can outperform CNNs by inherently capturing global context from the very first layer.
+\end{insightbox}
+
+Given an image $I \in \mathbb{R}^{H \times W \times C}$, it is divided into non-overlapping $P \times P$ patches $x_p \in \mathbb{R}^{N \times P^2 C}$, where $N = HW/P^2$ is the sequence length. A learnable linear mapping projects these patches into $D$-dimensional embeddings: $x_p^i E$ with $E \in \mathbb{R}^{P^2 C \times D}$. \index{Vision Transformer}
+
+A special \texttt{[class]} token is prepended to the sequence, $z_0 = [x_{class}; x_p^1 E; \dots] + E_{pos}$, and its final output state $z_L^0$ is used by an MLP head for classification. 
+
+To overcome the quadratic complexity of global attention on high-resolution images, \textbf{Hierarchical Transformers} (like Swin Transformers \index{Swin Transformer}) merge patches in deeper layers and compute attention within local sliding windows, recovering some CNN-like processing while providing dense predictions linearly with respect to image dimensions.
+
+\section{Multimodal Models: CLIP and LSeg} \label{sec:multimodal}
+
+To bridge vision and language, models like \textbf{CLIP} \index{CLIP} (Contrastive Language-Image Pre-Training) are trained to predict which text is paired with which image. By jointly training an image encoder and a text encoder to maximize the cosine similarity of correct pairings and minimize it for incorrect ones (contrastive loss), CLIP builds a powerful multimodal embedding space.
+
+This paradigm enables \textbf{Zero-Shot Learning} \index{Zero-Shot Learning}. At test time, a classifier can be synthesized dynamically by encoding class names as text (e.g., "A photo of a \{object\}"). The input image is classified by associating it to the text embedding that is closest in the multimodal space.
+
+This language-driven supervision extends beyond classification to tasks like semantic segmentation. In \textbf{LSeg} \index{LSeg}, a ViT image encoder is trained to yield dense pixel-level activations that match CLIP text embeddings. This allows the model to segment unseen classes at test time simply by adding their textual descriptions to the label set, effectively performing zero-shot semantic segmentation.

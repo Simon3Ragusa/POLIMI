@@ -1,0 +1,107 @@
+\chapter{3D Spatial Data and Point Clouds} \label{ch:3d_spatial}
+
+\section{Introduction to 3D Data Representations} \label{sec:3d_reps}
+In modern visual recognition, while deep learning has achieved super-human performance on 2D images, the physical world is intrinsically three-dimensional. Relying solely on 2D projections introduces an inherent ambiguity in the $3D \to 2D$ mapping, as different depth configurations can project to the exact same image plane, leading to a loss of geometric information. To overcome these limitations, multi-view geometry, stereo vision, and dedicated 3D sensors (e.g., LiDAR, Time-of-Flight cameras, Structured Light) are employed to capture the 3D structure of the environment.
+
+Consequently, 3D data can be encoded in several canonical formats, each with distinct properties requiring specialized neural network architectures:
+\begin{itemize}
+    \item \textbf{Point Clouds:} A set of points in $\mathbb{R}^d$. For $d=3$, this is simply the $(x,y,z)$ coordinates. For $d>3$, additional features such as RGB color or surface normals are appended.
+    \item \textbf{Voxelized Grids:} A discrete grid $V \in \{0,1\}^{N \times N \times N}$ representing occupancy. Alternatively, voxels can contain continuous intensity information (e.g., in Medical Imaging like CT or MRI).
+    \item \textbf{Meshes:} A graph-based representation widely used in Computer Graphics, defined by a tuple $(P, E, F)$ comprising vertices $P \subset \mathbb{R}^3$, edges $E$, and faces $F$.
+    \item \textbf{Implicit Functions:} The 3D object is represented as a function $f: \mathbb{R}^3 \to \{0,1\}$ (occupancy) or $f: \mathbb{R}^3 \to \mathbb{R}$ (Signed Distance Function, SDF), where the surface is identified as the zero-level set of $f$.
+    \item \textbf{Depth Maps and RGB-D:} $2.5D$ representations where each pixel encodes a depth value $Z$ alongside traditional RGB channels.
+\end{itemize}
+
+\begin{insightbox}[Intuition behind 3D Data Representations]
+The choice of 3D data representation implies a direct trade-off between structural regularity and sparsity. Voxels offer a regular grid structure that is naturally compatible with standard Convolutional Neural Networks (CNNs), but they suffer from cubic memory complexity and extreme sparsity at high resolutions. Conversely, Point Clouds provide a compact, continuous, and sparse representation that faithfully captures fine details without allocating memory for empty space. However, because point clouds are unordered sets scattered in metric space, they lack the regular neighborhood structure required for standard convolutions, necessitating the development of novel permutation-invariant architectures like PointNet.
+\end{insightbox}
+
+\section{Deep Learning on Voxelized 3D Data and Depth Maps} \label{sec:voxels_depth}
+
+\subsection{3D Convolutions} \label{subsec:3d_conv}
+Extending traditional CNNs to 3D volumetric data involves transitioning from 2D to 3D convolutional kernels. In a 3D convolution, the output is a linear combination of values within a 3D local neighborhood of the input, aggregating across all channels. Formally, a 3D convolutional layer evaluates:
+\begin{equation}
+    a(x, y, z, 1) = \sum_{(u,v,s) \in U, k} w^1(u, v, s, k) X(r+u, c+v, d+s, k) + b^1
+\end{equation}
+This locality-aware processing preserves translation invariance and exploits sparse connectivity. However, native 3D CNNs are computationally expensive and memory-intensive due to the cubic growth of activations. To mitigate this, spatial dimensions can be decoupled. For instance, in video processing (where time acts as the third dimension), $(2+1)D$ convolutions decompose a full 3D convolution into a spatial 2D convolution followed by a temporal 1D convolution. This reduces computational overhead while introducing an additional non-linearity that facilitates optimization.
+
+\subsection{Single Image Depth Estimation} \label{subsec:depth_estimation}
+Estimating depth from a single RGB image is an ill-posed problem due to scale-depth ambiguity: a small close object is visually indistinguishable from a large distant one. Thus, single image depth estimation relies on global contextual cues such as vanishing points, occlusions, and texture gradients.
+
+Given a target depth map $Y$ and a predicted depth map $\hat{Y}$, minimizing the standard $\ell_2$ pixel-wise loss is suboptimal as it is heavily dominated by global scale errors. Instead, a \textit{scale-invariant loss} is employed:
+\begin{equation}
+    D(y, y^*) = \frac{1}{n} \sum_{i=1}^n \left( \log y_i - \log y^*_i + \alpha(y, y^*) \right)^2
+\end{equation}
+where working in the logarithmic space reduces the impact of large depth values. This can be reformulated to isolate the scale-invariant component:
+\begin{equation}
+    D(y, y^*) = \frac{1}{n} \sum_i d_i^2 - \frac{\lambda}{n^2} \left( \sum_i d_i \right)^2
+\end{equation}
+with $d_i = \log y_i - \log y^*_i$. A typical choice is $\lambda = 0.5$, blending mean squared error with scale invariance. 
+
+To enforce local structural consistency, the loss is often augmented with gradient and normal constraints. The gradient loss penalizes differences in the horizontal and vertical image gradients of the log difference:
+\begin{equation}
+    l_{grad} = \frac{1}{n} \sum \left[ (\nabla_x d_i)^2 + (\nabla_y d_i)^2 \right]
+\end{equation}
+Similarly, the surface normal loss enforces geometric consistency between the predicted normal $n^*$ and the ground truth normal $n$:
+\begin{equation}
+    l_{norm} = \cos(n, n^*)
+\end{equation}
+
+\section{Deep Learning on Point Clouds} \label{sec:point_clouds}
+
+Point clouds present unique challenges for deep learning: they are unordered sets, they vary in cardinality, and their representations are sensitive to rigid transformations of the reference coordinate system.
+
+\subsection{PointNet and Deep Sets} \label{subsec:pointnet}
+To process an unordered set of points $X$, a neural network must implement a permutation-invariant function. Based on the Deep Sets theorem, a valid set function $f(X)$ can be decomposed as:
+\begin{equation}
+    f(x_1, \dots, x_N) \approx \gamma \circ g ( h(x_1), \dots, h(x_N) )
+\end{equation}
+where $h$ is a Multi-Layer Perceptron (MLP) applied independently to each point to extract high-dimensional embeddings, $g$ is a symmetric aggregation function (e.g., max-pooling), and $\gamma$ is another MLP that maps the aggregated global feature to the final prediction.
+
+\begin{insightbox}[Intuition behind PointNet Operations]
+Standard MLPs and CNNs are highly sensitive to the order of their inputs; flattening a point cloud into a 1D vector would yield entirely different outputs for different permutations of the same point set. PointNet circumvents this by using a shared MLP ($1 \times 1$ convolutions) to project each point into a high-dimensional feature space independently. Because these operations are applied point-wise, no ordering is assumed. Subsequently, a global max-pooling operation aggregates the features across all points. Max-pooling is an inherently symmetric function: the maximum value of a set remains the same regardless of how the elements are shuffled. This simple yet profound architecture guarantees permutation invariance while retaining the ability to process point clouds of arbitrary sizes.
+\end{insightbox}
+
+To enforce invariance to rigid transformations, PointNet integrates auxiliary T-Nets (Transformation Networks) that regress the parameters of an affine transformation matrix. This matrix is applied directly to the input coordinates or intermediate feature spaces to align the data into a canonical pose.
+
+\subsection{PointNet++ and Local Structures} \label{subsec:pointnet2}
+While PointNet effectively captures global geometry, it fails to encode local structural patterns because it processes each point independently before the global pooling stage. PointNet++ overcomes this limitation by applying PointNet recursively on a nested partitioning of the input point set.
+
+The architecture comprises multiple \textit{Set Abstraction Levels}, each consisting of:
+\begin{enumerate}
+    \item \textbf{Sampling Layer:} Uses Farthest Point Sampling (FPS) to select a subset of anchor points, ensuring broad coverage of the spatial domain.
+    \item \textbf{Grouping Layer:} Constructs local neighborhoods around each anchor point using ball queries with a fixed radius or $k$-NN search.
+    \item \textbf{PointNet Layer:} Applies a mini-PointNet to each local neighborhood to extract a robust local feature vector, effectively downsampling the point cloud while increasing the feature dimensionality.
+\end{enumerate}
+For dense prediction tasks like semantic segmentation, PointNet++ employs an expanding path utilizing feature propagation layers. These layers interpolate features from spatially sparser layers to denser layers using inverse distance weighting among the $k$-nearest neighbors, augmented with skip connections from the encoder.
+
+\subsection{Advanced Point Convolutional Operators} \label{subsec:kpconv}
+Recent advancements have sought to define continuous convolutions directly on point clouds. For instance, \textbf{KPConv} (Kernel Point Convolution) formulates the convolutional filter $g$ as a linear combination of continuous functions localized at explicitly defined kernel points $\tilde{x}_k$ within a spherical neighborhood $\mathcal{N}_x$:
+\begin{equation}
+    (\mathcal{F} * g)(x) = \sum_{x_i \in \mathcal{N}_x} g(x_i - x) f_i
+\end{equation}
+where $g(y_i) = \sum_{k \le K} h(y_i, \tilde{x}_k) W_k$, and $h$ is a distance-based correlation function. 
+
+Furthermore, \textbf{Composite Convolutions} propose to decouple the processing of spatial coordinates from the high-dimensional feature vectors. A spatial function compresses the 3D coordinate geometry, which is subsequently combined with the feature vectors. This disentanglement acts as a structural regularization, allowing lighter network architectures to match the performance of heavy, fully coupled point convolutions.
+
+\section{Autonomous Driving Applications} \label{sec:autonomous_driving}
+
+In autonomous driving, 3D Object Detection is a critical perception task. A 3D bounding box is parameterized by $9$ components: the center $[x,y,z]$, dimensions $[h,w,l]$, and orientation $[yaw, pitch, roll]$. Given that vehicles operate on roughly planar road surfaces, pitch and roll are often negligible, reducing the state vector to $[x, y, z, h, w, l, yaw, class] \in \mathbb{R}^7 \times \Lambda$.
+
+Autonomous vehicles process massive, highly sparse LiDAR point clouds exhibiting anisotropic densities. To handle this efficiently, several representation strategies and fusion paradigms have been developed.
+
+\subsection{Grid-based Object Detection} \label{subsec:grid_detection}
+\begin{itemize}
+    \item \textbf{Bird Eye View (BEV):} Projecting 3D sceneries onto a 2D ground plane preserves geometric scales and object ranges without perspective distortion. The resulting BEV feature maps can be efficiently processed using standard 2D CNN backbones.
+    \item \textbf{Voxel-based Methods (e.g., SECOND):} The point cloud is discretized into a 3D grid. Because the overwhelming majority of voxels are empty, \textit{Submanifold Sparse Convolutions} are employed. These operations restrict the convolutional output to locations where the input is active, preventing the exponential growth of non-zero activations and maintaining computational efficiency.
+    \item \textbf{PointPillars:} Instead of cubic voxels, the space is discretized into vertical columns (pillars) with infinite height. A simplified PointNet extracts features from the points within each pillar, directly yielding a dense 2D BEV pseudo-image. This approach completely circumvents expensive 3D convolutions, enabling real-time inference.
+\end{itemize}
+
+\subsection{Multimodal Learning and Fusion Strategies} \label{subsec:multimodal}
+Relying solely on RGB cameras (monocular or stereo) typically yields inferior 3D detection performance compared to LiDAR due to the lack of explicit depth information and scale ambiguities. Conversely, LiDAR lacks dense semantic and color information. Modern autonomous driving systems therefore rely on sensor fusion.
+
+\begin{itemize}
+    \item \textbf{Early Fusion (e.g., BEVFusion):} Merges features at the latent level. Independent backbones extract features from images and LiDAR, which are then projected into a unified BEV space and concatenated. This enables rich cross-modal interactions but demands rigorous extrinsic calibration.
+    \item \textbf{Late Fusion:} Processes modalities entirely independently, aggregating only the final detection outputs using Non-Maximum Suppression (NMS) or probabilistic ensembles. While robust, it fails to leverage low-level synergies.
+    \item \textbf{Cascade Fusion (e.g., LCF3D):} An image-based 2D detector identifies Regions of Interest (frustums) which are subsequently projected into 3D space to guide the LiDAR network. To minimize the computational bottleneck of cascading, modern frameworks like LCF3D combine late and cascade fusion: cascade refinement is selectively applied only to unmatched RGB detections that are likely false negatives in the LiDAR branch.
+\end{itemize}

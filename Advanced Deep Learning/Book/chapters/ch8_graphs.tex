@@ -1,0 +1,156 @@
+\chapter{Learning on Graphs} \label{ch:graphs}
+
+\section{Introduction to Learning on Networks} \label{sec:graphs:intro}
+Many forms of data naturally organize as graphs or networks, including social networks, citation networks, information networks (such as the Web), biomedical networks, the Internet, and networks of neurons. While traditional machine learning typically assumes data lies in a 1D (sound, text) or 2D (images) Euclidean space, graphs represent non-Euclidean structures. 
+
+Classical machine learning tasks can be extended to network structures. These tasks include:
+\begin{itemize}
+    \item \textbf{Node classification}: Predicting the type or label of a given node (e.g., classifying the function of proteins in the interactome).
+    \item \textbf{Link prediction}: Predicting whether two nodes are or will be connected (e.g., content recommendation).
+    \item \textbf{Community (cluster) detection}: Identifying densely linked clusters of nodes.
+    \item \textbf{Network similarity}: Evaluating the similarity between two networks or sub-networks.
+\end{itemize}
+
+The taxonomy of graph learning distinguishes between node classification and graph classification. Graph classification relies on graph kernels, convolution networks, or the graph spectrum. Node classification, on the other hand, relies heavily on embedding techniques.
+
+\section{Node Embedding} \label{sec:graphs:node_embedding}
+The goal of node embedding is to provide efficient, task-independent feature learning for machine learning in networks. The process involves an encoder that maps each node $u$ to a low-dimensional vector $\mathbf{z}_u \in \mathbb{R}^d$, and a similarity function that specifies how relationships in the vector space map to relationships in the original network. We aim to learn an embedding such that ``similar'' nodes in the graph have encodings that are close together in the $d$-dimensional space:
+\begin{equation}
+    \text{similarity}(u, v) \approx \mathbf{z}_v^\top \mathbf{z}_u
+\end{equation}
+
+\subsection{Shallow Encoding} \label{subsec:graphs:shallow_encoding}
+In shallow encoding, the encoder is an embedding-lookup matrix. Nodes are encoded via a one-hot vector $\mathbf{v} \in \mathbb{I}^{|\mathcal{V}|}$. The encoding function is simply:
+\begin{equation}
+    \text{ENC}(v) = \mathbf{Z}\mathbf{v}
+\end{equation}
+where $\mathbf{Z} \in \mathbb{R}^{d \times |\mathcal{V}|}$ is the embedding matrix, with one column per node. The key distinction among shallow methods lies in how they define node similarity.
+
+\subsubsection{Adjacency-based Similarity}
+The similarity function can be defined as the edge weight between $u$ and $v$ in the original network. The loss function to minimize is:
+\begin{equation}
+    \mathcal{L} = \sum_{(u,v) \in \mathcal{V} \times \mathcal{V}} \left\| \mathbf{z}_u^\top \mathbf{z}_v - \mathbf{A}_{u,v} \right\|^2
+\end{equation}
+where $\mathbf{A}$ is the adjacency matrix. This approach has several drawbacks: it requires $\mathcal{O}(|\mathcal{V}|^2)$ runtime (though it can be reduced to $\mathcal{O}(|\mathcal{E}|)$ by summing over non-zero edges), it requires $\mathcal{O}(|\mathcal{V}|)$ parameters (one vector per node), and it considers only direct, local connections.
+
+\subsubsection{Multi-hop Similarity}
+To look beyond direct neighbors, we can extend the adjacency matrix to consider $k$-hop node neighbors, predicting $k$-hop neighbors. For example, using a log-transformed, probabilistic adjacency matrix:
+\begin{equation}
+    \tilde{\mathbf{A}}_{i,j}^k = \max \left( \log \left( \frac{(\mathbf{A}_{i,j} / d_i)}{\sum_{l \in \mathcal{V}} (\mathbf{A}_{l,j} / d_l)^k} \right)^k - \alpha, 0 \right)
+\end{equation}
+An alternative is to measure the overlap between node neighborhoods using metrics such as Jaccard similarity or the Adamic-Adar score. However, these methods remain expensive, brittle due to hand-designed similarity measures, and still require a massive $\mathcal{O}(|\mathcal{V}|)$ parameter space.
+
+\subsubsection{Random Walk Approaches} \label{subsubsec:graphs:random_walks}
+Random walk methods interpret the dot product in the feature space as the probability that $u$ and $v$ co-occur on a random walk over the network. We estimate the probability of visiting node $v$ on a random walk starting from node $u$, using a specific random walk strategy $\mathcal{R}$. 
+
+The embeddings are optimized to maximize the likelihood of these random walk co-occurrences. The probability of node $v$ being visited starting from node $u$ is formulated using a softmax over all nodes:
+\begin{equation}
+    P(v|\mathbf{z}_u) = \frac{\exp(\mathbf{z}_u^\top \mathbf{z}_v)}{\sum_{n \in \mathcal{V}} \exp(\mathbf{z}_u^\top \mathbf{z}_n)}
+\end{equation}
+The overall loss function aggregates this over all valid pairs:
+\begin{equation}
+    \mathcal{L} = \sum_{u \in \mathcal{V}} \sum_{v \in N_\mathcal{R}(u)} - \log \left( P(v|\mathbf{z}_u) \right)
+\end{equation}
+where $N_\mathcal{R}(u)$ is the multiset of nodes visited on random walks starting from $u$. Since the denominator in the softmax is computationally intractable due to the nested sum yielding $\mathcal{O}(|\mathcal{V}|^2)$ complexity, \textbf{Negative Sampling} is employed to normalize against $k$ random ``negative'' examples.
+
+Notable algorithms include \textit{DeepWalk} (fixed-length, unbiased random walks) and \textit{node2vec}. Node2vec employs biased random walks to trade off between local (microscopic) and global (macroscopic) views of the network, governed by a return parameter $p$ and an in-out parameter $q$ (approximating BFS and DFS search strategies).
+
+\section{Graph Neural Networks} \label{sec:graphs:gnn}
+Shallow encodings are limited: they require $\mathcal{O}(|\mathcal{V}|)$ parameters (no parameter sharing), are inherently transductive (cannot generate embeddings for unseen nodes), and fail to incorporate available node features. \textbf{Graph Neural Networks (GNNs)} solve these issues using deep encodings.
+
+\subsection{Neighborhood Aggregation} \label{subsec:graphs:neighborhood_aggregation}
+
+\begin{insightbox}[Intuition behind Graph Neural Networks and Message Passing]
+In traditional deep learning on images, convolutional filters aggregate information from a fixed, regular grid of neighboring pixels. Graphs, however, lack this regular grid structure. Graph Neural Networks adapt this concept by generalizing convolutions to arbitrary graph topologies through a mechanism called \textit{message passing} or \textit{neighborhood aggregation}.
+
+In a GNN, each node acts as a computational unit. At every layer, a node gathers ``messages'' (feature vectors) from its immediate neighbors. It aggregates this information---typically through operations like averaging or pooling---and combines it with its own features from the previous layer. By passing this aggregated vector through a dense neural network layer and a non-linear activation function, the node updates its representation.
+
+With one layer, a node only knows about its direct neighbors (1-hop). By stacking $K$ layers, the information propagates through the graph, allowing each node to gather context from $K$ hops away. Consequently, the computation graph for each node is uniquely determined by its $K$-hop neighborhood tree. Because the transformation weights are shared across all nodes, the model remains independent of the graph size, facilitating generalization to entirely unseen graphs (inductive learning).
+\end{insightbox}
+
+Let $\mathbf{x}_v$ be the input feature of node $v$. We initialize the layer-0 embedding as $\mathbf{h}_v^0 = \mathbf{x}_v$. At the $k$-th layer, the node embedding $\mathbf{h}_v^k$ is updated by aggregating information from its neighbors $N(v)$:
+\begin{equation}
+    \mathbf{h}_v^k = \sigma \left( \mathbf{W}_k \sum_{u \in N(v)} \frac{\mathbf{h}_u^{k-1}}{|N(v)|} + \mathbf{B}_k \mathbf{h}_v^{k-1} \right), \quad \forall k \in \{1, \dots, K\}
+\end{equation}
+where $\mathbf{W}_k$ and $\mathbf{B}_k$ are trainable weight matrices, and $\sigma$ is a non-linearity (e.g., ReLU). The final embedding for node $v$ after $K$ layers is $\mathbf{z}_v = \mathbf{h}_v^K$. Because the aggregation parameters are shared for all nodes, the number of model parameters is sublinear in $|\mathcal{V}|$, endowing the model with inductive capacity.
+
+\subsection{Graph Convolutional Networks (GCN)} \label{subsec:graphs:gcn}
+Graph Convolutional Networks (GCNs) modify the basic neighborhood aggregation by using a specific symmetric normalization and sharing parameters between the node and its neighbors. The update rule is:
+\begin{equation}
+    \mathbf{h}_v^k = \sigma \left( \mathbf{W}_k \sum_{u \in N(v) \cup \{v\}} \frac{\mathbf{h}_u^{k-1}}{\sqrt{|N(u)| |N(v)|}} \right)
+\end{equation}
+This down-weights high-degree neighbors. The vectorized implementation operates efficiently on the entire graph:
+\begin{equation}
+    \mathbf{H}^{(l+1)} = \sigma \left( \tilde{\mathbf{A}} \mathbf{H}^{(l)} \mathbf{W}^{(l)} \right)
+\end{equation}
+where $\tilde{\mathbf{A}} = \tilde{\mathbf{D}}^{-\frac{1}{2}} (\mathbf{A} + \mathbf{I}_N) \tilde{\mathbf{D}}^{-\frac{1}{2}}$ is the symmetrically normalized adjacency matrix with added self-loops.
+
+\subsection{GraphSAGE} \label{subsec:graphs:graphsage}
+GraphSAGE generalizes neighborhood aggregation by allowing arbitrary differentiable aggregator functions rather than just a simple weighted average:
+\begin{equation}
+    \mathbf{h}_v^k = \sigma \left( \left[ \mathbf{A}_k \cdot \text{AGG} \left( \{ \mathbf{h}_u^{k-1}, \forall u \in N(v) \} \right) , \mathbf{B}_k \mathbf{h}_v^{k-1} \right] \right)
+\end{equation}
+where $[]$ denotes concatenation. Common choices for the aggregator function include:
+\begin{itemize}
+    \item \textbf{Mean}: $\text{AGG} = \sum_{u \in N(v)} \frac{\mathbf{h}_u^{k-1}}{|N(v)|}$
+    \item \textbf{Pool}: $\text{AGG} = \gamma \left( \{ \mathbf{Q} \mathbf{h}_u^{k-1}, \forall u \in N(v) \} \right)$, where $\gamma$ is an element-wise mean or max.
+    \item \textbf{LSTM}: $\text{AGG} = \text{LSTM} \left( [ \mathbf{h}_u^{k-1}, \forall u \in \pi(N(v)) ] \right)$, applying an LSTM over a random permutation of neighbors.
+\end{itemize}
+
+\section{Graph Attention Networks (GAT)} \label{sec:graphs:gat}
+A fundamental limitation of fixed aggregation (like GCN or GraphSAGE) is \textit{isotropy}: the model assigns uniform or structurally fixed weights to neighbors, ignoring the actual feature vectors. Consequently, highly informative neighbors and noisy neighbors may receive identical importance.
+
+\textbf{Graph Attention Networks (GAT)} replace fixed aggregation with a dynamic, learned attention mechanism, enabling \textit{anisotropy}. GAT computes an unnormalized attention score $e_{vu}$ using a learnable parameter vector $\mathbf{w}_{attn}$:
+\begin{equation}
+    e_{vu} = \text{LeakyReLU} \left( \mathbf{w}_{attn}^\top [\mathbf{W} \mathbf{h}_v^{k-1} || \mathbf{W} \mathbf{h}_u^{k-1}] \right)
+\end{equation}
+These scores are normalized via softmax over the connected neighbors to yield the attention coefficient $\alpha_{vu}$:
+\begin{equation}
+    \alpha_{vu} = \text{softmax}_u (e_{vu}) = \frac{\exp(e_{vu})}{\sum_{k \in N(v)} \exp(e_{vk})}
+\end{equation}
+The weighted aggregation step then computes the new representation:
+\begin{equation}
+    \mathbf{h}_v^k = \sigma \left( \sum_{u \in N(v)} \alpha_{vu} \mathbf{W} \mathbf{h}_u^{k-1} \right)
+\end{equation}
+Self-loops are naturally included in this computation. GAT heavily utilizes \textbf{Multi-Head Attention}. For intermediate layers, the outputs of $I$ independent attention heads are concatenated. For the final classification layer, the outputs are averaged instead.
+
+\subsection{GATv2: Dynamic Attention} \label{subsec:graphs:gatv2}
+While GAT allows data-dependent weighting, the formulation $e_{vu} = \text{LeakyReLU} ( \mathbf{w}_{attn}^\top [\mathbf{W} \mathbf{h}_v^{k-1} || \mathbf{W} \mathbf{h}_u^{k-1}] )$ implies that the attention MLP $\mathbf{w}_{attn}$ operates on already-projected representations. This creates a ``static'' attention problem: the network learns a single fixed ranking function over the projected features and cannot dynamically adapt the importance of different feature dimensions for different query-key pairs.
+
+\textbf{GATv2} resolves this by modifying the order of operations, applying $\mathbf{W}$ \textit{after} the concatenation:
+\begin{equation}
+    e_{vu} = \mathbf{w}_{attn}^\top \text{LeakyReLU} \left( \mathbf{W} [\mathbf{h}_v^{k-1} || \mathbf{h}_u^{k-1}] \right)
+\end{equation}
+This makes the attention universally expressive and fully dynamic.
+
+\section{Beyond Message Passing: Graph Transformers} \label{sec:graphs:transformers}
+Despite successes, Message Passing Neural Networks (MPNNs) suffer from structural limitations:
+\begin{itemize}
+    \item \textbf{Over-smoothing}: Because information propagates 1-hop per layer, modeling $K$-hop relations requires $K$ layers. With many layers, representations in a connected component converge and become indistinguishable.
+    \item \textbf{Over-squashing}: Information from an exponentially growing $K$-hop neighborhood must be compressed into a single fixed-size vector, causing severe information bottleneck and loss.
+\end{itemize}
+
+Graph Transformers abandon the MPNN paradigm, which limits attention strictly to the local neighborhood. Instead, they treat the graph as a set of $N$ nodes and apply Self-Attention across \textit{all pairs of nodes}:
+\begin{equation}
+    \text{Attention}(\mathbf{H}) = \text{softmax} \left( \frac{\mathbf{Q} \mathbf{K}^\top}{\sqrt{d_k}} \right) \mathbf{V}
+\end{equation}
+However, a standard Transformer is permutation-invariant and discards the graph's structural topology. Furthermore, computing self-attention over all pairs incurs an intractable $\mathcal{O}(N^2)$ complexity for large graphs.
+
+\subsection{The Graphormer} \label{subsec:graphs:graphormer}
+To re-inject topology into the Transformer architecture without relying on recursive message passing, the \textbf{Graphormer} introduces multiple specialized encodings:
+\begin{itemize}
+    \item \textbf{Centrality Encoding}: Adds a learned embedding based on the node's degree (in-degree and out-degree).
+    \item \textbf{Spatial (Distance) Encoding}: Introduces a learned attention bias $b_{\phi(u,v)}$ based on the Shortest Path Distance (SPD) $\phi(u,v)$ between nodes $u$ and $v$.
+    \item \textbf{Edge Encoding}: Adds a learned bias based on the average of edge features along the shortest path between $u$ and $v$.
+\end{itemize}
+Alternatively, or supplementarily, Positional Encoding can be derived from \textbf{Laplacian Eigenvectors} ($\mathbf{L} = \mathbf{D} - \mathbf{A}$). The first $k$ eigenvectors corresponding to the smallest eigenvalues serve as a generalization of Fourier frequencies for graphs, explicitly capturing the geometric and spectral structure.
+
+\subsection{Spatial Temporal Transformer Networks} \label{subsec:graphs:sttr}
+For dynamic graphs, such as human skeletons extracted from video frames for activity recognition, the topology evolves over time. Previous methods like Spatial-Temporal GCNs (ST-GCN) face limitations because the topology of the graph representing the human skeleton is treated as fixed for all actions, and graph convolutions are restricted to local neighborhoods. 
+
+A \textbf{Spatial Temporal Transformer Network} employs:
+\begin{itemize}
+    \item \textbf{Spatial Self-Attention}: Applies self-attention \textit{inside} each frame. For each pair of body nodes, a query-key dot product determines the correlation weight, learning dynamic, action-dependent correlations between joints.
+    \item \textbf{Temporal Self-Attention}: Applies self-attention \textit{between} frames. It computes the correlation of the same body joint across different time steps, successfully capturing long-range temporal dependencies.
+\end{itemize}
+These transformer variants significantly outperform traditional GCN approaches in modeling long-range interactions across dynamic network structures.

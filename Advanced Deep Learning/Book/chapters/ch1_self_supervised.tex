@@ -1,0 +1,164 @@
+\chapter{Departing From Supervised Learning}
+\label{ch:self_supervised}
+
+Deep learning has historically relied heavily on the availability of massive, human-annotated datasets, an approach formally known as \textbf{Supervised Learning}. While models like ResNets or Vision Transformers can achieve superhuman accuracy on tasks like ImageNet classification, the acquisition of human labels is costly, non-scalable, and sometimes practically impossible in domain-specific tasks (e.g., pixel-level annotations for medical imaging or 3D point cloud segmentation). 
+
+This chapter systematically explores the paradigms that circumvent the need for extensive human supervision: Unsupervised Learning, Semi-Supervised Learning, and the highly successful Self-Supervised Learning (SSL). We will delve into their mathematical formulations, architectural implementations, and the specific \textit{pretext tasks} designed to force neural networks to learn robust visual semantics.
+
+%-------------------------------------------------------------------------
+\section{The Learning Taxonomy}
+Before delving into specific architectures, it is crucial to properly categorize the different machine learning paradigms based on the supervisory signal:
+\begin{itemize}
+    \item \textbf{Supervised Learning}: Training data is paired with explicit human annotations (e.g., classification labels, regression targets).
+    \item \textbf{Weakly-Supervised Learning}: Learning with coarse-grained labels collected at a much lower cost. For example, using global image-level labels to train a model that performs pixel-level object localization (via Class Activation Maps, or CAMs).
+    \item \textbf{Unsupervised Learning}: Learning patterns exclusively from unlabeled data. The network must discover the underlying data distribution without external guidance.
+    \item \textbf{Semi-Supervised Learning}: Training utilizing a small subset of heavily annotated data in conjunction with a massive pool of unlabeled data.
+    \item \textbf{Self-Supervised Learning (SSL)}: A paradigm where the models are explicitly trained using automatically generated labels. The supervisory signal is derived directly from the inherent structure or relationships within the input data itself.
+\end{itemize}
+
+%-------------------------------------------------------------------------
+\section{Unsupervised Learning and Autoencoders}
+\label{sec:autoencoders}
+
+In a purely unsupervised setting, the training set consists exclusively of unlabeled samples: $TR = \{x_i, i=1, \dots, N\}$. Because this data can be harvested cheaply ``in the wild'', we typically have $N \gg 0$. The foundational neural architecture designed for this setting is the \textbf{Autoencoder (AE)}.
+
+An Autoencoder is tasked with reconstructing its own input. It fundamentally consists of two components:
+\begin{enumerate}
+    \item \textbf{Encoder} ($\mathcal{E}$): A neural network mapping the high-dimensional input $s \in \mathbb{R}^n$ to a lower-dimensional latent representation $z \in \mathbb{R}^d$, such that $z = \mathcal{E}(s)$ and $d \ll n$.
+    \item \textbf{Decoder} ($\mathcal{D}$): A subsequent network aiming to reconstruct the original input from the latent space, outputting $\hat{s} = \mathcal{D}(z)$.
+\end{enumerate}
+
+\subsection{Mathematical Formulation and Training}
+The Autoencoder is trained to minimize a reconstruction loss over a batch $S$. Typically, this is the Mean Squared Error (MSE) or Mean Absolute Error (MAE):
+\begin{equation}
+    \ell(S) = \sum_{s \in S} ||s - \mathcal{D}(\mathcal{E}(s))||_2^2
+\end{equation}
+Training is performed end-to-end via standard backpropagation algorithms (e.g., Stochastic Gradient Descent, Adam). The objective is to learn the identity mapping $s \approx \mathcal{D}(\mathcal{E}(s))$, but the severe dimensionality bottleneck ($d \ll n$) prevents the network from merely copying the input. Instead, the network must learn a compact, meaningful representation of the dataset's principal components.
+
+\begin{feynmanbox}[Autoencoders as Forced Summarizers]
+Think of an Autoencoder like a student taking notes during a fast-paced lecture. The student cannot transcribe every single word the professor says (this is the $d \ll n$ bottleneck). Instead, they must synthesize the core meaning of the lecture into brief bullet points (the \textit{latent representation} $z$). Later, when studying, the student uses those brief notes to reconstruct the full lecture in their head (the Decoder). If the notes are too short (too small a latent space), details are lost; if the notes are literally a transcript, no actual learning or compression took place.
+\end{feynmanbox}
+
+\subsection{Latent Space Dimensionality and Regularization}
+The size of the latent representation $d$ directly dictates the reconstruction fidelity. As $d \to n$, the network can perfectly reconstruct the image, degenerating into a trivial identity mapping. Conversely, if $d$ is very small, reconstructions will be blurry and lack high-frequency details. 
+
+To induce desirable properties in the latent representation beyond simple compression, we can add regularization terms:
+\begin{equation}
+    \mathcal{L} = \ell(S) + \lambda \mathcal{R}(\mathcal{E}(s))
+\end{equation}
+For instance, we might enforce sparsity, or require the latent vectors to follow a Gaussian distribution (which bridges the gap towards Variational Autoencoders).
+
+%-------------------------------------------------------------------------
+\section{From Unsupervised to Semi-Supervised Learning}
+A primary application of Autoencoders is leveraging massive unlabeled datasets to boost performance on a target task where labeled data is extremely scarce. This is essentially \textbf{Transfer Learning}.
+
+\subsection{Classifier Initialization}
+Given a large set $S = \{s_i\}$ of unlabeled data (e.g., raw images of faces) and a small set $L = \{(s_i, y_i)\}$ of annotated data (e.g., gender labels):
+\begin{enumerate}
+    \item \textbf{Unsupervised Pre-training}: Train the full Autoencoder on the large dataset $S$ using the reconstruction loss.
+    \item \textbf{Truncation}: Discard the Decoder $\mathcal{D}$. Retain the optimized weights of the Encoder $\mathcal{E}$, which now acts as an expert feature extractor.
+    \item \textbf{Supervised Fine-Tuning}: Plug a Fully Connected (FC) classification layer $\mathcal{K}$ on top of the latent representation $z$. Fine-tune this new composite network $\mathcal{K}(\mathcal{E}(s))$ using the small labeled dataset $L$. 
+\end{enumerate}
+Because the latent vector is a structurally sound representation of the input space, the classifier initializes in a highly advantageous region of the loss landscape, significantly reducing the risk of overfitting compared to training from random initialization.
+
+%-------------------------------------------------------------------------
+\section{The Paradigm Shift: Self-Supervised Learning (SSL)}
+\label{sec:ssl}
+
+\textbf{What is wrong with Autoencoders?} The supervisory signal is the input itself, and the auxiliary task is pixel-wise reconstruction. Consequently, Autoencoders learn how to compress and expand visual content—acting like advanced image codecs—but they do not necessarily grasp \textit{semantics}.
+
+\textbf{Self-Supervised Learning (SSL)} elegantly solves this. SSL leverages inherent structures within the input data to automatically generate meaningful pseudo-labels. The training is conducted in two phases:
+\begin{enumerate}
+    \item A \textbf{pretext task} (or auxiliary task) is solved using these automatically generated pseudo-labels, forcing the network to learn rich semantic representations.
+    \item The network is fine-tuned on the \textbf{downstream ultimate task} (e.g., classification, detection).
+\end{enumerate}
+
+\begin{feynmanbox}[SSL vs. Autoencoders]
+An Autoencoder looks at a picture of a dog, compresses it, and tries to paint the exact same dog pixel-by-pixel. It cares intensely about the exact color of the grass and the exact lighting. SSL, on the other hand, plays games. We might take the dog image, rotate it upside down, and ask the network, "Is this dog upside down?" To answer correctly, the network doesn't need to memorize the pixel colors; it needs to understand the concept of gravity, legs, and a head. SSL trades pixel-perfect reconstruction for deep semantic understanding.
+\end{feynmanbox}
+
+\subsection{Pretext Tasks and Trivial Shortcuts}
+The design of the pretext task is the central challenge in SSL. If the task is poorly designed, the network will exploit \textbf{trivial shortcuts} to solve it without learning any useful semantics.
+
+\subsubsection{Predicting Image Rotations (Gidaris et al., 2018)}
+A seminal SSL approach involves rotating an unlabeled image by a random angle $y \in \{0^\circ, 90^\circ, 180^\circ, 270^\circ\}$. The annotated sample naturally becomes $(I_y, y)$, and the network is trained as a 4-class classifier minimizing categorical cross-entropy. 
+
+It is practically impossible for a Convolutional Neural Network (CNN) to correctly classify the rotation unless it has inherently learned to recognize objects, their parts, and their natural orientations. Attention map visualizations reveal that rotation-based SSL networks learn highly oriented edge filters and focus on semantically crucial regions (e.g., eyes, wheels) comparable to networks trained on fully supervised ImageNet.
+
+\textit{Avoiding Shortcuts:} We restrict rotations to multiples of $90^\circ$ because arbitrary angles (e.g., $45^\circ$) introduce interpolation artifacts (aliasing) at the pixel level. A lazy network would simply learn to detect these interpolation artifacts to guess the rotation angle, completely bypassing semantic learning.
+
+\subsubsection{Relative Positioning and Jigsaw Puzzles}
+Another powerful pretext task involves extracting multiple patches from an image and asking the network to predict their relative spatial relationship. 
+In \textbf{Relative Positioning} (Doersch et al., 2015), the network receives two patches and predicts if Patch B is above, below, or beside Patch A. In \textbf{Jigsaw Puzzles} (Noroozi \& Favaro, 2016), the image is split into 9 patches, permuted, and a Siamese-like Context-Free Network predicts the correct permutation from a predefined set.
+
+\textit{Avoiding Shortcuts:} 
+\begin{itemize}
+    \item \textbf{Gaps and Jittering:} If patches are directly adjacent, the network will simply match the low-level edge boundaries (like matching torn paper) instead of understanding the scene. Adding spatial gaps and jittering locations prevents this.
+    \item \textbf{Grayscale Conversion:} Lenses exhibit chromatic aberration (color fringing at the edges). A network could compare the aberration vectors of two patches to instantly map their absolute positions on the original camera sensor. Converting to grayscale eliminates this physical shortcut.
+\end{itemize}
+
+\subsubsection{Other Pretext Tasks}
+\begin{itemize}
+    \item \textbf{Colorization:} Predicting the $ab$ color channels from the $L$ (luminance) channel in the CIELAB color space.
+    \item \textbf{Inpainting:} Using Deep Autoencoders to hallucinate missing chunks of an image based on the surrounding context.
+    \item \textbf{Temporal Order in Videos:} Extracting tuples of frames $(f_a, f_b, f_c)$ and training a network (via Triplet Loss) to determine if they are in chronological order. Tuple mining using optical flow is required to avoid sampling completely static (ambiguous) frames.
+    \item \textbf{Before/After SSL:} In industrial settings (e.g., waste sorting), comparing images of a conveyor belt before and after a human intervention. By removing the constant background, the classifier is forced to focus strictly on the anomalous objects being manipulated.
+\end{itemize}
+
+%-------------------------------------------------------------------------
+\section{Metric Learning and Siamese Networks}
+\label{sec:metric_learning}
+
+In tasks like Face Identification, standard classification fails entirely. If a company hires a new employee, you cannot simply add a node to the final Softmax layer; you would have to retrain the entire CNN. 
+
+We need a system that evaluates whether two images belong to the same person. Comparing images pixel-by-pixel is highly brittle due to variations in lighting, pose, and background. The solution is \textbf{Metric Learning}: training a network to compute a meaningful mathematical distance directly in the latent space.
+
+\subsection{Siamese Networks}
+Given a feature extraction network $f_W(\cdot)$ parameterized by weights $W$, we want to enforce:
+\begin{equation}
+    || f_W(I) - f_W(T_i) ||_2 < || f_W(I) - f_W(T_j) ||_2 \quad \forall j \neq i
+\end{equation}
+assuming image $I$ belongs to the same class as template $T_i$.
+
+A \textbf{Siamese Network} consists of two identical branches executing the exact same operations and sharing the exact same weights $W$. The network is fed pairs of images $(I_i, I_j)$, processes them simultaneously, and backpropagates the gradients based on their computed latent distance.
+
+\subsection{Contrastive Loss}
+For a pair of images, let $y_{i,j} \in \{0, 1\}$ be the label indicating if they are different ($y=1$) or the same ($y=0$). The \textbf{Contrastive Loss} pushes similar images together and pulls dissimilar images apart:
+\begin{equation}
+    \mathcal{L}_W(I_i, I_j, y_{i,j}) = \frac{(1 - y_{i,j})}{2} || f_W(I_i) - f_W(I_j) ||_2^2 + \frac{y_{i,j}}{2} \max\Big(0, m - || f_W(I_i) - f_W(I_j) ||_2\Big)^2
+\end{equation}
+Here, $m$ represents a \textit{margin} (similar to SVM Hinge Loss). If two negative images are already further apart than $m$, the loss is zero, preventing the network from wasting energy pushing already distinct classes infinitely far apart.
+
+\subsection{Triplet Loss}
+Instead of processing pairs, we process \textit{triplets}: an Anchor $I$, a Positive sample $P$, and a Negative sample $N$. The \textbf{Triplet Loss} explicitly enforces that the positive pair is closer than the negative pair by at least a margin $m$:
+\begin{equation}
+    \mathcal{L}_W(I, P, N) = \max\Big(0, m + || f_W(I) - f_W(P) ||_2^2 - || f_W(I) - f_W(N) ||_2^2\Big)
+\end{equation}
+The success of Triplet Loss heavily relies on \textit{Tuple Mining}—carefully selecting hard negatives that actually challenge the network, rather than trivial negatives that yield zero loss.
+
+%-------------------------------------------------------------------------
+\section{SimCLR: A Simple Framework for Contrastive SSL}
+\label{sec:simclr}
+
+Synthesizing the concepts of SSL and Contrastive Learning, \textbf{SimCLR} (Chen et al., ICML 2020) emerged as a definitive breakthrough. SimCLR learns powerful representations without relying on explicit pretext tasks like jigsaw puzzles, achieving this entirely through massive data augmentation and contrastive pairing.
+
+The core mechanism operates at the batch level:
+\begin{enumerate}
+    \item Sample a massive batch of $N$ unlabeled images.
+    \item Define a family $\mathcal{T}$ of extreme data augmentations (combining random cropping, resizing, color jittering, and Gaussian blur).
+    \item For each image $x_i$, independently draw two random transformations $t, t' \sim \mathcal{T}$ to generate two augmented views $\tilde{x}_i = t(x_i)$ and $\tilde{x}_j = t'(x_i)$.
+    \item Pass both views through a CNN (ResNet) to get representations $h_i, h_j$, and then through a 2-layer MLP projection head to obtain the final vectors $z_i, z_j$.
+\end{enumerate}
+
+\subsection{The nt-Xent Loss (Normalized Temperature-scaled Cross Entropy)}
+Because the two views originated from the same image $x_i$, $(z_i, z_j)$ forms a \textbf{Positive Pair}. All other $2(N-1)$ augmented images in the batch serve as \textbf{Negative Pairs}.
+
+SimCLR maximizes the cosine similarity between the positive pair while pushing away all negative pairs simultaneously using the \textbf{nt-Xent Loss}:
+\begin{equation}
+    \ell(i,j) = -\log \frac{\exp(\text{sim}(z_i, z_j)/\tau)}{\sum_{k=1}^{2N} \mathbb{I}_{[k \neq i]} \exp(\text{sim}(z_i, z_k)/\tau)}
+\end{equation}
+where $\text{sim}(u, v) = \frac{u^T v}{||u|| ||v||}$ is the cosine similarity, and $\tau$ is a temperature scaling parameter.
+
+\begin{feynmanbox}[Why Does SimCLR Work So Well?]
+Imagine taking a photo of a golden retriever, cropping out just its nose, and heavily tinting it green. Then, you take the same original photo, crop out its tail, and blur it heavily. SimCLR forces the network to map the "green nose" and the "blurry tail" to the exact same point in the latent space. To achieve this, the network must abandon trivial shortcuts like color histograms or edge matching. It is forced to understand the high-level semantic concept of "Golden Retriever" that inextricably links the two augmented views, resulting in an exceptionally powerful and robust latent representation.
+\end{feynmanbox}

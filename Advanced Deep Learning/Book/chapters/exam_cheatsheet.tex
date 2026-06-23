@@ -1,0 +1,68 @@
+\chapter*{Final Exam Quick-Recall Summary}
+\addcontentsline{toc}{chapter}{Final Exam Quick-Recall Summary}
+\label{ch:exam_cheatsheet}
+
+This section is designed as an emergency, at-a-glance cheatsheet to review the core concepts right before the exam. 
+
+\section*{Chapter 1: Self-Supervised Learning}
+\begin{itemize}
+    \item \textbf{Content Summary:} Transitioning from supervised to self-supervised learning (SSL) to leverage unlabelled data via pretext tasks and contrastive learning.
+    \item \textbf{Main Takeaway:} SSL learns representations by maximizing similarity between augmented views of the same image (positives) and minimizing similarity with others (negatives), often using Siamese networks to prevent representation collapse.
+    \item \textbf{Key Architectures:} SimCLR (large batch negatives), MoCo (momentum queue negatives), BYOL \& SimSiam (no negatives, stop-gradient), DINO (knowledge distillation with Vision Transformers).
+\end{itemize}
+
+\section*{Chapter 2: Sequential Modeling \& Transformers}
+\begin{itemize}
+    \item \textbf{Content Summary:} The shift from RNNs/CNNs to Transformers for modeling sequences and images using the Self-Attention mechanism.
+    \item \textbf{Main Takeaway:} Self-Attention relates all tokens in a sequence to each other (Queries, Keys, Values) globally, eliminating locality bias but introducing $O(N^2)$ complexity.
+    \item \textbf{Key Architectures:} Vision Transformer (ViT - images as patches), Swin Transformer (hierarchical shifted windows for linear complexity), CLIP (multimodal text-image contrastive learning).
+\end{itemize}
+
+\section*{Chapter 3: Anomaly Detection in Images}
+\begin{itemize}
+    \item \textbf{Content Summary:} Identifying out-of-distribution (anomalous) data when training exclusively on normal/healthy images.
+    \item \textbf{Main Takeaway:} Since anomalies are rare or unknown, models learn the manifold of "normal" data. Deviations from this manifold (e.g., poor reconstruction, or disagreement between networks) flag anomalies.
+    \item \textbf{Key Architectures:} Reconstruction-based (Autoencoders), Student-Teacher (distillation mismatch indicates anomaly), Normalizing Flows (exact likelihood estimation).
+\end{itemize}
+
+\section*{Chapter 4: Image Restoration}
+\begin{itemize}
+    \item \textbf{Content Summary:} Solving ill-posed inverse problems (denoising, deblurring, super-resolution) to recover a clean image from a degraded observation.
+    \item \textbf{Main Takeaway:} Restoration models learn the mapping from degraded to clean data. Modern approaches leverage deep networks to model the noise/blur prior implicitly.
+    \item \textbf{Key Architectures:} DnCNN (residual learning for denoising), FFDNet (noise map as input), Restormer (Transformer adapted for high-res images using feature-dimension attention).
+\end{itemize}
+
+\section*{Chapter 5: Generative Models (GANs \& VAEs)}
+\begin{itemize}
+    \item \textbf{Content Summary:} Learning the underlying probability distribution of training data to generate novel, realistic samples.
+    \item \textbf{Main Takeaway:} VAEs optimize a lower bound (ELBO) on the data likelihood using a probabilistic encoder-decoder and the reparameterization trick. GANs frame generation as a minimax game between a Generator and a Discriminator.
+    \item \textbf{Key Architectures:} Variational Autoencoders (VAEs), Generative Adversarial Networks (GANs), Conditional GANs (cGANs).
+\end{itemize}
+
+\section*{Chapter 6: Diffusion Models}
+\begin{itemize}
+    \item \textbf{Content Summary:} Generating data by gradually adding Gaussian noise (forward process) and learning to reverse this process (reverse denoising process).
+    \item \textbf{Main Takeaway:} Diffusion models offer more stable training than GANs and better quality than VAEs by breaking generation into hundreds of small, manageable denoising steps parameterized by a U-Net.
+    \item \textbf{Key Architectures:} DDPM (Markovian, slow), DDIM (non-Markovian, fast sampling), Latent Diffusion Models (run in compressed latent space for efficiency), Classifier-Free Guidance (text-conditioning).
+\end{itemize}
+
+\section*{Chapter 7: 3D Spatial Data \& Point Clouds}
+\begin{itemize}
+    \item \textbf{Content Summary:} Adapting deep learning to 3D representations (voxels, point clouds, meshes) which are sparse, unstructured, and permutation-invariant.
+    \item \textbf{Main Takeaway:} Point clouds cannot be processed by standard CNNs due to lack of grid structure. Networks must use shared MLPs and symmetric pooling functions (like Max Pooling) to remain invariant to point order.
+    \item \textbf{Key Architectures:} PointNet (point-wise MLPs + global max pool), VoxelNet (3D CNNs on voxelized data), PointPillars (2D CNNs on vertical pillars for speed).
+\end{itemize}
+
+\section*{Chapter 8: Learning on Graphs}
+\begin{itemize}
+    \item \textbf{Content Summary:} Applying neural networks to graph-structured data (nodes, edges) where entities have complex, non-Euclidean relationships.
+    \item \textbf{Main Takeaway:} Graph Neural Networks (GNNs) operate via Message Passing: each node updates its representation by aggregating features from its immediate neighbors, stacking layers to increase the receptive field.
+    \item \textbf{Key Architectures:} Graph Convolutional Networks (GCN - spectral approximation), GraphSAGE (inductive spatial aggregation), Graph Attention Networks (GAT - attention weights on edges).
+\end{itemize}
+
+\section*{Chapter 9: Advanced Architectures (NeRF \& Explainability)}
+\begin{itemize}
+    \item \textbf{Content Summary:} Neural Radiance Fields (NeRF) for novel view synthesis and XAI (Explainable AI) methods to interpret black-box network decisions.
+    \item \textbf{Main Takeaway:} NeRFs overfit a neural network to represent a single 3D scene (mapping coordinates to color and density). XAI methods generate saliency maps to show *where* a model looked when making a prediction.
+    \item \textbf{Key Architectures/Techniques:} NeRF, 3D Gaussian Splatting (explicit, faster rendering), Grad-CAM (gradient-based visual explanation), LIME (local surrogate models).
+\end{itemize}

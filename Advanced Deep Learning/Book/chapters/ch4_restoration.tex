@@ -1,129 +1,202 @@
-\chapter{Image Restoration} \label{ch:restoration}
-\index{Image Restoration}
+\chapter{Image Restoration}
+\label{ch:image_restoration}
 
-\section{Introduction to Image Denoising} \label{sec:intro_denoising}
-\index{Image Denoising}
+\section{Introduction to Image Denoising}
+Image restoration, and specifically image denoising, is a fundamental problem in computer vision and image processing. It acts as a crucial pre-processing step in various imaging pipelines to enhance output quality and improve the effectiveness of subsequent algorithms, a post-processing technique to remove compression artifacts (e.g., blockiness and ringing), and a plug-and-play filter for implicit regularization in various inverse problems and imaging applications.
 
-Image denoising is a fundamental inverse problem in computer vision and image processing. It plays a crucial role in multiple stages of imaging pipelines, serving as:
-\begin{itemize}
-    \item \textbf{Preprocessing}: to enhance the output quality and improve the efficacy of subsequent downstream algorithms.
-    \item \textbf{Post-processing}: to remove compression artifacts, such as blocking and ringing effects.
-    \item \textbf{Plug-and-play filters}: acting as an implicit regularization prior in various imaging applications.
-\end{itemize}
-
-The fundamental goal of an image denoising algorithm is to provide an estimate $\hat{y}$ of an unknown original image $y \colon X \to \mathbb{R}$ from an observed noisy image $z \colon X \to \mathbb{R}$. The observation model is typically formulated as:
+\subsection{The Observation Model}
+The classic degradation model for image denoising formulates the observed noisy image as the superposition of a clean signal and additive noise. Formally, let $X$ denote the domain of the image. The observation model is defined as:
 \begin{equation}
     z(x) = y(x) + \eta(x), \quad x \in X
 \end{equation}
-where $\eta(x)$ represents independent and identically distributed (i.i.d.) white Gaussian noise, such that $\eta \sim \mathcal{N}(0, \sigma^2)$. While this formulation holds for grayscale images, it straightforwardly extends to RGB images.
+where $z: X \to \mathbb{R}$ is the observed noisy image, $y: X \to \mathbb{R}$ is the unknown original clean image (e.g., grayscale), and $\eta: X \to \mathbb{R}$ represents the noise perturbation. In many theoretical analyses and standard benchmarks, $\eta$ is modeled as independent and identically distributed (i.i.d.) Additive White Gaussian Noise (AWGN), such that $\eta \sim \mathcal{N}(0, \sigma^2)$, with $\sigma^2$ being the noise variance. 
 
-\begin{insightbox}[Inverse Problems and Restoration Networks]
-\index{Inverse Problems}
-In the context of image restoration, the \textit{forward pass} is governed by well-defined physical laws and sensor characteristics that define how a clean signal degrades into a noisy observation. However, the \textit{inverse pass}---recovering the original signal from its degraded version---is inherently \textit{ill-posed}. Multiple clean images could plausibly map to the same noisy observation due to the loss of information caused by the perturbation. 
+The primary goal of any denoising algorithm is to provide an estimate $\hat{y}$ of the original image $y$, effectively reversing the ill-posed degradation process. This objective extends seamlessly to RGB images, where the corruption affects all three color channels. 
 
-Deep restoration networks tackle this by learning a strong natural image prior from large datasets. Instead of analytically inverting the forward model, CNNs employ highly non-linear transformations to map the degraded space back to the manifold of natural images. By optimizing over vast amounts of data, the network essentially learns the statistical properties of clean images and the underlying noise distribution, effectively regularizing the ill-posed inverse problem.
+\begin{insightbox}[Denoising as a Supervised or Unsupervised Learning Problem]
+Is denoising using deep neural networks a supervised or unsupervised learning problem?
+\begin{itemize}
+    \item \textbf{Supervised:} The loss function is typical of supervised learning, e.g., the Mean Squared Error (MSE) $||\hat{y} - y||_2^2$, which assumes the availability of the noise-free ground truth image $y$.
+    \item \textbf{Unsupervised:} It resembles unsupervised learning since no explicit semantic labels or manual annotations are required for training.
+    \item \textbf{Self-Supervised:} It aligns with self-supervised learning as we can easily generate annotated pairs by artificially corrupting clean images. However, unlike standard self-supervised pre-training, the auxiliary task (denoising) is already our ultimate goal.
+\end{itemize}
+Supervised training of a neural network to directly reduce a loss function has yielded substantial performance improvements over traditional denoising algorithms, which heavily relied on statistical modeling of the input signal and the noise distribution.
 \end{insightbox}
 
-\section{Simple Deep Neural Networks for Image Denoising} \label{sec:dnn_denoising}
+\section{Simple Deep Neural Networks for Image Denoising}
 
-The advent of Convolutional Neural Networks (CNNs) has introduced a paradigm shift in image denoising, transitioning from traditional statistical modeling of input and noise to supervised learning approaches. 
-Is denoising by deep neural networks a supervised or unsupervised learning problem? While the task resembles unsupervised learning since no explicit semantic labels are required, the training process is fundamentally supervised. The loss function is typically the Mean Squared Error (MSE), defined as $||\hat{y} - y||_2^2$, which assumes the availability of the noise-free ground truth image $y$. Alternatively, it can be viewed as self-supervised learning, as annotated pairs can be easily generated by adding synthetic noise to clean images, though the auxiliary task (denoising) is already the ultimate goal.
+\subsection{Straightforward Solutions and Their Limits}
+A straightforward approach to image denoising is to adopt a Convolutional Neural Network (CNN) architecture with identical input and output spatial dimensions, akin to architectures used for semantic segmentation. The training data comprises pairs of images: $TR = \{(y, z)\}$, where $y$ is a natural clean image and $z$ is its noisy counterpart. Gathering a vast training dataset $TR$ is easy, given that the forward model (the physical laws or sensor characteristics simulating the noise) is known. By applying this forward model to clean images, we synthesize the noisy inputs. 
 
-A straightforward solution involves designing a CNN with identical input and output spatial dimensions, akin to architectures used in semantic segmentation. The training data $TR = \{(y, z)\}$ consists of natural images $y$ and their noisy counterparts $z$. As long as the forward model is known and realistic, and the CNN can be sufficiently trained, this procedure can be generalized to any type of perturbation, including deblocking, deblurring, super-resolution, inpainting, enhancement, and de-raining.
+The inverse pass, however, is ill-posed and unknown. As long as the forward model is known and realistic, and the CNN can be trained effectively, this exact same procedure can be applied to various types of perturbations, including denoising, deblocking, deblurring, super-resolution, inpainting, enhancement, and de-raining.
 
-\subsection{DnCNN: Residual Learning of Deep CNNs} \label{sec:dncnn}
-\index{DnCNN} \index{Residual Learning}
+\subsection{DnCNN: Residual Learning of Deep CNNs}
+The DnCNN (Denoising Convolutional Neural Network) architecture introduced a paradigm shift by leveraging residual learning. Instead of directly predicting the clean image $\hat{y}$, the network is trained to predict the noise realization $\hat{\eta}$. 
 
-A landmark architecture in this domain is the Denoising Convolutional Neural Network (DnCNN). Unlike traditional networks that aim to directly estimate the noise-free image $\hat{y}$, DnCNN is trained via \textit{residual learning} to predict the noise realization $\eta$. Given the relation $z = y + \eta$, the predicted noise-free image is recovered as:
+Given the observation $TR = \{(z, \eta), z = y + \eta\}$, the network output is formulated as:
 \begin{equation}
     \hat{y} = z - \hat{\eta} = z - \text{CNN}(z)
 \end{equation}
-It is empirically easier to optimize the loss function over the noise residual $||\eta - \text{CNN}(z)||_2^2$ rather than the image directly. The network is fully convolutional (FCNN), allowing it to process images of arbitrary sizes.
+It is empirically and theoretically easier to optimize the loss function over the high-frequency noise $||\eta - \text{CNN}(z)||_2$ rather than directly on the low-frequency image content.
 
-The DnCNN architecture typically consists of:
+\subsubsection{Architecture Details}
+The DnCNN is a Fully Convolutional Neural Network (FCNN) composed of $d$ layers:
 \begin{itemize}
-    \item \textbf{Layer 1}: Convolution + ReLU, featuring 64 filters of size $3 \times 3 \times c$.
-    \item \textbf{Layers 2 to $d-1$}: Convolution + Batch Normalization (BN) + ReLU, with 64 filters of size $3 \times 3 \times 64$.
-    \item \textbf{Layer $d$}: Convolution, using $c$ filters of size $3 \times 3 \times 64$ to reconstruct the input.
+    \item \textbf{Layer 1:} A Convolutional layer followed by a ReLU activation function. It uses 64 filters of size $3 \times 3 \times c$, where $c$ is the number of image channels.
+    \item \textbf{Layers 2 to $d-1$:} A combination of Convolution, Batch Normalization (BN), and ReLU. Each layer applies 64 filters of size $3 \times 3 \times 64$.
+    \item \textbf{Layer $d$:} A single Convolutional layer with $c$ filters of size $3 \times 3 \times 64$ used to reconstruct the input noise.
 \end{itemize}
-To mitigate border artifacts, zero padding is applied outside the image before processing. The loss function to minimize is formulated as:
+To handle border artifacts, the input image is zero-padded outside the image before processing. 
+
+\subsubsection{Loss Function and Training}
+The network is trained to estimate the noise realizations in images by minimizing the residual loss:
 \begin{equation}
-    \ell(\Theta) = \frac{1}{2N} \sum_{i=1}^{N} ||\text{CNN}(z_i, \Theta) - (z_i - y_i)||_F^2
+    \ell(\Theta) = \frac{1}{2N} \sum_{i=1}^N || \text{CNN}(z_i, \Theta) - (z_i - y_i) ||_F^2
 \end{equation}
-where $||\cdot||_F$ denotes the Frobenius norm. Training is performed patch-wise (e.g., $40 \times 40$ patches for Gaussian denoising and $50 \times 50$ for others). Larger training sets beyond a certain threshold (e.g., 400 images of $180 \times 180$ pixels) do not substantially improve performance.
+where $\Theta$ represents the learnable parameters. Training samples are easy to generate by adding synthetic, realistic noise to clean images. To ease the training process and reduce memory overhead, the loss is assessed on small patches cropped from the noisy images. Since the network is fully convolutional, it can be seamlessly applied to images of arbitrary sizes during inference. 
 
-A significant limitation of DnCNN is that the network parameters $\Theta_\sigma$ are strongly dependent on the noise standard deviation $\sigma$. Consequently, a DnCNN trained on a specific noise level struggles to generalize to images corrupted by different noise levels, different noise models, or spatially variant (signal-dependent) noise. Utilizing a $\sigma$ higher than the true value results in over-smoothing (reducing PSNR), while a lower $\sigma$ yields noisy outputs.
+A typical training set consists of 400 images of $180 \times 180$ pixels (larger training sets do not improve performance substantially). Network training is performed patch-wise: $40 \times 40$ patches are used for Gaussian denoising, and $50 \times 50$ patches for other denoising problems. To achieve robustness, the training is repeated by corrupting the training images with different noise levels $\sigma$. The denoising tasks targeted include AWGN (with known and unknown variance), bicubic upsampling (Super-resolution), and JPEG compression.
 
-\subsection{FFDNet: Fast and Flexible Denoising} \label{sec:ffdnet}
-\index{FFDNet}
+\subsubsection{Limitations of DnCNN}
+Despite its success, DnCNN has significant limitations. The network learns a mapping function $z \to \mathcal{F}(\Theta_\sigma, z)$, where the optimal parameters $\Theta_\sigma$ depend entirely on $\sigma$, the noise standard deviation encountered during training. Consequently, a standard DnCNN is hard to be deployed to images corrupted by: different noise levels, different noise models, or spatially variant / signal dependent noise.
 
-To overcome the rigidity of DnCNN, FFDNet introduces a flexible framework capable of handling spatially variant noise and multiple noise levels with a single network. FFDNet learns a mapping function $\mathcal{F}(\Theta, z, M)$, where the network parameters $\Theta$ are independent of the noise parameters. 
+\section{Handling Complex Noise Models: FFDNet}
+To overcome the inflexibility of DnCNN, FFDNet (Fast and Flexible Denoising Network) introduces a mechanism to handle varying noise levels within a single unified architecture. FFDNet learns a mapping function:
+\begin{equation}
+    z \to \mathcal{F}(\Theta, z, M)
+\end{equation}
+Crucially, the network parameters $\Theta$ do not depend on the specific noise parameters. Instead, the noise characteristics are explicitly fed into the network as an additional input map $M$.
 
-The inputs to FFDNet for an image of size $W \times H \times C$ include:
+\subsection{Input Preparation and Pixel Shuffling}
+For an input image of size $W \times H \times C$, the network takes two distinct inputs:
 \begin{enumerate}
-    \item A \textbf{noise level map} $M$ matching the spatial dimensions, indicating the noise standard deviation at each pixel.
-    \item The input image $z$, which undergoes a \textbf{pixel shuffling} (downsampling) operation. The image is decomposed into 4 downsampled and cropped sub-images of size $\frac{W}{2} \times \frac{H}{2} \times C$, stacked across channels.
+    \item A \textbf{noise level-map $M$}, which reports in each pixel the noise standard deviation over $z$. For Additive White Gaussian Noise (AWGN), $M$ corresponds to a uniform image equal to the noise std $\sigma$. In the case of spatial-variant noise, $M$ is a non-uniform image defined by the noisy image $z$ and the sensor characteristics. It enables using a single model for different values of $\sigma$ without the need to retrain.
+    \item \textbf{Downsampled Sub-images}: To increase the receptive field and reduce computational complexity in all convolutional layers after the first one, the input image undergoes a "pixel shuffle" (downsampling) operation. The image is decomposed into 4 downsampled and cropped images having size $\frac{W}{2} \times \frac{H}{2} \times C$, stacked in different channels. Downsampling is indeed shuffling of the image among channels.
 \end{enumerate}
-The resulting input tensor has dimensions $\frac{W}{2} \times \frac{H}{2} \times (4C + 1)$. This downsampling reduces the spatial extent of the input, decreasing computational complexity in subsequent convolutional layers and effectively expanding the receptive field.
+Therefore, the effective input has the size $\frac{W}{2} \times \frac{H}{2} \times (4C + 1)$. This resizing step significantly reduces the spatial extent of the feature maps. The output is then subjected to an upsampling operation to reconstruct the original $W \times H \times C$ shape.
 
-The noise level map $M$ dictates the noise standard deviation. For Additive White Gaussian Noise (AWGN), $M$ is a uniform image equal to $\sigma$. For spatially variant noise, $M$ is non-uniform, defined by the noisy image $z$ and sensor characteristics. The loss function minimized is:
+\subsection{Architecture and Loss Formulation}
+The core architecture consists of an input preparation stage, a non-linear mapping stage (comprising multiple Conv+ReLU and Conv+BN+ReLU blocks), and an upsampling stage. Like DnCNN, all convolutions are $3 \times 3$. The depth level $d$ and the number of filters per layer depend on the image type:
+\begin{itemize}
+    \item \textbf{Grayscale images:} Depth level $d=15$, with 64 filters per layer.
+    \item \textbf{Color images:} Depth level $d=12$, with 96 filters per layer.
+\end{itemize}
+The design is driven by performance and "heuristic criteria": using lower values of $d$ in color images helps to better exploit the correlation among R, G, B channels.
+
+The loss to minimize assesses how good the network can estimate noise-free patches. It uses the Frobenius norm, which is the $\ell^2$ norm for matrix entries:
 \begin{equation}
-    \ell(\Theta) = \frac{1}{2N} \sum_{i=1}^{N} ||\mathcal{F}(z_i, \Theta, M) - y_i||_F^2
+    \ell(\Theta) = \frac{1}{2N} \sum_{i=1}^N || \mathcal{F}(z_i, \Theta, M) - y_i ||_F^2
 \end{equation}
+Patch-wise training is utilized. There is no need to train using heterogeneous noise maps; the fully convolutional network can successfully operate on locally uniform noise maps. The patch sizes are $50 \times 50$ for grayscale and $70 \times 70$ for color. FFDNet achieves comparable performance to DnCNN on datasets like BSD68 with noise levels 15, 25, 35, 50, and 75, often slightly outperforming or matching the baseline.
 
-\section{Generalization and Bias-Free Networks} \label{sec:bias_free}
-\index{Bias-Free Networks} \index{Generalization}
+\begin{insightbox}[The Impact of Mismatched Noise Estimates in FFDNet]
+What happens if the noise level map $M$ provided to FFDNet is inaccurate?
+For all the denoisers:
+\begin{itemize}
+    \item \textbf{Using higher $\sigma$ than the true one:} Results in over-smoothing. Thus, the PSNR is constant but does not reach the same optimal level as when the noise level is perfectly correct.
+    \item \textbf{Using lower $\sigma$ than the true one:} Results in noisy outputs. Thus, this critically decreases the overall PSNR.
+\end{itemize}
+\end{insightbox}
 
-An important theoretical advantage of deep-learning techniques is the potential for a single neural network to denoise across a wide range of noise levels. However, empirical evidence shows that standard architectures systematically overfit to the specific noise levels present in their training set.
+\subsection{Generalization via Bias-Free Networks}
+An important advantage of deep-learning techniques over traditional methodology is that a single neural network can be trained to perform denoising at a wide range of noise levels. However, empirical evidence shows that current state-of-the-art architectures systematically overfit to the specific noise levels in the training set, performing very poorly at new noise levels. 
 
-Generalization to unseen noise levels can be achieved through a simple, yet profound, architectural modification: the removal of all additive constants (biases) from the network. \textit{Bias-free} Convolutional Neural Networks can attain state-of-the-art performance across a broad spectrum of noise levels, even when trained exclusively on a narrow range of noise magnitudes. By enforcing a bias-free structure, the network relies strictly on linear combinations and multiplicative interactions, preventing the rigid memorization of specific intensity shifts associated with fixed noise levels.
+Generalization can be remarkably achieved through a simple architectural modification: removing all additive constants. "Bias-free" CNNs attain state-of-the-art performance over a broad range of noise levels, even when they are explicitly trained over a much narrower range. The training plots for Bias-Free CNNs display robust PSNR slopes that perfectly extrapolate beyond the training range, outperforming standard networks that rapidly degrade in generalization capability outside the shaded training region.
 
-\section{Class-Aware Denoising} \label{sec:class_aware}
-\index{Class-Aware Denoising}
+\section{Class-Aware Denoising}
+Image statistics vary drastically depending on the semantic content of the image. A network trained to denoise natural landscapes might struggle to reconstruct the specific high-frequency textures of a human face. Class-Aware Denoising aims to improve the prior on images: narrow down the space of images and train a specialized network for a specific class of images.
 
-Standard denoising architectures process all images through a universal set of parameters. Class-aware denoising improves upon this by incorporating strong priors regarding the semantic content of the images. By narrowing down the manifold of valid images, a network trained on a specific class (e.g., faces, pets, flowers, living rooms, streets) can achieve superior restoration quality. 
+\subsection{Gradual Denoising and Architecture}
+A typical class-aware network utilizes a Fully Convolutional architecture to enable denoising of images having different sizes, promoting fast execution and a relatively low number of parameters. The core operational mechanism is \textit{gradual denoising} as the volume circulates through the network. 
 
-During inference, a classification CNN first categorizes the input image, subsequently routing it to the appropriate class-specific fully convolutional denoiser. Key ingredients of class-aware networks include gradual denoising as the volume circulates through the layers, fast execution, and a relatively low parameter count. The architecture typically exploits residual connections where the noisy input is iteratively added to the gradual outputs, which act as noise estimates. Shallower layers handle fine details and high-frequency noise, while deeper layers, equipped with larger receptive fields, focus on recovering edges and structural textures distinguishing them from random noise.
+The architecture incorporates multiple long skip connections. The noisy input is added to the networks' "gradual" outputs across the depth of the model. These outputs are considered as noise-estimates because they sum to the noisy input, and the result cancels out the noise. Typically, 20 of such layers are stacked in this network.
 
-\section{Self-Supervised Denoising} \label{sec:self_supervised}
-\index{Self-Supervised Learning} \index{Noise2Noise} \index{Noise2Void} \index{Blind-Spot Networks}
+Visualizing these intermediate noise estimates is possible and reveals the internal logic:
+\begin{itemize}
+    \item \textbf{Shallower layers} seem to handle finer details and noise.
+    \item \textbf{Deeper layers} seem to recover edges and texture that might get lost during the aggressive filtering at the first layers. This is due to the larger receptive field of deep layers, that enable them to distinguish structural edges and structures from random noise.
+\end{itemize}
 
-Supervised denoising heavily relies on the availability of noisy-clean image pairs. However, acquiring clean ground truth images is often impractical in real-world scenarios, such as in medical imaging (CT scans, where higher doses of radiation are required for clean images) or outdoor photography in dynamic scenes. Self-supervised image denoising circumvents the need for clean images entirely.
+During training, different networks are trained for specific classes of images using the exact same FCNN architecture. Common classes include: face, pet, flower, living room, street. During testing, one must first estimate the class from a secondary classification CNN, and then dynamically apply the corresponding specialized denoising network.
 
-\subsection{Noise2Noise (N2N)}
-\index{Noise2Noise}
-The Noise2Noise (N2N) framework demonstrates that it is possible to train a denoiser using only pairs of noisy images of the exact same underlying scene. Assuming the noise is zero-mean and independent between two noisy realizations $z = y + \eta$ and $z' = y + \eta'$, the optimization target can be shifted from the clean image $y$ to the alternate noisy realization $z'$:
+\section{Self-Supervised Image Denoising}
+A fundamental limitation of supervised image denoisers is their strict requirement for vast datasets of perfectly aligned noisy-clean image pairs. In many real-world applications, acquiring clean images is physically impossible or highly impractical. For instance:
+\begin{itemize}
+    \item \textbf{Medical imaging:} In CT scans, to reduce radiation exposure, we are forced to acquire fewer and fundamentally noisier images.
+    \item \textbf{Outdoor photography:} Long exposure times or averaging several images of the same scene presents obvious problems in dynamic, moving scenes.
+\end{itemize}
+Self-supervised image denoising totally removes the need for clean images, opening the possibility for denoising in many more critical applications.
+
+\subsection{Noise2Noise (N2N): Learning without Clean Data}
+The Noise2Noise (N2N) framework demonstrated that one could learn image restoration without ever seeing a clean image. For each training sample, instead of a noisy-clean pair $(z, y)$, N2N requires two independent noisy realizations of the exact same underlying scene: $(z, y)$ denoisers are traditionally trained to minimize:
 \begin{equation}
-    \Theta^* = \arg \min_{\Theta} \mathbb{E}_{z,z'} \left[ \mathcal{L}(\text{CNN}(\Theta; z), z') \right]
+    \Theta^* = \text{argmin}_\Theta \mathbb{E} [\mathcal{L}(\text{CNN}(\Theta; z), y)]
 \end{equation}
-On average, the optimal function learned by the network still predicts the clean signal $y$. N2N achieves performance comparable to supervised denoisers without explicit noise modeling or clean data. However, it still requires pairs of perfectly aligned noisy images, which can be challenging to obtain.
+Typically $\mathcal{L}$ is the MSE, or the $\ell_1$ norm, or $SSIM(\cdot, \cdot)$.
+
+The core Idea: As long as the noise is zero-mean and independent between the two noisy realizations of the same image, $z = y + \eta$ and $z' = y + \eta'$, we can replace $y$ with a different noise realization $z'$ and optimize:
+\begin{equation}
+    \Theta^* = \text{argmin}_\Theta \mathbb{E}_{z,z'} [\mathcal{L}(\text{CNN}(\Theta; z), z')]
+\end{equation}
+On average, the optimal function learned by the network still robustly predicts the clean signal $y$. 
+
+The advantages are massive: there is no need for noise-free images, nor is there a need for an explicit noise model to perturb images. It practically proved that it is possible to learn denoising without clean images. The primary problem is that it still needs pairs of images of the same underlying scene, which might be completely unpractical in some applications (like CT scans).
 
 \subsection{Noise2Void (N2V) and Blind-Spot Networks}
-\index{Noise2Void} \index{Blind-Spot Networks}
-Noise2Void (N2V) further relaxes data requirements by learning from entirely \textit{unpaired} single noisy images. A naive approach of using the noisy image as both the input and the target would trivially lead the network to learn the identity function.
+Noise2Void (N2V) solves the dual-image requirement by learning denoising directly from a training set of \textit{unpaired single noisy images}. 
 
-To prevent this, N2V introduces the \textbf{Blind-Spot Network (BSN)} training framework. The core idea is to hide specific pixels (blind spots) from the receptive field of the network. The network is then tasked to predict the value of the blind spot based solely on its neighborhood. This relies on the fundamental assumption that natural images possess strong spatial correlation, whereas the noise is pixel-wise independent and zero-mean.
-The loss function focuses exclusively on the error at the blind spots:
+\subsubsection{The Identity Function Problem}
+If one simply feeds a noisy image $z$ as both the input and the target:
 \begin{equation}
-    \Theta^* = \arg \min_{\Theta} \mathcal{L}(B .* \text{CNN}(\Theta; M(z)), B .* z)
+    \Theta^* = \text{argmin}_\Theta \mathbb{E}_z [\mathcal{L}(\text{CNN}(\Theta; z), z)]
 \end{equation}
-where $M$ is a masker function replacing the blind spot with a substitute value (e.g., a random neighbor, local mean/median, or uniform random value), and $B$ is a binary mask isolating the target pixels. Alternatively, blind spots can be architecturally enforced using specific structural constraints, such as half-plane convolutions or dilated convolutions with holes in the center of the filters.
+This leads the model to critically learning the identity function ($\text{CNN}(z) = z$), perfectly reconstructing the noise rather than attempting to remove it.
 
-\section{Blind Denoising of Real Photographs: CBDNet} \label{sec:cbdnet}
-\index{CBDNet}
+\subsubsection{The Blind-Spot Network (BSN) Framework}
+The solution is the Blind-Spot Network (BSN) training framework. The core BSN Framework Idea is to hide some pixels in the receptive field of the network (blind spots). 
+Input: $z$ with blind spots.
+Target: $z$ noisy.
+Train to minimize loss function:
+\begin{equation}
+    \Theta^* = \text{argmin}_\Theta \mathcal{L}(\text{CNN}(\Theta; z), z)
+\end{equation}
 
-Standard CNN denoisers often overfit to synthetic Gaussian noise, generalizing poorly to real-world photographs that exhibit sophisticated, signal-dependent noise characteristics. Convolutional Blind Denoising (CBDNet) addresses this by incorporating a realistic noise model that accounts for the Poisson-Gaussian distribution inherent in photon counting, alongside the complete in-camera processing pipeline, including demosaicing, gamma correction, and JPEG compression.
-
-CBDNet is structurally comprised of two subnetworks:
+The underlying assumption is two-fold:
 \begin{enumerate}
-    \item A \textbf{noise estimation} subnetwork that predicts the noise level map.
-    \item A \textbf{non-blind denoising} subnetwork that takes the noisy image and the estimated noise map to reconstruct the clean image.
+    \item The noise-free image $y$ has strong spatial correlation.
+    \item The noise is pixel-wise independent and strictly zero-mean.
 \end{enumerate}
-Crucially, CBDNet adopts an \textit{asymmetric loss function} that imposes a heavier penalty on the under-estimation of the noise level than on over-estimation, acknowledging that under-estimation leads to visually displeasing noise remnants, whereas slight over-estimation results in a more acceptable soft blurring effect. The overall architecture typically includes a bottleneck to consolidate representations before final reconstruction.
+Consequently, the network learns the clean values of the blind spots using only information coming from the outer receptive field.
 
-\section{Concluding Remarks} \label{sec:conclusion_restoration}
-\index{Image Restoration!Conclusion}
+There are two primary ways to construct a BSN:
+\begin{enumerate}
+    \item \textbf{Designing a specific network architecture:} Generating physical blind spots in the receptive field. Examples are Half-plane convolutions (convolutions on half-planes to omit the central pixel) and Dilated convolutions equipped with explicitly designed holes in the filter center.
+    \item \textbf{The N2V way:} Apply a masker, a function that replaces (masks) some pixels of the input image, as a strict preprocessing step before feeding the image to the network. N2V proposes deciding the new blind-spot (BS) value via:
+    \begin{itemize}
+        \item Value of a random pixel in the immediate neighborhood of the BS.
+        \item Mean of a small region centered perfectly in the BS.
+        \item Median of a small region centered in the BS.
+        \item Replace with a purely random value.
+    \end{itemize}
+\end{enumerate}
 
-The domain of image restoration has witnessed a vivid resurgence driven by deep learning. While traditional algorithms initially held efficiency advantages, deep CNNs now firmly dictate the state-of-the-art in performance. Contemporary research is heavily influenced by classical priors---such as self-similarity, sparsity, and multiscale processing---which are now embedded into complex neural architectures and iterative unfolding schemes.
+In this masking case, it is absolutely better to focus the loss directly on the blind spots. Hence, the loss function becomes an error assessed only at the central masked pixels:
+\begin{equation}
+    \Theta^* = \text{argmin}_\Theta \mathcal{L}(B .* \text{CNN}(\Theta; M(z)), B .* z)
+\end{equation}
+where $M(z)$ is the masked input and $B .* z$ represents the target image evaluated solely at the selected locations.
 
-Current research frontiers focus on developing highly efficient architectures for large images, increasing robustness against complex real-world noise models, and pushing the boundaries of practical training paradigms via self-supervised and blind-spot methodologies that eliminate the reliance on idealized ground truth data.
+\section{Concluding Remarks}
+The research activity in the field of CNNs for image restoration has become very vivid in the last few years. The performance improvement achieved by deep CNNs was not as instantaneously clear as for visual recognition problems, but now these achieve the undisputed state of the art in terms of raw performance. Still, traditional algorithms are often more efficient. This is crucial given the large image sizes (compared to standard visual recognition benchmarks).
+
+Architecture of denoisers are becoming more and more complex. Research directions now heavily include efficient solutions, practical training options (without using an artificial noise model or clean pristine images), and overall robustness to diverse noise models.
+
+Research is often deeply inspired by traditional priors, meticulously designing neural architectures able to promote these:
+\begin{itemize}
+    \item Self-similarity
+    \item Sparsity
+    \item Multiscale processing
+\end{itemize}
+CNNs are now more recently used as a powerful prior for natural images, often placed inside iterative denoising schemes such as Residual Unfolding Networks. Often performance is heavily influenced by the raw training power, offering essentially unlimited training data thanks to BSN.
+
+Finally, approaches like CBDNet aim to close the gap toward convolutional blind denoising of real photographs. Existing CNN denoisers tend to be over-fitted to simplistic Gaussian noise and generalize poorly to real-world noisy images with more sophisticated noise. Realistic noise models are the foremost issue for blind denoising of real photographs. By taking into account both the Poisson-Gaussian model and the entire in-camera processing pipeline (e.g. de-mosaicking, Gamma correction, and JPEG compression), CBDNet utilizes two subnetworks (noise estimation and non-blind denoising), adopts an asymmetric loss by imposing more penalty on under-estimation error of the noise level, and routes information through a tightly constrained bottleneck.

@@ -1,124 +1,148 @@
-\chapter{Diffusion Models} \label{ch:diffusion}
-\index{Diffusion Models}
+\chapter{Diffusion Models}
+\label{ch:diffusion_models}
 
-In recent years, generative models have seen remarkable success, with diffusion models emerging as the state-of-the-art technique for high-fidelity image generation, superseding earlier approaches such as Generative Adversarial Networks (GANs\index{GANs}). Unlike GANs, which generate images in a single forward pass mapping a latent vector $\mathbf{z} \sim \phi_z$ to an image, or autoregressive models that generate sequences token-by-token, diffusion models define a Markov chain of diffusion steps to slowly add random noise to data and then learn to reverse the diffusion process to construct desired data samples from the noise.
+\section{Introduction to Generative AI and Diffusion}
 
-\section{The Forward Diffusion Process} \label{sec:diffusion_forward}
-\index{Forward Diffusion Process}
+Image generation has seen a revolutionary shift with the advent of Diffusion Models. As discussed in the context of Generative AI, the goal is to transform a random vector $\mathbf{z}$ drawn from a known distribution, such as a standard Gaussian, into a complex data sample such as a high-resolution image. While previous architectures like Generative Adversarial Networks (GANs) mapping $\mathbf{z} \sim \phi_z$ to images through a Generative Neural Network achieved significant milestones, diffusion models formulate generation as an iterative denoising process. 
 
-The core idea of diffusion models is based on non-equilibrium thermodynamics. Given a data point from a real data distribution $\mathbf{x}_0 \sim q(\mathbf{x})$, the forward diffusion process adds Gaussian noise in $T$ steps, producing a sequence of noisy samples $\mathbf{x}_1, \mathbf{x}_2, \dots, \mathbf{x}_T$. The forward process is defined as a Markov chain with Gaussian transitions:
-\begin{equation} \label{eq:forward_transition}
-    q(\mathbf{x}_t | \mathbf{x}_{t-1}) = \mathcal{N}\left(\mathbf{x}_t; \sqrt{1 - \beta_t} \mathbf{x}_{t-1}, \beta_t \mathbf{I}\right)
-\end{equation}
-where the step sizes are controlled by a pre-defined variance schedule $\{\beta_t \in (0, 1)\}_{t=1}^T$. Given a sufficiently large $T$ and a well-behaved schedule of $\beta_t$, the final latent variable $\mathbf{x}_T$ converges to an isotropic Gaussian distribution $\mathcal{N}(\mathbf{0}, \mathbf{I})$.
-
-A remarkably ``nice property'' of the forward process is that we can sample $\mathbf{x}_t$ at any arbitrary time step $t$ in a closed form using the reparameterization trick\index{Reparameterization Trick}. Let $\alpha_t = 1 - \beta_t$ and $\bar{\alpha}_t = \prod_{i=1}^t \alpha_i$. We can rewrite the formulation as:
-\begin{equation} \label{eq:forward_closed_form}
-    \mathbf{x}_t = \sqrt{\alpha_t} \mathbf{x}_{t-1} + \sqrt{1 - \alpha_t} \boldsymbol{\epsilon}_{t-1} = \dots = \sqrt{\bar{\alpha}_t} \mathbf{x}_0 + \sqrt{1 - \bar{\alpha}_t} \boldsymbol{\epsilon}
-\end{equation}
-where $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$. Consequently, the marginal distribution of $\mathbf{x}_t$ conditioned on $\mathbf{x}_0$ is given by:
-\begin{equation} \label{eq:forward_marginal}
-    q(\mathbf{x}_t | \mathbf{x}_0) = \mathcal{N}\left(\mathbf{x}_t; \sqrt{\bar{\alpha}_t} \mathbf{x}_0, (1 - \bar{\alpha}_t) \mathbf{I}\right)
-\end{equation}
-
-\begin{insightbox}[Intuition: The Forward Process]
-Think of the forward diffusion process as a slow deterioration of a pristine image into complete static, like a television losing its signal. At each discrete step $t$, we inject a tiny, carefully calibrated amount of Gaussian noise. By the time we reach $T$ (often $T=1000$), all the original semantic and perceptual information is entirely destroyed, leaving us with pure, unstructured noise. The closed-form equation is powerful because it means we do not need to iterate through all previous steps $1$ to $t-1$ to find out what the noisy image looks like at step $t$; we can jump there instantly by adding scaled noise to the original image $\mathbf{x}_0$.
+\begin{insightbox}[Generative AI Across Modalities]
+When applied to text, generative neural networks like GPT-3 auto-regressively predict the next token, enabling tasks ranging from prose generation to rhyming mathematical proofs. In vision, systems like Midjourney or DALL-E combine text embeddings with image generation mechanisms to produce completely novel content, such as ``Pope Francis wearing a long white puffer coat.'' Diffusion models serve as the backbone for these state-of-the-art vision systems.
 \end{insightbox}
 
-\section{The Reverse Diffusion Process} \label{sec:diffusion_reverse}
-\index{Reverse Diffusion Process}
+\section{The Forward Diffusion Process}
 
-If we could reverse the forward process and sample from $q(\mathbf{x}_{t-1} | \mathbf{x}_t)$, we could start from pure Gaussian noise $\mathbf{x}_T \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ and recreate the true sample from the real data distribution. However, $q(\mathbf{x}_{t-1} | \mathbf{x}_t)$ depends on the entire data distribution and is intractable to compute. Thus, we learn a parameterized model $p_\theta(\mathbf{x}_{t-1} | \mathbf{x}_t)$ to approximate it. If $\beta_t$ is sufficiently small, the reverse transitions are also Gaussian:
-\begin{equation} \label{eq:reverse_transition}
-    p_\theta(\mathbf{x}_{t-1} | \mathbf{x}_t) = \mathcal{N}\left(\mathbf{x}_{t-1}; \boldsymbol{\mu}_\theta(\mathbf{x}_t, t), \boldsymbol{\Sigma}_\theta(\mathbf{x}_t, t)\right)
+The forward diffusion process, or simply the forward process, is a Markov chain that gradually adds Gaussian noise to a data point from the real data distribution $\mathbf{x}_0 \sim q(\mathbf{x})$ over $T$ steps. This produces a sequence of increasingly noisy samples $\mathbf{x}_1, \mathbf{x}_2, \dots, \mathbf{x}_T$. The step sizes are controlled by a variance schedule $\{\beta_t \in (0, 1)\}_{t=1}^T$.
+
+The transition from state $\mathbf{x}_{t-1}$ to $\mathbf{x}_t$ is defined as:
+\begin{equation}
+    q(\mathbf{x}_t | \mathbf{x}_{t-1}) = \mathcal{N}(\mathbf{x}_t; \sqrt{1 - \beta_t}\mathbf{x}_{t-1}, \beta_t \mathbf{I})
 \end{equation}
-Common formulations simplify this by keeping the variance fixed, setting $\boldsymbol{\Sigma}_\theta(\mathbf{x}_t, t) = \sigma_t^2 \mathbf{I}$ (where $\sigma_t^2 = \beta_t$ or a similar related constant), meaning the neural network only needs to learn the mean $\boldsymbol{\mu}_\theta(\mathbf{x}_t, t)$.
 
-\begin{insightbox}[Intuition: The Reverse Process]
-The reverse process is the actual ``generation'' phase. We start with pure static (Gaussian noise) and ask the neural network to repeatedly denoise the image step by step. The model does not predict the pristine image $\mathbf{x}_0$ in one shot; rather, it predicts the exact noise vector that was added at timestep $t$. We then subtract a tiny fraction of this predicted noise, gradually carving out an image from the static. Over hundreds of steps, a coherent image emerges.
+Given a sufficiently large $T$ and a well-behaved schedule of $\beta_t$, the final latent variable $\mathbf{x}_T$ is nearly an isotropic Gaussian distribution, i.e., $\mathbf{x}_T \approx \mathcal{N}(\mathbf{0}, \mathbf{I})$.
+
+\subsection{The Reparameterization Trick and Closed-Form Sampling}
+
+A crucial property of the forward process is that we can sample $\mathbf{x}_t$ at any arbitrary time step $t$ in a closed form using the reparameterization trick. Let $\alpha_t = 1 - \beta_t$ and $\bar{\alpha}_t = \prod_{i=1}^t \alpha_i$. We can recursively express $\mathbf{x}_t$ as:
+\begin{align}
+    \mathbf{x}_t &= \sqrt{\alpha_t} \mathbf{x}_{t-1} + \sqrt{1 - \alpha_t}\boldsymbol{\epsilon}_{t-1} \\
+                 &= \sqrt{\alpha_t \alpha_{t-1}} \mathbf{x}_{t-2} + \sqrt{1 - \alpha_t \alpha_{t-1}} \bar{\boldsymbol{\epsilon}}_{t-2} \\
+                 &= \dots = \sqrt{\bar{\alpha}_t} \mathbf{x}_0 + \sqrt{1 - \bar{\alpha}_t} \boldsymbol{\epsilon}
+\end{align}
+where $\boldsymbol{\epsilon}_{t-1}, \boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$. 
+
+\begin{insightbox}[Merging Gaussians]
+Note that $\bar{\boldsymbol{\epsilon}}_{t-2}$ merges two Gaussians with variance $\mathcal{N}(\mathbf{0}, \sigma_1^2 \mathbf{I})$ and $\mathcal{N}(\mathbf{0}, \sigma_2^2 \mathbf{I})$ into $\mathcal{N}(\mathbf{0}, (\sigma_1^2 + \sigma_2^2)\mathbf{I})$. In this specific case, the merged standard deviation becomes $\sqrt{(1-\alpha_t) + \alpha_t(1-\alpha_{t-1})} = \sqrt{1 - \alpha_t \alpha_{t-1}}$.
 \end{insightbox}
 
-\section{Training and Inference} \label{sec:diffusion_training}
-\index{Diffusion Models!Training}
-\index{Diffusion Models!Inference}
-
-To train the reverse diffusion process, we aim to minimize the difference between the true posterior $q(\mathbf{x}_{t-1} | \mathbf{x}_t, \mathbf{x}_0)$ and the learned distribution $p_\theta(\mathbf{x}_{t-1} | \mathbf{x}_t)$. It is known that the true posterior mean is given by:
-\begin{equation} \label{eq:true_posterior_mean}
-    \tilde{\boldsymbol{\mu}}_t(\mathbf{x}_t, \mathbf{x}_0) = \frac{1}{\sqrt{\alpha_t}} \left( \mathbf{x}_t - \frac{1 - \alpha_t}{\sqrt{1 - \bar{\alpha}_t}} \boldsymbol{\epsilon}_t \right)
+From this derivation, the marginal distribution of $\mathbf{x}_t$ given $\mathbf{x}_0$ is:
+\begin{equation}
+    q(\mathbf{x}_t | \mathbf{x}_0) = \mathcal{N}(\mathbf{x}_t; \sqrt{\bar{\alpha}_t}\mathbf{x}_0, (1 - \bar{\alpha}_t)\mathbf{I})
 \end{equation}
-Therefore, we train the neural network to predict $\boldsymbol{\epsilon}_t$, the noise added to the image at time $t$. The reparameterized mean predicted by our model becomes:
-\begin{equation} \label{eq:predicted_mean}
+
+\section{The Reverse Diffusion Process}
+
+To generate new samples, we need to reverse the forward process. If we could compute $q(\mathbf{x}_{t-1} | \mathbf{x}_t)$, we could start from true noise $\mathbf{x}_T \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ and progressively denoise it to recreate a true sample $\mathbf{x}_0$. However, the exact reverse distribution $q(\mathbf{x}_{t-1} | \mathbf{x}_t)$ is intractable as it requires evaluating the entire data distribution. 
+
+Instead, we learn a parameterized model $p_\theta(\mathbf{x}_{t-1} | \mathbf{x}_t)$ to approximate it. If $\beta_t$ is sufficiently small, the reverse transitions are also Gaussian. Thus, we define:
+\begin{equation}
+    p_\theta(\mathbf{x}_{t-1} | \mathbf{x}_t) = \mathcal{N}(\mathbf{x}_{t-1}; \boldsymbol{\mu}_\theta(\mathbf{x}_t, t), \mathbf{\Sigma}_\theta(\mathbf{x}_t, t))
+\end{equation}
+The full joint distribution of the reverse trajectory is:
+\begin{equation}
+    p_\theta(\mathbf{x}_{0:T}) = p(\mathbf{x}_T) \prod_{t=1}^T p_\theta(\mathbf{x}_{t-1} | \mathbf{x}_t)
+\end{equation}
+Common formulations simplify the learning process by fixing the variance to a time-dependent constant, $\mathbf{\Sigma}_\theta(\mathbf{x}_t, t) = \sigma_t^2 \mathbf{I}$, such as $\sigma_t^2 = \beta_t$, and only learning the mean $\boldsymbol{\mu}_\theta(\mathbf{x}_t, t)$.
+
+\section{Training the Reverse Diffusion Process}
+
+To approximate $q(\mathbf{x}_{t-1} | \mathbf{x}_t)$ with $p_\theta(\mathbf{x}_{t-1} | \mathbf{x}_t)$, we must train $\boldsymbol{\mu}_\theta$ to predict the true posterior mean. The forward posterior, conditioned on $\mathbf{x}_0$, is strictly Gaussian and derived via Bayes' theorem:
+\begin{equation}
+    \boldsymbol{\mu}_t(\mathbf{x}_t, \mathbf{x}_0) = \frac{1}{\sqrt{\alpha_t}} \left( \mathbf{x}_t - \frac{1 - \alpha_t}{\sqrt{1 - \bar{\alpha}_t}} \boldsymbol{\epsilon}_t \right)
+\end{equation}
+
+Since $\mathbf{x}_t$ is available at training time as a function of $\mathbf{x}_0$ and noise $\boldsymbol{\epsilon}$, we can reparameterize the neural network to predict the noise $\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)$ rather than predicting the mean directly:
+\begin{equation}
     \boldsymbol{\mu}_\theta(\mathbf{x}_t, t) = \frac{1}{\sqrt{\alpha_t}} \left( \mathbf{x}_t - \frac{1 - \alpha_t}{\sqrt{1 - \bar{\alpha}_t}} \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t) \right)
 \end{equation}
-Ho et al. (2020) demonstrated empirically that the model works better when trained with a simplified objective function that drops the complex weighting terms. The simplified loss function $L_t^{\text{simple}}$ minimizes the mean squared error between the actual noise $\boldsymbol{\epsilon}_t$ and the predicted noise $\boldsymbol{\epsilon}_\theta$:
-\begin{equation} \label{eq:simple_loss}
-    L_t^{\text{simple}} = \mathbb{E}_{t \sim [1,T], \mathbf{x}_0, \boldsymbol{\epsilon}_t} \left[ \left\| \boldsymbol{\epsilon}_t - \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t) \right\|^2 \right] = \mathbb{E}_{t \sim [1,T], \mathbf{x}_0, \boldsymbol{\epsilon}_t} \left[ \left\| \boldsymbol{\epsilon}_t - \boldsymbol{\epsilon}_\theta\left(\sqrt{\bar{\alpha}_t} \mathbf{x}_0 + \sqrt{1 - \bar{\alpha}_t} \boldsymbol{\epsilon}_t, t\right) \right\|^2 \right]
+
+The model is trained to minimize the difference from the observed sample, optimizing the variational lower bound (ELBO). The exact loss term for step $t$ is:
+\begin{align}
+    L_t &= \mathbb{E}_{\mathbf{x}_0, \boldsymbol{\epsilon}} \left[ \frac{1}{2\|\mathbf{\Sigma}_\theta(\mathbf{x}_t, t)\|_2^2} \|\tilde{\boldsymbol{\mu}}_t(\mathbf{x}_t, \mathbf{x}_0) - \boldsymbol{\mu}_\theta(\mathbf{x}_t, t)\|^2 \right] \\
+        &= \mathbb{E}_{\mathbf{x}_0, \boldsymbol{\epsilon}} \left[ \frac{(1 - \alpha_t)^2}{2\alpha_t(1 - \bar{\alpha}_t)\|\mathbf{\Sigma}_\theta\|_2^2} \|\boldsymbol{\epsilon}_t - \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)\|^2 \right] \\
+        &= \mathbb{E}_{\mathbf{x}_0, \boldsymbol{\epsilon}} \left[ \frac{(1 - \alpha_t)^2}{2\alpha_t(1 - \bar{\alpha}_t)\|\mathbf{\Sigma}_\theta\|_2^2} \|\boldsymbol{\epsilon}_t - \boldsymbol{\epsilon}_\theta(\sqrt{\bar{\alpha}_t}\mathbf{x}_0 + \sqrt{1-\bar{\alpha}_t}\boldsymbol{\epsilon}_t, t)\|^2 \right]
+\end{align}
+
+\begin{insightbox}[Simplified Objective]
+Empirically, Ho et al. (2020) found that the model trains much better and yields superior sample quality when using a simplified, unweighted formulation of the loss:
+\begin{equation}
+    L_t^{\text{simple}} = \mathbb{E}_{t \sim [1,T], \mathbf{x}_0, \boldsymbol{\epsilon}_t} \left[ \|\boldsymbol{\epsilon}_t - \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)\|^2 \right]
 \end{equation}
+This effectively downweights the loss at very small $t$, focusing the network's capacity on the more difficult denoising tasks at larger $t$.
+\end{insightbox}
 
-During \textbf{inference} (sampling), we begin with $\mathbf{x}_T \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$. For each step from $t=T$ down to $1$, we sample $\mathbf{z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ (if $t>1$, else $\mathbf{z}=\mathbf{0}$) and apply the denoising update:
-\begin{equation} \label{eq:sampling_update}
-    \mathbf{x}_{t-1} = \frac{1}{\sqrt{\alpha_t}} \left( \mathbf{x}_t - \frac{1 - \alpha_t}{\sqrt{1 - \bar{\alpha}_t}} \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t) \right) + \sigma_t \mathbf{z}
+\section{Parametrization of Noise Variance and Schedulers}
+
+The forward variances $\beta_t$ must be carefully designed. In the original DDPM (Ho et al., 2020), $\beta_t$ were set as linearly increasing constants from $\beta_1 = 10^{-4}$ to $\beta_T = 0.02$. While yielding high-quality images, the linear scheduler destroys information too quickly; by $t \approx T/2$, the image is already pure noise, rendering the latter half of the forward process redundant.
+
+Nichol \& Dhariwal (2021) proposed a \textbf{cosine-based schedule}:
+\begin{equation}
+    \bar{\alpha}_t = \frac{f(t)}{f(0)}, \quad \text{where } f(t) = \cos\left( \frac{t/T + s}{1 + s} \cdot \frac{\pi}{2} \right)^2
 \end{equation}
+and $\beta_t = \text{clip}(1 - \frac{\bar{\alpha}_t}{\bar{\alpha}_{t-1}}, 0.999)$. The small offset $s$ prevents $\beta_t$ from being too small when $t$ is close to 0. This smoother schedule preserves structural information for a longer duration, improving negative log-likelihood metrics and overall generation quality.
 
-\subsection{Variance Scheduling} \label{subsec:scheduling}
-\index{Variance Scheduling}
-\index{Linear Scheduling}
-\index{Cosine Scheduling}
+\section{Diffusion Models Guidance}
 
-The choice of the variance schedule $\beta_t$ plays a critical role. Early works such as Ho et al. (2020) used a \textit{linear schedule}, where $\beta_t$ increases linearly from $10^{-4}$ to $0.02$. However, linear scheduling destroys the information too quickly, bringing the latent variable to pure noise prematurely.
-
-Nichol \& Dhariwal (2021) proposed a \textit{cosine schedule}, defined by:
-\begin{equation} \label{eq:cosine_schedule}
-    \bar{\alpha}_t = \frac{f(t)}{f(0)}, \quad \text{where } f(t) = \cos^2\left( \frac{t/T + s}{1 + s} \cdot \frac{\pi}{2} \right)
-\end{equation}
-The small offset $s$ prevents $\beta_t$ from becoming exceedingly small near $t=0$. This schedule ensures a more gradual transition towards pure noise, improving the overall quality and log-likelihood of generated samples.
-
-\section{Guidance in Diffusion Models} \label{sec:diffusion_guidance}
-\index{Guidance}
-
-Generating random images is useful, but we often want to condition the generation on class labels or textual descriptions. Two primary methods for conditional generation have emerged.
+To control the generation process—such as conditioning on class labels or text prompts—specific guidance techniques are employed.
 
 \subsection{Classifier Guided Diffusion}
-\index{Classifier Guided Diffusion}
 
-Dhariwal \& Nichol (2021) introduced Classifier Guided Diffusion. By training an explicit classifier $f_\phi(y|\mathbf{x}_t)$ on noisy images, we can utilize its gradients to guide the diffusion sampling process toward the target condition $y$. The score function of the joint distribution modifies the noise predictor:
-\begin{equation} \label{eq:classifier_guidance}
+Dhariwal \& Nichol (2021) demonstrated that an explicitly trained classifier $f_\phi(y|\mathbf{x}_t)$ can guide the unconditional diffusion sampling process. By utilizing the gradients of the classifier $\nabla_{\mathbf{x}_t} \log f_\phi(y|\mathbf{x}_t)$, the sampling is steered toward the conditioning information $y$.
+
+Using the score function of the joint distribution, the modified noise predictor becomes:
+\begin{equation}
     \bar{\boldsymbol{\epsilon}}_\theta(\mathbf{x}_t, t) = \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t) - w \sqrt{1 - \bar{\alpha}_t} \nabla_{\mathbf{x}_t} \log f_\phi(y|\mathbf{x}_t)
 \end{equation}
-where $w$ is the gradient scale. This method allowed the Ablated Diffusion Model with Guidance (ADM-G) to achieve better results than state-of-the-art generative models like BigGAN.
+where $w$ is the gradient scale. The resulting Ablated Diffusion Model with classifier guidance (ADM-G) achieved better results than contemporary SOTA models like BigGAN.
 
-\subsection{Classifier-Free Guidance}
-\index{Classifier-Free Guidance}
+\subsection{Classifier-Free Guidance (CFG)}
 
-Alternatively, Ho \& Salimans (2021) introduced \textit{Classifier-Free Guidance} (CFG), which eliminates the need for an external classifier. In this approach, a single neural network is jointly trained for both unconditional and conditional generation. Let $p_\theta(\mathbf{x}|\emptyset)$ be parameterized through a score estimator $\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)$ and $p_\theta(\mathbf{x}|y)$ through $\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t, y)$. During training, the conditioning signal $y$ is randomly replaced with a learnable null token $\emptyset$ with some probability. 
+Training a robust time-dependent classifier is challenging. Ho \& Salimans (2021) introduced Classifier-Free Guidance, eliminating the need for a separate classifier. The core idea is to learn both a conditional score estimator $\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t, y)$ and an unconditional estimator $\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t, \emptyset)$ within a single neural network.
 
-During sampling, the model makes two predictions: one conditional and one unconditional. The final extrapolated noise prediction is:
-\begin{equation} \label{eq:cfg}
-    \bar{\boldsymbol{\epsilon}}_\theta(\mathbf{x}_t, t, y) = (w + 1)\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t, y) - w \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t, \emptyset)
-\end{equation}
-This pushes the image generation away from generic, unconditional priors and strongly toward the conditioning prompt.
+During training, the condition $y$ is randomly replaced with a learnable null token $\emptyset$ (e.g., $10\%$ of the time). During sampling, one prediction is made with the class token and another with the null token. These are extrapolated to amplify the conditioning signal:
+\begin{align}
+    \bar{\boldsymbol{\epsilon}}_\theta(\mathbf{x}_t, t, y) &= \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t, \emptyset) + w \left( \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t, y) - \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t, \emptyset) \right) \\
+    &= (w+1)\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t, y) - w \boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t, \emptyset)
+\end{align}
+CFG has become the standard mechanism for text-to-image models, drastically improving prompt adherence without the instability of external classifiers.
 
-\section{Improving Sampling Efficiency} \label{sec:diffusion_sampling}
+\section{Improving DDPM Sampling Speed}
 
-A fundamental drawback of standard DDPMs is the requirement for hundreds or thousands of forward passes during inference, making sampling slow. Several solutions have been proposed:
+A major drawback of DDPMs is the thousands of sequential steps required during inference.
 
+\subsection{Progressive Distillation}
+Salimans \& Ho (2022) proposed Progressive Distillation. It iteratively distills a trained deterministic teacher sampler into a new student model with halved sampling steps. The student model is trained to predict the outcome of taking two steps with the teacher model in a single step. Every distillation iteration halves the sampling steps, eventually allowing generation in extremely few steps.
+
+\subsection{Consistency Models}
+Song et al. (2023) introduced Consistency Models, learning to map intermediate noisy data points $\mathbf{x}_t$ directly back to their origin $\mathbf{x}_0$. Given a trajectory, a consistency function $f(\mathbf{x}_t, t) \mapsto \mathbf{x}_\epsilon$ guarantees that any point on the trajectory maps to the same origin: $f(\mathbf{x}_t, t) = f(\mathbf{x}_{t'}, t') = \mathbf{x}_\epsilon$. This allows for single-step generation, trading some compute during training for massive speedups at inference.
+
+\section{Latent Diffusion Models (LDM)}
+
+Running diffusion directly in high-resolution pixel space is computationally prohibitive. Rombach \& Blattmann (2022) introduced Latent Diffusion Models (LDM) which decompose the problem. Most bits of an image contribute to imperceptible high-frequency details. 
+
+LDMs first trim off pixel-level redundancy using a highly optimized Autoencoder. An encoder $\mathcal{E}$ compresses the input image $\mathbf{x} \in \mathbb{R}^{H \times W \times 3}$ into a smaller 2D latent vector $\mathbf{z} = \mathcal{E}(\mathbf{x}) \in \mathbb{R}^{h \times w \times c}$, with a downsampling rate $f = H/h = W/w = 2^m$. A decoder $\mathcal{D}$ reconstructs the image $\tilde{\mathbf{x}} = \mathcal{D}(\mathbf{z})$.
+
+To avoid arbitrarily high variance in the latent space, LDMs employ either:
 \begin{itemize}
-    \item \textbf{Progressive Distillation\index{Progressive Distillation}}: Salimans \& Ho (2022) proposed distilling a trained deterministic sampler into a new student model that halves the required sampling steps at each distillation iteration. A student DDIM\index{DDIM} step is trained to match two teacher steps.
-    \item \textbf{Consistency Models\index{Consistency Models}}: Song et al. (2023) introduced consistency models that learn to map any intermediate noisy data point $\mathbf{x}_t$ directly back to its origin $\mathbf{x}_0$. Given a consistency function $f$, it enforces $f(\mathbf{x}_t, t) = f(\mathbf{x}_{t'}, t') = \mathbf{x}_\epsilon$ for any $t, t'$. This allows trading computation for quality, enabling high-quality single-step generation.
+    \item \textbf{KL-reg}: A small Kullback-Leibler penalty towards a standard normal distribution, similar to a VAE.
+    \item \textbf{VQ-reg}: A vector quantization layer absorbed by the decoder.
 \end{itemize}
+The diffusion process (forward and reverse) is then exclusively executed in this highly compressed, semantically rich latent space $\mathbf{z}$, exponentially reducing computational cost.
 
-\section{Scaling Architectures: LDM and DiT} \label{sec:diffusion_architectures}
+\section{Architectures for Diffusion Models}
 
-Historically, diffusion models relied heavily on the \textbf{U-Net\index{U-Net}} backbone architecture, originally developed for image segmentation. The U-Net employs a sequence of downsampling blocks, self-attention blocks, and upsampling blocks with skip connections. To incorporate temporal information, a sinusoidal time embedding is added to all blocks. For text conditioning, an embedder integrates features via cross-attention mechanisms.
+\subsection{U-Net Backbone}
+Historically, the U-Net architecture has been the backbone of diffusion models. It features downsampling blocks, bottleneck blocks, and upsampling blocks connected via skip connections to prevent spatial information loss. 
+Conditioning information such as the diffusion timestep $t$ is injected via sinusoidal embeddings into all blocks. External conditions like text are processed by a text embedder and injected using Cross-Attention mechanisms integrated within the ResNet and Self-Attention blocks.
 
-\subsection{Latent Diffusion Models (LDM)}
-\index{Latent Diffusion Models (LDM)}
-
-Operating directly in the high-dimensional pixel space is computationally prohibitive. Rombach \& Blattmann et al. (2022) introduced Latent Diffusion Models (LDMs). Their insight is that most bits of an image contribute merely to high-frequency perceptual details, while the semantic composition remains intact under compression. 
-
-LDMs use an Autoencoder\index{Autoencoder} (an encoder $\mathcal{E}$ and decoder $\mathcal{D}$) to compress the input image $\mathbf{x} \in \mathbb{R}^{H \times W \times 3}$ into a smaller 2D latent vector $\mathbf{z} = \mathcal{E}(\mathbf{x}) \in \mathbb{R}^{h \times w \times c}$, trimming off pixel-level redundancy. The diffusion process is then executed efficiently within this low-dimensional latent space. Regularization methods such as KL-penalty (KL-reg\index{KL-reg}) or vector quantization (VQ-reg\index{VQ-reg}) are applied during the autoencoder training to avoid arbitrarily high-variance in latent spaces.
-
-\subsection{Diffusion Transformers (DiT)}
-\index{Diffusion Transformer (DiT)}
-
-Moving beyond the U-Net paradigm, Peebles \& Xie (2023) proposed the Diffusion Transformer (DiT). DiT operates on the latent patches using the same design space of the Latent Diffusion Model but utilizes a Transformer backbone. The latent representation $\mathbf{z}$ is ``patchified'' into a sequence of patches of size $p$, converting it into a sequence of $(I/p)^2$ patches. This sequence of tokens is processed through standard Transformer blocks, using adaptive layer normalization (adaLN) for conditioning on the timestep $t$ and label $y$. The transformer decoder outputs the required noise predictions and an output diagonal covariance prediction, scaling effectively with network depth and width.
+\subsection{Transformer Backbone (DiT)}
+Peebles \& Xie (2023) introduced the Diffusion Transformer (DiT), operating on latent patches. It replaces the U-Net with a standard Transformer architecture. The noise latent of size $I \times I \times C$ is ``patchified'' into patches of size $p$, converting it into a sequence of $(I/p)^2$ tokens. This sequence passes through Transformer blocks utilizing Adaptive Layer Normalization (adaLN) to condition on the timestep and class labels. The DiT decoder outputs the noise predictions and a diagonal covariance matrix prediction, showcasing that transformers scale exceptionally well for diffusion tasks without relying on convolutional inductive biases.

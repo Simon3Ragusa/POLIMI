@@ -137,7 +137,7 @@ This chapter provided a rigorous examination of modern deep generative models, w
 
 \begin{table}[h]
 \centering
-\begin{tabular}{|p{3.5cm}|p{5.5cm}|p{5.5cm}|}
+\begin{tabularx}{\textwidth}{| >{\centering\arraybackslash}m{3.5cm} | X | X |}
 \hline
 \textbf{Architecture} & \textbf{Pros} & \textbf{Cons} \\
 \hline
@@ -149,21 +149,40 @@ This chapter provided a rigorous examination of modern deep generative models, w
 \hline
 \textbf{Bidirectional GANs (BiGANs)} & Adds an explicit encoder mapping data back to the latent space; highly effective for tasks like anomaly detection. & Inherits training instabilities of GANs; requires optimizing three separate networks simultaneously. \\
 \hline
-\end{tabular}
+\end{tabularx}
 \caption{Comparison of Main Generative Architectures}
 \label{tab:gen_architectures}
 \end{table}
 
 \subsection{Possible Exam Questions}
 \begin{itemize}
-    \item What is the main structural limitation of standard autoencoders that prevents them from being effectively utilized as generative models?
-    \item Explain the components of the Evidence Lower Bound (ELBO) in Variational Autoencoders. Why is the KL divergence term necessary?
-    \item Describe the reparameterization trick in VAEs and discuss why it is essential for backpropagating gradients during training.
-    \item Formulate the minimax game objective of a Generative Adversarial Network (GAN). What are the specific goals of the generator and the discriminator?
-    \item What is the ``generator gradient trick'' in GAN training, and how does it address the issue of vanishing gradients during early epochs?
-    \item Explain the concept of ``mode collapse'' in GANs and briefly mention one architectural or training strategy used to mitigate it.
-    \item How does a Conditional GAN (cGAN) differ from a standard GAN in terms of its architecture and optimization objectives?
-    \item Describe the underlying principle of using a trained generative model for anomaly detection. Why are highly anomalous images poorly reconstructed?
-    \item Detail the role of the encoder in a Bidirectional GAN (BiGAN) and explain how its inclusion modifies the standard adversarial framework.
-    \item Provide the mathematical formulation of a comprehensive anomaly score utilizing a BiGAN. What two types of discrepancies does this score combine?
+    \item \textbf{Q: What is the main structural limitation of standard autoencoders that prevents them from being effectively utilized as generative models?} \\
+    \textbf{A:} The latent dimension acts as an unstructured bottleneck, and its true empirical distribution is unknown. Consequently, sampling randomly from the latent space is overwhelmingly likely to produce outputs that do not correspond to any realistic class.
+    
+    \item \textbf{Q: Explain the components of the Evidence Lower Bound (ELBO) in Variational Autoencoders. Why is the KL divergence term necessary?} \\
+    \textbf{A:} The ELBO comprises the expected reconstruction log-likelihood (MSE) and a Kullback-Leibler (KL) divergence penalty. The KL divergence forces the approximate posterior to closely match the prior (standard Gaussian), enforcing a smooth and structured latent space for stable generation.
+    
+    \item \textbf{Q: Describe the reparameterization trick in VAEs and discuss why it is essential for backpropagating gradients during training.} \\
+    \textbf{A:} It expresses the random latent variable $z$ as a deterministic linear transformation of an independent noise variable $\epsilon$ (i.e., $z = \boldsymbol{\mu} + \boldsymbol{\Sigma}^{1/2} \odot \epsilon$). This decouples stochasticity from the network parameters, allowing gradients to flow backwards continuously.
+    
+    \item \textbf{Q: Formulate the minimax game objective of a Generative Adversarial Network (GAN). What are the specific goals of the generator and the discriminator?} \\
+    \textbf{A:} The objective is $\min_{G} \max_{D} \mathbb{E}[\log D(x)] + \mathbb{E}[\log(1 - D(G(z)))]$. The discriminator aims to accurately classify real images from generated fakes, while the generator attempts to synthesize fakes that trick the discriminator into classifying them as real.
+    
+    \item \textbf{Q: What is the ``generator gradient trick'' in GAN training, and how does it address the issue of vanishing gradients during early epochs?} \\
+    \textbf{A:} During early epochs, the discriminator easily rejects fake samples, causing the theoretical gradient to vanish. The trick instructs the generator to instead maximize $\log(D(G(z)))$, providing a strong, non-vanishing gradient signal when the generator is performing poorly.
+    
+    \item \textbf{Q: Explain the concept of ``mode collapse'' in GANs and briefly mention one architectural or training strategy used to mitigate it.} \\
+    \textbf{A:} Mode collapse is a failure mode where the generator discovers a limited set of samples that fool the discriminator, severely reducing the diversity of the generated output. Mitigation strategies include minibatch discrimination and using Wasserstein GANs.
+    
+    \item \textbf{Q: How does a Conditional GAN (cGAN) differ from a standard GAN in terms of its architecture and optimization objectives?} \\
+    \textbf{A:} A cGAN incorporates auxiliary conditioning information $y$ (such as class labels), concatenating it with the input to both the generator and the discriminator. This coercively guides the generator to produce samples consistent with the specific requested label.
+    
+    \item \textbf{Q: Describe the underlying principle of using a trained generative model for anomaly detection. Why are highly anomalous images poorly reconstructed?} \\
+    \textbf{A:} A generative model learns the specific structural manifold of normal data. Anomalous images fall far outside this modeled probability distribution and violate its geometry, rendering the network fundamentally incapable of accurately reconstructing them.
+    
+    \item \textbf{Q: Detail the role of the encoder in a Bidirectional GAN (BiGAN) and explain how its inclusion modifies the standard adversarial framework.} \\
+    \textbf{A:} The encoder inversely maps an image $s$ back into a latent representation $z$. The discriminator evaluates joint pairs, learning to distinguish between authentic data-latent pairs $(s, E(s))$ and synthesized data-latent pairs $(G(z), z)$.
+    
+    \item \textbf{Q: Provide the mathematical formulation of a comprehensive anomaly score utilizing a BiGAN. What two types of discrepancies does this score combine?} \\
+    \textbf{A:} It fuses pixel-wise reconstruction error and abstract feature-level discrepancies: $A(s) = (1 - \alpha) ||G(E(s)) - s||_2 + \alpha ||f(D(s, E(s))) - f(D(G(E(s)), E(s)))||_2$.
 \end{itemize}

@@ -193,33 +193,41 @@ In the second half, the chapter focused on unraveling the "black box" nature of 
 
 \begin{table}[h]
 \centering
-\begin{tabular}{|l|p{5cm}|p{5cm}|}
+\begin{tabularx}{\textwidth}{| >{\centering\arraybackslash}m{3.5cm} | X | X |}
 \hline
 \textbf{Technique} & \textbf{Pros} & \textbf{Cons} \\
 \hline
-NeRF & High-quality, continuous volumetric representation; photorealistic novel view synthesis. & Extremely computationally expensive during inference; requires millions of MLP evaluations per frame. \\
+\textbf{NeRF} & High-quality, continuous volumetric representation; photorealistic novel view synthesis. & Extremely computationally expensive during inference; requires millions of MLP evaluations per frame. \\
 \hline
-Gaussian Splatting & Real-time rendering through ultra-fast tile-based rasterizer; state-of-the-art visual quality. & Explicit geometry (points) instead of continuous volume; relies heavily on a good initial point cloud (e.g., from SfM). \\
+\textbf{Gaussian Splatting} & Real-time rendering through ultra-fast tile-based rasterizer; state-of-the-art visual quality. & Explicit geometry (points) instead of continuous volume; relies heavily on a good initial point cloud (e.g., from SfM). \\
 \hline
-CAM & Provides foundational saliency maps for visual explainability. & Requires specific architectures (GAP layers), leading to catastrophic drops in classification accuracy. \\
+\textbf{CAM} & Provides foundational saliency maps for visual explainability. & Requires specific architectures (GAP layers), leading to catastrophic drops in classification accuracy. \\
 \hline
-Integrated Gradients & Resolves the gradient saturation problem; mathematically satisfies the Completeness Property. & Computationally heavier than vanilla gradients; requires selecting a baseline image. \\
+\textbf{Integrated Gradients} & Resolves the gradient saturation problem; mathematically satisfies the Completeness Property. & Computationally heavier than vanilla gradients; requires selecting a baseline image. \\
 \hline
-Grad-CAM & Highly flexible across various tasks without strict architectural prerequisites. & Spatial resolution is heavily constrained by the depth of the extracted feature maps. \\
+\textbf{Grad-CAM} & Highly flexible across various tasks without strict architectural prerequisites. & Spatial resolution is heavily constrained by the depth of the extracted feature maps. \\
 \hline
-Perturbation Methods (e.g., RISE) & Completely sidesteps shattering gradients and does not rely on backpropagation. & Computationally demanding, requiring many forward passes with different random masks. \\
+\textbf{Perturbation Methods (e.g., RISE)} & Completely sidesteps shattering gradients and does not rely on backpropagation. & Computationally demanding, requiring many forward passes with different random masks. \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \subsection{Possible Exam Questions}
 \begin{itemize}
-    \item Explain the fundamental differences between implicit representations (like NeRF) and explicit representations (like 3D Gaussian Splatting) for novel view synthesis. What are their respective strengths and weaknesses?
-    \item How does Neural Radiance Fields (NeRF) enforce that physical matter in a scene remains invariant to the observer's perspective while allowing for view-dependent specularities?
-    \item Describe the problem of spectral bias in deep neural networks and explain how NeRF addresses it using positional encoding.
-    \item Why does Class Activation Mapping (CAM) typically cause drops in classification accuracy, and how does Grad-CAM solve this architectural limitation?
-    \item Discuss the shattering gradient problem in vanilla gradient attribution and explain how Integrated Gradients mathematically resolves it.
-    \item What is the purpose of the baseline image in Integrated Gradients, and what is the Completeness Property that its path integral satisfies?
-    \item Explain the mechanism behind SmoothGrad. How does it improve the visual quality of gradient-based attribution maps?
-    \item Compare and contrast gradient-based attribution methods (e.g., Grad-CAM) with perturbation-based methods (e.g., RISE) in terms of their computational approach and robustness.
+    \item \textbf{Q: Explain the fundamental differences between implicit representations (like NeRF) and explicit representations (like 3D Gaussian Splatting) for novel view synthesis. What are their respective strengths and weaknesses?} \\
+    \textbf{A:} NeRF uses a continuous neural volume (MLP) to model scenes implicitly, providing high-quality photorealistic synthesis but requiring computationally expensive ray-marching. Gaussian Splatting uses an explicit set of 3D Gaussian primitives, enabling real-time rendering via an ultra-fast tile-based rasterizer but relying heavily on a good initial point cloud.
+    \item \textbf{Q: How does Neural Radiance Fields (NeRF) enforce that physical matter in a scene remains invariant to the observer's perspective while allowing for view-dependent specularities?} \\
+    \textbf{A:} NeRF forces the volume density to be a function solely of the 3D spatial location, ensuring physical matter is perspective-invariant. Conversely, it allows the emitted RGB color to depend on the 2D viewing direction, successfully synthesizing view-dependent specularities.
+    \item \textbf{Q: Describe the problem of spectral bias in deep neural networks and explain how NeRF addresses it using positional encoding.} \\
+    \textbf{A:} Spectral bias refers to the tendency of deep networks to learn low-frequency functions, struggling with sharp gradients and high-frequency textures. NeRF resolves this by applying a high-frequency positional encoding function to both spatial coordinates and viewing directions before feeding them into the network.
+    \item \textbf{Q: Why does Class Activation Mapping (CAM) typically cause drops in classification accuracy, and how does Grad-CAM solve this architectural limitation?} \\
+    \textbf{A:} CAM mandates replacing fully connected layers with Global Average Pooling (GAP) layers, losing parameter capacity. Grad-CAM solves this by computing importance weights empirically using GAP over gradients flowing back to the final convolutional feature maps, requiring no architectural changes.
+    \item \textbf{Q: Discuss the shattering gradient problem in vanilla gradient attribution and explain how Integrated Gradients mathematically resolves it.} \\
+    \textbf{A:} Deep network saturation and shattering gradients cause vanilla gradients to manifest as incomprehensible high-frequency noise. Integrated Gradients computes the path integral of gradients along a linear interpolation sequence from a baseline to the input, mathematically solving the saturation dilemma.
+    \item \textbf{Q: What is the purpose of the baseline image in Integrated Gradients, and what is the Completeness Property that its path integral satisfies?} \\
+    \textbf{A:} The baseline image represents an information-less reference (e.g., pure black matrix). The Completeness Property proves that the sum of local attributions (integrated gradients) across all pixels strictly equals the difference between the network's output for the input and the baseline.
+    \item \textbf{Q: Explain the mechanism behind SmoothGrad. How does it improve the visual quality of gradient-based attribution maps?} \\
+    \textbf{A:} SmoothGrad adds Gaussian noise to the input image across multiple independent trials and averages the resulting gradient matrices. This photometric augmentation algorithm dramatically enhances the signal-to-noise ratio of local gradient approximations.
+    \item \textbf{Q: Compare and contrast gradient-based attribution methods (e.g., Grad-CAM) with perturbation-based methods (e.g., RISE) in terms of their computational approach and robustness.} \\
+    \textbf{A:} Gradient-based methods compute attributions via backpropagation, which can suffer from gradient shattering. Perturbation methods like RISE measure attribution exclusively via forward-pass masking, completely sidestepping gradient issues but at a much higher computational cost due to multiple forward passes.
 \end{itemize}

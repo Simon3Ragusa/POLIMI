@@ -213,35 +213,50 @@ This chapter chronicles the evolution of sequence modeling from foundational RNN
 
 \begin{table}[h]
 \centering
-\begin{tabular}{|l|p{5cm}|p{5cm}|}
+\begin{tabularx}{\textwidth}{| >{\centering\arraybackslash}m{3.5cm} | X | X |}
 \hline
 \textbf{Architecture / Technique} & \textbf{Pros} & \textbf{Cons} \\
 \hline
-RNNs \& LSTMs & Effectively model sequential data; maintain hidden state across time. & Inherently sequential (bottlenecking parallelization); struggle with very long-range dependencies. \\
+\textbf{RNNs \& LSTMs} & Effectively model sequential data; maintain hidden state across time. & Inherently sequential (bottlenecking parallelization); struggle with very long-range dependencies. \\
 \hline
-Encoder-Decoder with Attention & Solves the representation bottleneck; provides interpretable soft alignments. & Still relies on sequential RNNs/LSTMs, limiting training efficiency and scalability. \\
+\textbf{Encoder-Decoder with Attention} & Solves the representation bottleneck; provides interpretable soft alignments. & Still relies on sequential RNNs/LSTMs, limiting training efficiency and scalability. \\
 \hline
-Transformer & Highly parallelizable; constant-time sequential operations; handles long dependencies well. & Quadratic computational and memory complexity with respect to sequence length ($O(n^2 \cdot d)$). \\
+\textbf{Transformer} & Highly parallelizable; constant-time sequential operations; handles long dependencies well. & Quadratic computational and memory complexity with respect to sequence length ($O(n^2 \cdot d)$). \\
 \hline
-Vision Transformer (ViT) & Drops restrictive inductive biases (locality, translation equivariance); massive capacity scales well with large data. & Requires massive datasets to outperform CNNs; global self-attention is intractable for high-resolution images. \\
+\textbf{Vision Transformer (ViT)} & Drops restrictive inductive biases (locality, translation equivariance); massive capacity scales well with large data. & Requires massive datasets to outperform CNNs; global self-attention is intractable for high-resolution images. \\
 \hline
-Swin Transformer & Hierarchical structure with local windowed attention restores linear complexity; enables multi-scale features. & More complex implementation compared to pure ViT; reintroduces some structural priors. \\
+\textbf{Swin Transformer} & Hierarchical structure with local windowed attention restores linear complexity; enables multi-scale features. & More complex implementation compared to pure ViT; reintroduces some structural priors. \\
 \hline
-CLIP & Enables powerful open-set and zero-shot image classification via contrastive multi-modal pre-training. & Requires massive pairs of image-text data for pre-training; not inherently designed for dense prediction. \\
+\textbf{CLIP} & Enables powerful open-set and zero-shot image classification via contrastive multi-modal pre-training. & Requires massive pairs of image-text data for pre-training; not inherently designed for dense prediction. \\
 \hline
-\end{tabular}
+\end{tabularx}
 \caption{Comparison of Main Architectures and Techniques}
 \label{tab:architecture_comparison}
 \end{table}
 
 \subsection{Possible Exam Questions}
 \begin{itemize}
-    \item Explain the fundamental difference between Teacher Forcing and inference (Greedy Decoding vs. Beam Search) in seq2seq models.
-    \item What is the ``Encoder-Decoder Bottleneck'', and how does the Attention mechanism solve it?
-    \item Describe the QKV (Query, Key, Value) paradigm in the context of Self-Attention. What is the role of the $\sqrt{d_k}$ scaling factor?
-    \item How does Multi-Head Attention differ from single-head attention, and what specialized roles can different heads learn?
-    \item Why do Transformers require Positional Encoding, and how is it typically implemented?
-    \item Compare the inductive biases of Convolutional Neural Networks (CNNs) with those of Vision Transformers (ViTs).
-    \item Discuss the primary drawbacks of the standard ViT architecture and how hierarchical models like the Swin Transformer address them.
-    \item How does the Contrastive Loss function work in CLIP, and how does it enable zero-shot classification?
+    \item \textbf{Q: Explain the fundamental difference between Teacher Forcing and inference (Greedy Decoding vs. Beam Search) in seq2seq models.} \\
+    \textbf{A:} Teacher Forcing uses the true previous tokens during training to predict the next token, whereas during inference, the model must rely on its own generated tokens. Greedy Decoding selects the single most probable token at each step (potentially leading to sub-optimal sequences), while Beam Search maintains the top $K$ partial sequences, allowing the model to explore multiple hypotheses and backtrack if needed.
+    
+    \item \textbf{Q: What is the ``Encoder-Decoder Bottleneck'', and how does the Attention mechanism solve it?} \\
+    \textbf{A:} The bottleneck occurs because the standard Encoder-Decoder architecture compresses the entire source sequence into a single fixed-size context vector, losing information for long sequences. Attention solves this by allowing the Decoder to dynamically ``look back'' at all Encoder hidden states and compute a weighted sum (context vector) for each decoding step based on learned attention scores.
+
+    \item \textbf{Q: Describe the QKV (Query, Key, Value) paradigm in the context of Self-Attention. What is the role of the $\sqrt{d_k}$ scaling factor?} \\
+    \textbf{A:} In Self-Attention, each token acts as a Query (what to look for), a Key (what it contains), and a Value (its actual content). Attention scores are computed via the dot product of Queries and Keys, then multiplied by Values. The $\sqrt{d_k}$ scaling factor prevents the dot products from growing too large, which would push the softmax function into regions with extremely small gradients.
+
+    \item \textbf{Q: How does Multi-Head Attention differ from single-head attention, and what specialized roles can different heads learn?} \\
+    \textbf{A:} Multi-Head Attention projects the queries, keys, and values into multiple smaller subspaces and computes attention in parallel, allowing the model to jointly attend to different types of relationships. Different heads often specialize into positional heads (attending to neighbors), syntactic heads (tracking grammatical relations), and rare token heads.
+
+    \item \textbf{Q: Why do Transformers require Positional Encoding, and how is it typically implemented?} \\
+    \textbf{A:} Since Transformers process all tokens in parallel and lack recurrence or convolutions, their operations are permutation invariant and have no inherent sense of sequence order. Positional Encoding injects order by adding structured vectors (typically using fixed sinusoidal functions of varying frequencies) to the input embeddings.
+
+    \item \textbf{Q: Compare the inductive biases of Convolutional Neural Networks (CNNs) with those of Vision Transformers (ViTs).} \\
+    \textbf{A:} CNNs heavily rely on spatial locality (neighboring pixels are correlated) and translation equivariance (features are computed identically regardless of position). ViTs abandon these restrictive image-specific biases in favor of a pure attention mechanism, treating images as sequences of patches. This requires massive data to learn spatial relationships but offers higher capacity without local constraints.
+
+    \item \textbf{Q: Discuss the primary drawbacks of the standard ViT architecture and how hierarchical models like the Swin Transformer address them.} \\
+    \textbf{A:} Standard ViTs have quadratic complexity with respect to the number of patches, making them intractable for high-resolution images, and they produce fixed-scale tokens unsuitable for dense prediction tasks. The Swin Transformer addresses this by using local shifted windows (restoring linear complexity) and merging patches in deeper layers to create hierarchical, multi-scale feature maps.
+
+    \item \textbf{Q: How does the Contrastive Loss function work in CLIP, and how does it enable zero-shot classification?} \\
+    \textbf{A:} CLIP trains Image and Text Encoders to maximize the cosine similarity of correct image-text pairs while minimizing it for incorrect pairs in a batch using a symmetric Contrastive Loss. At inference, zero-shot classification is achieved by comparing the image embedding with text embeddings of all candidate class names (e.g., "A photo of a [class]") and picking the one with the highest similarity.
 \end{itemize}

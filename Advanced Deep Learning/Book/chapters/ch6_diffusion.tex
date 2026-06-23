@@ -153,23 +153,23 @@ This chapter presented a comprehensive overview of diffusion models, a transform
 
 \begin{table}[h]
 \centering
-\begin{tabular}{|p{4cm}|p{4.5cm}|p{4.5cm}|}
+\begin{tabularx}{\textwidth}{| >{\centering\arraybackslash}m{3.5cm} | X | X |}
 \hline
 \textbf{Technique / Architecture} & \textbf{Pros} & \textbf{Cons} \\
 \hline
-Original DDPM & Strong theoretical foundation, high sample quality. & Very slow inference (thousands of sequential steps). \\
+\textbf{Original DDPM} & Strong theoretical foundation, high sample quality. & Very slow inference (thousands of sequential steps). \\
 \hline
-Cosine Schedulers & Preserves structural information longer, better generation quality. & Still requires many steps; does not completely solve inference speed. \\
+\textbf{Cosine Schedulers} & Preserves structural information longer, better generation quality. & Still requires many steps; does not completely solve inference speed. \\
 \hline
-Classifier-Free Guidance (CFG) & Drastically improves prompt adherence, no need for a separate classifier. & Computationally heavier during training and sampling (two forward passes per step). \\
+\textbf{Classifier-Free Guidance (CFG)} & Drastically improves prompt adherence, no need for a separate classifier. & Computationally heavier during training and sampling (two forward passes per step). \\
 \hline
-Consistency Models & Enables single-step or few-step generation. & Requires specific training objectives and trades compute during training. \\
+\textbf{Consistency Models} & Enables single-step or few-step generation. & Requires specific training objectives and trades compute during training. \\
 \hline
-Latent Diffusion Models (LDM) & Exponentially reduces computational cost, operates in semantically rich latent space. & Requires a pre-trained optimized autoencoder, potential loss of imperceptible high-frequency details. \\
+\textbf{Latent Diffusion Models (LDM)} & Exponentially reduces computational cost, operates in semantically rich latent space. & Requires a pre-trained optimized autoencoder, potential loss of imperceptible high-frequency details. \\
 \hline
-Diffusion Transformer (DiT) & Highly scalable, effectively utilizes attention mechanism, no convolutional inductive biases. & High memory footprint, requires patchification of latents. \\
+\textbf{Diffusion Transformer (DiT)} & Highly scalable, effectively utilizes attention mechanism, no convolutional inductive biases. & High memory footprint, requires patchification of latents. \\
 \hline
-\end{tabular}
+\end{tabularx}
 \caption{Comparison of Diffusion Model Techniques and Architectures}
 \label{tab:diffusion_comparison}
 \end{table}
@@ -177,12 +177,20 @@ Diffusion Transformer (DiT) & Highly scalable, effectively utilizes attention me
 \subsection{Possible Exam Questions}
 
 \begin{itemize}
-    \item Explain the forward and reverse diffusion processes. Why is the exact reverse process intractable and how is it approximated?
-    \item Derive the formulation for predicting the noise $\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)$ instead of the mean directly in the reverse process. Why is this beneficial?
-    \item What is the reparameterization trick in the context of diffusion models, and how does it allow sampling $\mathbf{x}_t$ at any arbitrary timestep $t$ in closed form?
-    \item Compare linear variance schedulers with cosine-based schedulers. Why does the cosine scheduler improve generation quality?
-    \item Describe the difference between Classifier Guided Diffusion and Classifier-Free Guidance (CFG). What are the advantages of CFG over explicitly training a classifier?
-    \item How do Progressive Distillation and Consistency Models address the slow inference speed of standard diffusion models?
-    \item What is the main motivation behind Latent Diffusion Models (LDM)? Explain the roles of the encoder and decoder in this framework.
-    \item Contrast the traditional U-Net backbone with the Diffusion Transformer (DiT) architecture for diffusion models.
+    \item \textbf{Q: Explain the forward and reverse diffusion processes. Why is the exact reverse process intractable and how is it approximated?} \\
+    \textbf{A:} The forward process is a Markov chain that gradually adds Gaussian noise to a data point over $T$ steps. The reverse process aims to denoise it to recreate a true sample. The exact reverse process is intractable because it requires evaluating the entire data distribution. Instead, it is approximated by learning a parameterized model $p_\theta(\mathbf{x}_{t-1} | \mathbf{x}_t)$, which is Gaussian for small step sizes.
+    \item \textbf{Q: Derive the formulation for predicting the noise $\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)$ instead of the mean directly in the reverse process. Why is this beneficial?} \\
+    \textbf{A:} Using Bayes' theorem on the forward posterior, the mean $\boldsymbol{\mu}_t$ is expressed as $\frac{1}{\sqrt{\alpha_t}} \left( \mathbf{x}_t - \frac{1 - \alpha_t}{\sqrt{1 - \bar{\alpha}_t}} \boldsymbol{\epsilon}_t \right)$. By substituting $\boldsymbol{\epsilon}_t$ with a neural network prediction $\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)$, the model predicts the noise. This simplifies the objective function and empirically yields superior sample quality by downweighting the loss at small $t$, focusing on difficult denoising tasks.
+    \item \textbf{Q: What is the reparameterization trick in the context of diffusion models, and how does it allow sampling $\mathbf{x}_t$ at any arbitrary timestep $t$ in closed form?} \\
+    \textbf{A:} The reparameterization trick allows expressing the noisy sample $\mathbf{x}_t$ recursively as a linear combination of $\mathbf{x}_0$ and cumulative Gaussian noise $\boldsymbol{\epsilon}$. Specifically, $\mathbf{x}_t = \sqrt{\bar{\alpha}_t} \mathbf{x}_0 + \sqrt{1 - \bar{\alpha}_t} \boldsymbol{\epsilon}$. This closed form permits sampling $\mathbf{x}_t$ efficiently at any step without explicitly iterating through all previous steps.
+    \item \textbf{Q: Compare linear variance schedulers with cosine-based schedulers. Why does the cosine scheduler improve generation quality?} \\
+    \textbf{A:} A linear scheduler destroys information too quickly, rendering the latter half of the forward process redundant as the image becomes pure noise early. A cosine scheduler offers a smoother variance progression that preserves structural information for a longer duration, preventing premature destruction and improving overall generation quality and log-likelihood metrics.
+    \item \textbf{Q: Describe the difference between Classifier Guided Diffusion and Classifier-Free Guidance (CFG). What are the advantages of CFG over explicitly training a classifier?} \\
+    \textbf{A:} Classifier Guided Diffusion steers generation using gradients from an explicitly trained, time-dependent classifier $f_\phi(y|\mathbf{x}_t)$. CFG eliminates the external classifier by jointly learning conditional and unconditional score estimators within a single network and amplifying their difference during sampling. CFG avoids the complexity and instability of training robust time-dependent classifiers while drastically improving prompt adherence.
+    \item \textbf{Q: How do Progressive Distillation and Consistency Models address the slow inference speed of standard diffusion models?} \\
+    \textbf{A:} Progressive Distillation iteratively trains a student model to predict the outcome of taking two steps with a teacher model in a single step, halving the sampling steps at each distillation phase. Consistency Models learn a mapping directly from any noisy state $\mathbf{x}_t$ to the origin $\mathbf{x}_0$, allowing for single-step or few-step generation.
+    \item \textbf{Q: What is the main motivation behind Latent Diffusion Models (LDM)? Explain the roles of the encoder and decoder in this framework.} \\
+    \textbf{A:} The motivation is to reduce the computational cost of running diffusion in high-resolution pixel space, recognizing that much of an image's detail is imperceptible high-frequency noise. The encoder compresses the image into a smaller, semantically rich 2D latent space where the diffusion process occurs. The decoder then reconstructs the full-resolution image from the latent representation.
+    \item \textbf{Q: Contrast the traditional U-Net backbone with the Diffusion Transformer (DiT) architecture for diffusion models.} \\
+    \textbf{A:} The traditional U-Net relies on convolutional inductive biases, downsampling/upsampling blocks, and skip connections, injecting conditionings via cross-attention. DiT replaces the U-Net with a standard Transformer by "patchifying" the latent space into a sequence of tokens. It uses Adaptive Layer Normalization (adaLN) for conditioning and shows that transformers scale exceptionally well for diffusion tasks without relying on convolutions.
 \end{itemize}

@@ -206,7 +206,7 @@ This chapter provides a comprehensive overview of image restoration, focusing on
 
 \begin{table}[h]
 \centering
-\begin{tabular}{|l|p{5cm}|p{5cm}|}
+\begin{tabularx}{\textwidth}{| >{\centering\arraybackslash}m{3.5cm} | X | X |}
 \hline
 \textbf{Architecture / Method} & \textbf{Pros} & \textbf{Cons} \\
 \hline
@@ -222,21 +222,40 @@ This chapter provides a comprehensive overview of image restoration, focusing on
 \hline
 \textbf{CBDNet} & Handles real-world, sophisticated noise models (e.g., Poisson-Gaussian, camera pipeline artifacts); robust blind denoising. & Complex architecture with two subnetworks and asymmetric loss; harder to tune and train. \\
 \hline
-\end{tabular}
+\end{tabularx}
 \caption{Comparison of Main Denoising Architectures and Techniques}
 \label{tab:denoising-architectures}
 \end{table}
 
 \subsection{Possible Exam Questions}
 \begin{itemize}
-    \item Explain the fundamental observation model for image denoising and define the roles of the clean signal and additive noise.
-    \item Discuss how image denoising using neural networks bridges the gap between supervised and self-supervised learning.
-    \item Describe the architecture of DnCNN and explain why predicting the noise residual is advantageous over predicting the clean image.
-    \item What are the main limitations of DnCNN, and how does FFDNet overcome them using a noise level map and pixel shuffling?
-    \item Analyze the impact of providing an inaccurate noise level estimate (either too high or too low) to FFDNet.
-    \item Explain the concept of Class-Aware Denoising and the mechanism of gradual denoising across network layers.
-    \item How does the Noise2Noise framework eliminate the need for clean target images, and what are its core assumptions?
-    \item Describe the Identity Function problem encountered when training denoisers on single noisy images.
-    \item How does Noise2Void (N2V) utilize Blind-Spot Networks (BSN) to solve the identity function problem?
-    \item Compare the practical applicability of supervised denoising models versus self-supervised models in fields like medical imaging.
+    \item \textbf{Q: Explain the fundamental observation model for image denoising and define the roles of the clean signal and additive noise.} \\
+    \textbf{A:} The observation model is $z(x) = y(x) + \eta(x)$, where $z(x)$ is the observed noisy image, $y(x)$ is the unknown original clean image, and $\eta(x)$ is the additive noise (often modeled as AWGN). The goal is to estimate $y(x)$ to reverse the degradation.
+    
+    \item \textbf{Q: Discuss how image denoising using neural networks bridges the gap between supervised and self-supervised learning.} \\
+    \textbf{A:} It uses a supervised loss (e.g., MSE against a ground truth), requires no manual semantic annotations (like unsupervised learning), and aligns with self-supervised learning since training pairs can be generated automatically by artificially adding noise to clean images.
+    
+    \item \textbf{Q: Describe the architecture of DnCNN and explain why predicting the noise residual is advantageous over predicting the clean image.} \\
+    \textbf{A:} DnCNN is a Fully Convolutional Neural Network composed of Conv+ReLU, Conv+BN+ReLU layers. It uses residual learning to predict the noise $\hat{\eta}$, reconstructing the image as $\hat{y} = z - \hat{\eta}$. This is advantageous because optimizing the mapping over high-frequency noise is empirically and theoretically easier than directly reconstructing low-frequency image content.
+    
+    \item \textbf{Q: What are the main limitations of DnCNN, and how does FFDNet overcome them using a noise level map and pixel shuffling?} \\
+    \textbf{A:} DnCNN overfits to the specific noise variance $\sigma$ seen during training. FFDNet overcomes this by taking a noise level map $M$ as an additional input, making the network parameters independent of a specific $\sigma$. It also uses pixel shuffling to downsample the input into sub-images, increasing the receptive field and computational efficiency.
+    
+    \item \textbf{Q: Analyze the impact of providing an inaccurate noise level estimate (either too high or too low) to FFDNet.} \\
+    \textbf{A:} Providing a higher $\sigma$ than the true noise level results in over-smoothing (PSNR plateaus suboptimally). Providing a lower $\sigma$ than the true noise level leads to noisy outputs and critically decreases the PSNR.
+    
+    \item \textbf{Q: Explain the concept of Class-Aware Denoising and the mechanism of gradual denoising across network layers.} \\
+    \textbf{A:} Class-Aware Denoising trains specialized networks for specific image domains (e.g., faces) to narrow down the space of possible images. Gradual denoising utilizes long skip connections to add the noisy input to intermediate layers, canceling noise progressively where shallow layers handle fine details and deep layers recover structure.
+    
+    \item \textbf{Q: How does the Noise2Noise framework eliminate the need for clean target images, and what are its core assumptions?} \\
+    \textbf{A:} Noise2Noise trains a network to map a noisy observation to a different, independent noisy observation of the exact same scene. It assumes the noise is zero-mean and independent between the two realizations, allowing the network to robustly predict the underlying clean signal on average.
+    
+    \item \textbf{Q: Describe the Identity Function problem encountered when training denoisers on single noisy images.} \\
+    \textbf{A:} If a network is trained to map a single noisy image $z$ to itself as the target, it will simply learn the identity function ($\text{CNN}(z) = z$), perfectly reconstructing the noise rather than learning how to remove it.
+    
+    \item \textbf{Q: How does Noise2Void (N2V) utilize Blind-Spot Networks (BSN) to solve the identity function problem?} \\
+    \textbf{A:} N2V masks or hides the central pixel (blind spot) in the network's receptive field. The network is forced to estimate the value of the blind spot using only the outer spatial context. Assuming noise is pixel-wise independent and the image has spatial correlation, it learns the clean signal without copying the noise.
+    
+    \item \textbf{Q: Compare the practical applicability of supervised denoising models versus self-supervised models in fields like medical imaging.} \\
+    \textbf{A:} Supervised models require vast datasets of perfectly aligned noisy-clean pairs, which is physically impractical or unsafe (e.g., high radiation in CT scans). Self-supervised models like N2N and N2V can train directly on noisy data, enabling effective denoising in critical applications without needing clean references.
 \end{itemize}

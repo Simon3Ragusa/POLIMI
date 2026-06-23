@@ -142,7 +142,7 @@ This chapter introduced the fundamental challenges and representations for 3D sp
 
 \begin{table}[h]
 \centering
-\begin{tabular}{|l|p{4.5cm}|p{4.5cm}|}
+\begin{tabularx}{\textwidth}{| >{\centering\arraybackslash}m{3.5cm} | X | X |}
 \hline
 \textbf{Architecture / Technique} & \textbf{Pros} & \textbf{Cons} \\
 \hline
@@ -160,19 +160,27 @@ This chapter introduced the fundamental challenges and representations for 3D sp
 \hline
 \textbf{BEVFusion (Early Fusion)} & Rich synergistic features; unified prediction head; high accuracy. & High memory footprint; requires complex view-transformation modules. \\
 \hline
-\end{tabular}
+\end{tabularx}
 \caption{Comparison of key 3D Deep Learning architectures and techniques.}
 \label{tab:3d_architectures_comparison}
 \end{table}
 
 \subsection{Possible Exam Questions}
 \begin{itemize}
-    \item Explain the fundamental differences between Voxel grids, Point Clouds, and Meshes as 3D data representations. What are the advantages and disadvantages of each?
-    \item Describe the problem of scale-depth ambiguity in Single Image Depth Estimation. How does the Scale Invariant Loss address this issue?
-    \item What is the Deep Sets theorem? Explain how PointNet utilizes symmetric functions to achieve permutation invariance.
-    \item Why does PointNet fail to capture local geometric structures, and how does the PointNet++ architecture resolve this limitation?
-    \item Detail the mechanics of Submanifold Sparse Convolutions. Why are they necessary for processing voxelized LiDAR point clouds?
-    \item Explain the Bird Eye View (BEV) representation. How does the PointPillars architecture leverage BEV to achieve real-time 3D object detection?
-    \item Compare and contrast Early Fusion and Late Fusion strategies for multimodal 3D object detection (Camera + LiDAR). What are their respective trade-offs?
-    \item Describe the formulation of continuous point convolutions as implemented in KPConv. How does it differ from standard discrete 3D convolutions?
+    \item \textbf{Q: Explain the fundamental differences between Voxel grids, Point Clouds, and Meshes as 3D data representations. What are the advantages and disadvantages of each?} \\
+    \textbf{A:} Point Clouds are unordered sets of 3D points; they are compact and adapt to detail but lack grid structure and topology. Voxel grids are 3D binary arrays; they are easy to use with CNNs but suffer from extreme sparsity and cubic memory growth. Meshes are vertices connected by edges and faces; they are efficient for surfaces and rendering but require specialized Graph or Mesh architectures.
+    \item \textbf{Q: Describe the problem of scale-depth ambiguity in Single Image Depth Estimation. How does the Scale Invariant Loss address this issue?} \\
+    \textbf{A:} Scale-depth ambiguity arises because a small, close object looks identical to a large, distant object on a 2D projection. The Scale Invariant Loss addresses this by decomposing depth error into absolute scale and relative depth, and heavily penalizing relative depth errors (structural correctness) while ignoring global scale shifts.
+    \item \textbf{Q: What is the Deep Sets theorem? Explain how PointNet utilizes symmetric functions to achieve permutation invariance.} \\
+    \textbf{A:} The Deep Sets theorem states a function on a set is permutation-invariant if it can be decomposed into a sum of point-wise functions followed by a non-linear mapping. PointNet implements this by passing each point through a shared MLP, applying a symmetric global max pooling operation to aggregate the features, and processing the result with a final MLP.
+    \item \textbf{Q: Why does PointNet fail to capture local geometric structures, and how does the PointNet++ architecture resolve this limitation?} \\
+    \textbf{A:} PointNet processes each point in isolation before global pooling, losing local contextual relationships. PointNet++ resolves this using a hierarchical structure of Set Abstraction Levels (Sampling, Grouping, and PointNet layers) to iteratively extract and aggregate local features from geometric neighborhoods.
+    \item \textbf{Q: Detail the mechanics of Submanifold Sparse Convolutions. Why are they necessary for processing voxelized LiDAR point clouds?} \\
+    \textbf{A:} Submanifold Sparse Convolutions only compute outputs at active (non-empty) spatial sites, maintaining the exact sparsity pattern of the input. They are necessary for LiDAR point clouds because voxelizing them yields $>95\%$ empty space; standard 3D CNNs would waste computations and "dilate" the active regions, making processing computationally prohibitive.
+    \item \textbf{Q: Explain the Bird Eye View (BEV) representation. How does the PointPillars architecture leverage BEV to achieve real-time 3D object detection?} \\
+    \textbf{A:} BEV is a top-down 2D projection that preserves physical scale and avoids perspective distortion by collapsing the height axis into channels. PointPillars discretizes space into vertical pillars, uses a simplified PointNet to extract features per pillar, and scatters them into a 2D BEV pseudo-image, enabling the use of ultra-fast 2D CNN backbones for real-time detection.
+    \item \textbf{Q: Compare and contrast Early Fusion and Late Fusion strategies for multimodal 3D object detection (Camera + LiDAR). What are their respective trade-offs?} \\
+    \textbf{A:} Early Fusion combines intermediate features from both sensors in a unified backbone (e.g., in BEV space), offering rich synergistic features and high accuracy but at a high memory and computational cost. Late Fusion uses independent detectors and merges the final predictions; it is robust to single-sensor failure and faster, but misses combined feature representations.
+    \item \textbf{Q: Describe the formulation of continuous point convolutions as implemented in KPConv. How does it differ from standard discrete 3D convolutions?} \\
+    \textbf{A:} KPConv defines a continuous spatial kernel parameterized by learnable weight matrices associated with rigid anchor points in space. Instead of operating on a fixed discrete grid like standard 3D CNNs, it computes convolution over continuous scattered neighborhoods by interpolating weights based on Euclidean distance to the anchor points.
 \end{itemize}

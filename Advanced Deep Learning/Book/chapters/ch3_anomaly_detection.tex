@@ -130,37 +130,56 @@ This chapter explored the multifaceted problem of anomaly detection in images, f
 
 \begin{table}[h]
 \centering
-\begin{tabular}{|l|p{3.5cm}|p{4cm}|p{4cm}|}
+\begin{tabularx}{\textwidth}{| >{\centering\arraybackslash}m{3.5cm} | X | X | X |}
 \hline
 \textbf{Method Category} & \textbf{Examples} & \textbf{Pros} & \textbf{Cons} \\
 \hline
-Reconstruction (AEs) & Autoencoders, DAGMM & Intuitive, entirely self-contained, no external data required & Blurry reconstructions, prone to identity mapping of anomalies \\
+\textbf{Reconstruction (AEs)} & Autoencoders, DAGMM & Intuitive, entirely self-contained, no external data required & Blurry reconstructions, prone to identity mapping of anomalies \\
 \hline
-Pre-Trained Features & PADIM, PatchCore & Highly effective on textures, avoids expensive training & Requires large memory (PatchCore), assumes specific distributions (PADIM) \\
+\textbf{Pre-Trained Features} & PADIM, PatchCore & Highly effective on textures, avoids expensive training & Requires large memory (PatchCore), assumes specific distributions (PADIM) \\
 \hline
-Student-Teacher & Uninformed Students & Excellent localization, robust anomaly representations & Sensitive to teacher architecture, training distillation can be unstable \\
+\textbf{Student-Teacher} & Uninformed Students & Excellent localization, robust anomaly representations & Sensitive to teacher architecture, training distillation can be unstable \\
 \hline
-Self-Supervised & CutPaste, Transformations & Good at finding structural defects, no pre-training reliance & Often struggles with subtle textural anomalies, reliance on heuristics \\
+\textbf{Self-Supervised} & CutPaste, Transformations & Good at finding structural defects, no pre-training reliance & Often struggles with subtle textural anomalies, reliance on heuristics \\
 \hline
-VLMs (Zero-Shot) & WinCLIP, AdaCLIP & Zero-shot capabilities, flexibly handles unseen classes & Computationally heavy, fundamentally relies on large-scale pre-training \\
+\textbf{VLMs (Zero-Shot)} & WinCLIP, AdaCLIP & Zero-shot capabilities, flexibly handles unseen classes & Computationally heavy, fundamentally relies on large-scale pre-training \\
 \hline
-Domain-Based (Deep) & Deep SVDD & Optimizes directly for anomaly bounds, mathematically elegant & Risk of hypersphere collapse, sensitive to architectural choices \\
+\textbf{Domain-Based (Deep)} & Deep SVDD & Optimizes directly for anomaly bounds, mathematically elegant & Risk of hypersphere collapse, sensitive to architectural choices \\
 \hline
-\end{tabular}
+\end{tabularx}
 \caption{Comparison of Major Anomaly Detection Approaches}
 \label{tab:ad_methods}
 \end{table}
 
 \subsection{Possible Exam Questions}
 \begin{itemize}
-    \item Define the formal problem of image anomaly detection and clearly distinguish between image-wise and patch-wise detection tasks.
-    \item What is the critical difference between Semi-supervised AD (Novelty Detection) and Unsupervised AD in terms of the training data assumption? Why is supervised training rarely feasible?
-    \item Explain the "curse of dimensionality" as it applies to density-based anomaly detection methods like Gaussian Mixture Models on raw image pixels.
-    \item Describe how a standard Autoencoder is used for anomaly detection. What is the fundamental assumption of this approach, and what is the "identity mapping" problem?
-    \item How does the Deep Autoencoding Gaussian Mixture Model (DAGMM) improve upon simple reconstruction-based autoencoders? Explain the role of joint optimization.
-    \item Explain the core mechanism of PADIM. How does it model the normal distribution spatially, and what metric does it use to score anomalies?
-    \item Describe the PatchCore algorithm. Why is the memory bank subsampled using a coreset approach, and what distance metric is utilized at inference time?
-    \item How does the Student-Teacher framework detect anomalies? Detail the roles of the pre-trained Teacher and the ensemble of Students in computing the anomaly score.
-    \item Explain how self-supervised proxy tasks, such as predicting geometric transformations or CutPaste, can be utilized to train an anomaly detector without anomalous data.
-    \item What is Open Set Recognition (OSR) and how does it relate to Anomaly Detection? Compare the Max-Logit and Energy Score methodologies.
+    \item \textbf{Q: Define the formal problem of image anomaly detection and clearly distinguish between image-wise and patch-wise detection tasks.} \\
+    \textbf{A:} The problem aims to identify an unknown binary anomaly mask where 1 indicates an anomalous pixel and 0 a normal one. Image-wise detection determines if an entire image deviates from a normal baseline, while patch-wise detection localizes and segments anomalous regions within the image.
+    
+    \item \textbf{Q: What is the critical difference between Semi-supervised AD (Novelty Detection) and Unsupervised AD in terms of the training data assumption? Why is supervised training rarely feasible?} \\
+    \textbf{A:} In semi-supervised AD, training data consists exclusively of normal samples, whereas in unsupervised AD, training data is unlabeled and may contain a negligible fraction of anomalies. Supervised training is rarely feasible because anomalies are rare, costly to collect, and gathering a representative set of all failure modes is impossible due to class imbalance.
+    
+    \item \textbf{Q: Explain the "curse of dimensionality" as it applies to density-based anomaly detection methods like Gaussian Mixture Models on raw image pixels.} \\
+    \textbf{A:} Estimating the probability density of raw image pixels using methods like GMMs becomes practically infeasible in high-dimensional spaces without prior dimensionality reduction, as the volume of the space increases exponentially, making the data exceedingly sparse.
+    
+    \item \textbf{Q: Describe how a standard Autoencoder is used for anomaly detection. What is the fundamental assumption of this approach, and what is the "identity mapping" problem?} \\
+    \textbf{A:} A standard autoencoder is trained on normal images to minimize reconstruction error. The assumption is its bottleneck forces it to learn normal data's principal components, causing high residuals for unfamiliar anomalous patterns. The "identity mapping" problem occurs when a highly capable decoder over-generalizes and perfectly reconstructs anomalies instead of failing.
+    
+    \item \textbf{Q: How does the Deep Autoencoding Gaussian Mixture Model (DAGMM) improve upon simple reconstruction-based autoencoders? Explain the role of joint optimization.} \\
+    \textbf{A:} DAGMM addresses the issue that simply minimizing reconstruction error doesn't yield a good latent space for density estimation. It jointly optimizes the autoencoder and a GMM over the latent representation, balancing feature learning with density fitting to avoid suboptimal minima and produce a compact probability model.
+    
+    \item \textbf{Q: Explain the core mechanism of PADIM. How does it model the normal distribution spatially, and what metric does it use to score anomalies?} \\
+    \textbf{A:} PADIM extracts embeddings by stacking activations from multiple layers of a pre-trained CNN. It fits a Multivariate Gaussian at every spatial location using normal training data. Anomalies are scored using the Mahalanobis distance between the test patch and the corresponding local Gaussian distribution.
+    
+    \item \textbf{Q: Describe the PatchCore algorithm. Why is the memory bank subsampled using a coreset approach, and what distance metric is utilized at inference time?} \\
+    \textbf{A:} PatchCore aggregates mid-level CNN features into a non-parametric memory bank. It uses a greedy coreset subsampling algorithm to compress the prohibitively large memory bank while preserving maximal latent space coverage. At inference, anomalies are scored using the Euclidean distance to the nearest neighbor in this core-set.
+    
+    \item \textbf{Q: How does the Student-Teacher framework detect anomalies? Detail the roles of the pre-trained Teacher and the ensemble of Students in computing the anomaly score.} \\
+    \textbf{A:} A frozen pre-trained Teacher generates target embeddings, and an ensemble of randomly initialized Students learns to regress these outputs using only normal data. Anomalies trigger high scores because Students disagree (high predictive uncertainty) and fail to mimic the Teacher (high discrepancy) on unfamiliar anomalous inputs.
+    
+    \item \textbf{Q: Explain how self-supervised proxy tasks, such as predicting geometric transformations or CutPaste, can be utilized to train an anomaly detector without anomalous data.} \\
+    \textbf{A:} Self-supervised tasks synthesize irregularities (like pasting random patches in CutPaste or applying rotations). The network is trained to classify genuine normal images vs. augmented ones, or to predict the applied transformation. Anomalies disrupt structures necessary to predict the task correctly, allowing the detection of anomalies without relying on real anomalous data.
+    
+    \item \textbf{Q: What is Open Set Recognition (OSR) and how does it relate to Anomaly Detection? Compare the Max-Logit and Energy Score methodologies.} \\
+    \textbf{A:} OSR requires a classifier to classify known classes while rejecting unseen, unknown classes, making it a cognate problem to AD. The Max-Logit approach uses the maximum logit value to reject out-of-distribution samples, while the Energy Score uses the log-sum-exp of logits scaled by a temperature parameter to better align with the true density.
 \end{itemize}

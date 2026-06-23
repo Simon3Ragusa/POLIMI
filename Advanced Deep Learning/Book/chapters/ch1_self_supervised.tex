@@ -173,7 +173,7 @@ This chapter introduces the transition from heavily supervised deep learning par
 
 \begin{table}[h]
 \centering
-\begin{tabular}{|l|p{4cm}|p{4cm}|p{4cm}|}
+\begin{tabularx}{\textwidth}{| >{\centering\arraybackslash}m{3.5cm} | X | X | X |}
 \hline
 \textbf{Paradigm / Architecture} & \textbf{Core Mechanism} & \textbf{Pros} & \textbf{Cons} \\
 \hline
@@ -187,19 +187,36 @@ This chapter introduces the transition from heavily supervised deep learning par
 \hline
 \textbf{SimCLR (Contrastive SSL)} & Maximizes similarity of augmented views of the same image while pushing away others. & State-of-the-art semantic representations without explicit manual pretext tasks. & Heavily dependent on large batch sizes and extreme data augmentations. \\
 \hline
-\end{tabular}
+\end{tabularx}
 \caption{Comparison of Unsupervised and Self-Supervised Learning Approaches}
 \end{table}
 
 \subsection{Possible Exam Questions}
 \begin{itemize}
-    \item Explain the fundamental difference between Autoencoders and Self-Supervised Learning in terms of the representations they learn.
-    \item How does the dimensionality of the latent space ($d$) affect the learning process of an Autoencoder? What happens if $d$ is too large or too small?
-    \item Describe how an Autoencoder can be utilized in a Semi-Supervised Learning context via Transfer Learning.
-    \item What is a ``pretext task'' in Self-Supervised Learning? Provide two examples and explain the visual semantics they are designed to teach the network.
-    \item In the context of predicting image rotations or solving jigsaw puzzles, explain the concept of ``trivial shortcuts'' and how they can be mitigated.
-    \item Contrast standard categorical classification with Metric Learning. Why is Metric Learning necessary for systems like Face Identification?
-    \item Define the Contrastive Loss and the Triplet Loss. What is the role of the ``margin'' parameter in both?
-    \item Explain the core workflow of the SimCLR framework and the purpose of the nt-Xent loss function.
-    \item Why does SimCLR rely on extreme data augmentations (like color jittering and heavy blurring) to learn semantic representations?
+    \item \textbf{Q: Explain the fundamental difference between Autoencoders and Self-Supervised Learning in terms of the representations they learn.} \\
+    \textbf{A:} Autoencoders learn to compress and reconstruct images pixel-by-pixel, capturing low-level details but lacking semantic understanding. Self-Supervised Learning (SSL) uses pretext tasks to force the network to understand high-level semantics (e.g., objects, orientations) without focusing on exact pixel reconstruction.
+    
+    \item \textbf{Q: How does the dimensionality of the latent space ($d$) affect the learning process of an Autoencoder? What happens if $d$ is too large or too small?} \\
+    \textbf{A:} The dimensionality $d$ dictates reconstruction fidelity. If $d$ is too large ($d \to n$), the network degenerates into a trivial identity mapping without learning meaningful compression. If $d$ is too small, reconstructions lose high-frequency details and become blurry.
+    
+    \item \textbf{Q: Describe how an Autoencoder can be utilized in a Semi-Supervised Learning context via Transfer Learning.} \\
+    \textbf{A:} An Autoencoder is first pre-trained on a massive unlabeled dataset. The Decoder is then discarded, and a classifier layer is added on top of the pre-trained Encoder. This composite network is then fine-tuned on a small annotated dataset, avoiding overfitting due to the robust initialization.
+    
+    \item \textbf{Q: What is a ``pretext task'' in Self-Supervised Learning? Provide two examples and explain the visual semantics they are designed to teach the network.} \\
+    \textbf{A:} A pretext task is an auxiliary task solved using automatically generated pseudo-labels to teach the network rich semantics. Examples include predicting image rotations (teaching object parts and natural orientations) and solving jigsaw puzzles (teaching spatial relationships and scene structure).
+    
+    \item \textbf{Q: In the context of predicting image rotations or solving jigsaw puzzles, explain the concept of ``trivial shortcuts'' and how they can be mitigated.} \\
+    \textbf{A:} Trivial shortcuts are unintended clues the network uses to solve pretext tasks without learning semantics (e.g., matching low-level edges or chromatic aberration). They can be mitigated by restricting rotations to multiples of $90^\circ$ (preventing aliasing clues), adding gaps/jittering to patches, and converting images to grayscale.
+    
+    \item \textbf{Q: Contrast standard categorical classification with Metric Learning. Why is Metric Learning necessary for systems like Face Identification?} \\
+    \textbf{A:} Categorical classification learns fixed class boundaries and requires complete retraining for new classes. Metric Learning instead learns a mathematical distance in the latent space to evaluate if inputs belong to the same category, which is necessary for Face Identification where the system must recognize new people without retraining.
+    
+    \item \textbf{Q: Define the Contrastive Loss and the Triplet Loss. What is the role of the ``margin'' parameter in both?} \\
+    \textbf{A:} Contrastive Loss pushes positive pairs together and pulls negative pairs apart, while Triplet Loss explicitly enforces that an anchor is closer to a positive sample than to a negative sample. In both, the margin $m$ ensures the network does not waste energy pushing dissimilar samples further apart once they are separated by $m$.
+    
+    \item \textbf{Q: Explain the core workflow of the SimCLR framework and the purpose of the nt-Xent loss function.} \\
+    \textbf{A:} SimCLR applies two extreme random augmentations to each image in a large batch, processes them through a CNN and projection head. The nt-Xent loss function then maximizes the cosine similarity between the augmented views of the same image (positive pairs) while simultaneously minimizing similarity with all other images in the batch (negative pairs).
+    
+    \item \textbf{Q: Why does SimCLR rely on extreme data augmentations (like color jittering and heavy blurring) to learn semantic representations?} \\
+    \textbf{A:} Extreme augmentations force the network to map drastically altered views (e.g., a green nose and a blurry tail) to the same latent point. This prevents the network from using trivial shortcuts like color histograms and forces it to understand the underlying high-level semantic concept.
 \end{itemize}

@@ -191,33 +191,41 @@ This chapter introduces the fundamental concepts of learning on graphs, transiti
 
 \begin{table}[h]
 \centering
-\begin{tabular}{|l|p{4.5cm}|p{4.5cm}|}
+\begin{tabularx}{\textwidth}{| >{\centering\arraybackslash}m{3.5cm} | X | X |}
 \hline
 \textbf{Architecture / Technique} & \textbf{Pros} & \textbf{Cons} \\
 \hline
-Shallow Encodings (e.g., node2vec) & Efficient for local similarities; well-suited for transductive tasks & Parameters grow as $\mathcal{O}(|\mathcal{V}|)$; purely transductive; ignores node features \\
+\textbf{Shallow Encodings (e.g., node2vec)} & Efficient for local similarities; well-suited for transductive tasks & Parameters grow as $\mathcal{O}(|\mathcal{V}|)$; purely transductive; ignores node features \\
 \hline
-Graph Convolutional Networks (GCN) & Incorporates node features; inductive capability; efficient vectorized computation & Relies on isotropic/static weights; suffers from over-smoothing in deep models \\
+\textbf{Graph Convolutional Networks (GCN)} & Incorporates node features; inductive capability; efficient vectorized computation & Relies on isotropic/static weights; suffers from over-smoothing in deep models \\
 \hline
-GraphSAGE & Flexible aggregation (Mean, Pool, LSTM); effective for unseen nodes & Inherits locality constraints of standard MPNNs \\
+\textbf{GraphSAGE} & Flexible aggregation (Mean, Pool, LSTM); effective for unseen nodes & Inherits locality constraints of standard MPNNs \\
 \hline
-Gated Graph Neural Networks (GGNN) & Alleviates overfitting and vanishing gradients, allowing deeper models (>10 layers) & Recurrent GRU updates increase computational overhead \\
+\textbf{Gated Graph Neural Networks (GGNN)} & Alleviates overfitting and vanishing gradients, allowing deeper models (>10 layers) & Recurrent GRU updates increase computational overhead \\
 \hline
-Graph Attention Networks (GAT) & Dynamic, data-dependent neighbor weighting; scalable with multi-head attention & Standard GAT attention is static/limited expressiveness (solved by GATv2) \\
+\textbf{Graph Attention Networks (GAT)} & Dynamic, data-dependent neighbor weighting; scalable with multi-head attention & Standard GAT attention is static/limited expressiveness (solved by GATv2) \\
 \hline
-Graph Transformers (Graphormer) & Captures long-range dependencies; effectively mitigates over-smoothing and over-squashing & $\mathcal{O}(|\mathcal{V}|^2)$ complexity; requires complex structural/spatial encodings \\
+\textbf{Graph Transformers (Graphormer)} & Captures long-range dependencies; effectively mitigates over-smoothing and over-squashing & $\mathcal{O}(|\mathcal{V}|^2)$ complexity; requires complex structural/spatial encodings \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \subsection{Possible Exam Questions}
 \begin{itemize}
-    \item What are the main limitations of shallow encoding approaches for node embedding?
-    \item Explain the concept of Neighborhood Aggregation (Message Passing) and how it enables inductive learning in GNNs.
-    \item Describe how random walk approaches like DeepWalk or node2vec optimize node embeddings through Negative Sampling.
-    \item Why do standard message-passing models like GCNs struggle when scaled to many layers, and what is this phenomenon called?
-    \item How does the aggregation mechanism in Graph Attention Networks (GAT) differ fundamentally from that in Graph Convolutional Networks (GCN)?
-    \item Discuss the "over-squashing" and "over-smoothing" problems in Message Passing Neural Networks (MPNNs).
-    \item How does the Graphormer inject graph topological information into the permutation-invariant standard Transformer architecture?
-    \item Explain the difference between transductive and inductive learning in the context of graph networks.
+    \item \textbf{Q: What are the main limitations of shallow encoding approaches for node embedding?} \\
+    \textbf{A:} They are transductive (cannot generate embeddings for unseen nodes), the number of parameters grows linearly with the number of nodes $\mathcal{O}(|\mathcal{V}|)$, and they ignore node features.
+    \item \textbf{Q: Explain the concept of Neighborhood Aggregation (Message Passing) and how it enables inductive learning in GNNs.} \\
+    \textbf{A:} Nodes aggregate information from their local neighbors using neural networks and shared weight matrices. Because the weights are shared across all nodes rather than tied to specific nodes, the model can generate embeddings for unseen nodes or graphs on the fly.
+    \item \textbf{Q: Describe how random walk approaches like DeepWalk or node2vec optimize node embeddings through Negative Sampling.} \\
+    \textbf{A:} Negative Sampling reduces the computational cost of the softmax loss from $\mathcal{O}(|\mathcal{V}|^2)$ to $\mathcal{O}(k)$ by normalizing against $k$ randomly sampled "negative" nodes (drawn proportionally to their degree) instead of the entire graph.
+    \item \textbf{Q: Why do standard message-passing models like GCNs struggle when scaled to many layers, and what is this phenomenon called?} \\
+    \textbf{A:} It is called over-smoothing. Since information propagates 1-hop per layer, adding many layers causes node representations to repeatedly mix, eventually converging to similar values and becoming indistinguishable.
+    \item \textbf{Q: How does the aggregation mechanism in Graph Attention Networks (GAT) differ fundamentally from that in Graph Convolutional Networks (GCN)?} \\
+    \textbf{A:} GCN uses isotropic or structurally fixed weights (like degree-based normalization) for neighbors, while GAT introduces a dynamically learned attention mechanism that computes adaptive, data-dependent weights for each neighbor.
+    \item \textbf{Q: Discuss the "over-squashing" and "over-smoothing" problems in Message Passing Neural Networks (MPNNs).} \\
+    \textbf{A:} Over-smoothing occurs when many layers cause node representations to converge and become indistinguishable. Over-squashing happens when a node's entire exponentially growing $K$-hop neighborhood must be compressed into a single fixed-size vector, causing information loss.
+    \item \textbf{Q: How does the Graphormer inject graph topological information into the permutation-invariant standard Transformer architecture?} \\
+    \textbf{A:} It uses specialized encodings: Centrality Encoding (node degree), Spatial Encoding (Shortest Path Distance between nodes), and Edge Encoding (average relationship of edges along the shortest path).
+    \item \textbf{Q: Explain the difference between transductive and inductive learning in the context of graph networks.} \\
+    \textbf{A:} Transductive learning requires the entire graph structure (including test nodes) to be present during training and cannot generate embeddings for new, unseen nodes. Inductive learning learns mapping functions (e.g., via shared weights) that can generalize to entirely new nodes or graphs.
 \end{itemize}

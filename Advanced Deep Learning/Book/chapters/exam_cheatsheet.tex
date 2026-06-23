@@ -2,67 +2,113 @@
 \addcontentsline{toc}{chapter}{Final Exam Quick-Recall Summary}
 \label{ch:exam_cheatsheet}
 
-This section is designed as an emergency, at-a-glance cheatsheet to review the core concepts right before the exam. 
+This section is designed as an emergency, at-a-glance cheatsheet to review the core concepts, deeper intuitions, and critical architectures right before the exam. 
 
 \section*{Chapter 1: Self-Supervised Learning}
 \begin{itemize}
-    \item \textbf{Content Summary:} Transitioning from supervised to self-supervised learning (SSL) to leverage unlabelled data via pretext tasks and contrastive learning.
-    \item \textbf{Main Takeaway:} SSL learns representations by maximizing similarity between augmented views of the same image (positives) and minimizing similarity with others (negatives), often using Siamese networks to prevent representation collapse.
-    \item \textbf{Key Architectures:} SimCLR (large batch negatives), MoCo (momentum queue negatives), BYOL \& SimSiam (no negatives, stop-gradient), DINO (knowledge distillation with Vision Transformers).
+    \item \textbf{Content Summary:} Moving beyond expensive manual labels by designing pretext tasks where the data itself provides the supervision. The modern paradigm relies heavily on contrastive learning to learn invariant representations.
+    \item \textbf{Main Takeaway:} The core challenge in SSL is preventing \textit{representation collapse} (where the network outputs a constant vector for all inputs). Contrastive methods solve this using negative samples, while non-contrastive methods rely on architectural tricks like stop-gradients and momentum encoders.
+    \item \textbf{Key Architectures:}
+    \begin{itemize}
+        \item \textbf{SimCLR:} Uses massive batch sizes to generate enough negative samples. Relies on heavy data augmentation and a projection head.
+        \item \textbf{MoCo (Momentum Contrast):} Uses a memory bank (queue) of negative samples and updates the key encoder via a slow-moving momentum average to ensure consistency without needing massive batches.
+        \item \textbf{BYOL \& SimSiam:} Non-contrastive. They use a predictor network and a \textit{stop-gradient} operation on one branch to prevent collapse without needing any negative samples.
+        \item \textbf{DINO:} SSL applied to Vision Transformers. Acts as a form of self-distillation where a student network predicts the output of a momentum teacher, leading to emergent semantic segmentation properties.
+    \end{itemize}
 \end{itemize}
 
 \section*{Chapter 2: Sequential Modeling \& Transformers}
 \begin{itemize}
-    \item \textbf{Content Summary:} The shift from RNNs/CNNs to Transformers for modeling sequences and images using the Self-Attention mechanism.
-    \item \textbf{Main Takeaway:} Self-Attention relates all tokens in a sequence to each other (Queries, Keys, Values) globally, eliminating locality bias but introducing $O(N^2)$ complexity.
-    \item \textbf{Key Architectures:} Vision Transformer (ViT - images as patches), Swin Transformer (hierarchical shifted windows for linear complexity), CLIP (multimodal text-image contrastive learning).
+    \item \textbf{Content Summary:} The paradigm shift from localized processing (CNNs) and sequential bottlenecks (RNNs) to global sequence modeling using the Self-Attention mechanism.
+    \item \textbf{Main Takeaway:} Self-Attention computes a weighted sum of all values in a sequence based on the dot-product similarity between Queries and Keys. This removes the inductive bias of locality (great for large data) but scales quadratically $O(N^2)$ with sequence length.
+    \item \textbf{Key Architectures:}
+    \begin{itemize}
+        \item \textbf{Vision Transformer (ViT):} Treats an image as a sequence of flattened 16x16 patches. It requires massive datasets to generalize because it lacks the translational invariance of CNNs.
+        \item \textbf{Swin Transformer:} Re-introduces hierarchical structure and locality by computing attention only within local "windows" that shift between layers. This reduces complexity from quadratic to linear.
+        \item \textbf{CLIP:} A multimodal giant. Uses contrastive learning to align text and image embeddings in the same latent space, enabling zero-shot classification without fine-tuning.
+    \end{itemize}
 \end{itemize}
 
 \section*{Chapter 3: Anomaly Detection in Images}
 \begin{itemize}
-    \item \textbf{Content Summary:} Identifying out-of-distribution (anomalous) data when training exclusively on normal/healthy images.
-    \item \textbf{Main Takeaway:} Since anomalies are rare or unknown, models learn the manifold of "normal" data. Deviations from this manifold (e.g., poor reconstruction, or disagreement between networks) flag anomalies.
-    \item \textbf{Key Architectures:} Reconstruction-based (Autoencoders), Student-Teacher (distillation mismatch indicates anomaly), Normalizing Flows (exact likelihood estimation).
+    \item \textbf{Content Summary:} Identifying structural or logical anomalies in images when the training dataset contains exclusively "normal" or healthy samples.
+    \item \textbf{Main Takeaway:} Because anomalous data is scarce, models must learn the exact manifold of normal data. At inference, anomalies are detected by measuring the model's failure to represent or reconstruct the out-of-distribution input.
+    \item \textbf{Key Architectures:}
+    \begin{itemize}
+        \item \textbf{Autoencoders (Reconstruction):} Trained to compress and reconstruct normal data. Anomalies are flagged by calculating high pixel-wise reconstruction errors.
+        \item \textbf{Student-Teacher Networks:} A Teacher network is pre-trained on a large dataset (e.g., ImageNet). A Student network is trained to mimic the Teacher \textit{only} on normal data. Anomalies yield high feature disagreement between the two.
+        \item \textbf{Normalizing Flows:} Bijective, invertible networks that map complex data distributions to a simple Gaussian. Anomalies are detected by their extremely low exact likelihood in the latent space.
+    \end{itemize}
 \end{itemize}
 
 \section*{Chapter 4: Image Restoration}
 \begin{itemize}
-    \item \textbf{Content Summary:} Solving ill-posed inverse problems (denoising, deblurring, super-resolution) to recover a clean image from a degraded observation.
-    \item \textbf{Main Takeaway:} Restoration models learn the mapping from degraded to clean data. Modern approaches leverage deep networks to model the noise/blur prior implicitly.
-    \item \textbf{Key Architectures:} DnCNN (residual learning for denoising), FFDNet (noise map as input), Restormer (Transformer adapted for high-res images using feature-dimension attention).
+    \item \textbf{Content Summary:} Solving ill-posed inverse problems such as denoising, deblurring, and super-resolution, where multiple clean images could theoretically map to the same degraded observation.
+    \item \textbf{Main Takeaway:} Traditional methods relied on hand-crafted priors (like smoothness). Deep learning models this prior implicitly by learning the complex mapping from degraded data to clean data, often utilizing residual connections to focus exclusively on predicting the noise.
+    \item \textbf{Key Architectures:}
+    \begin{itemize}
+        \item \textbf{DnCNN:} Pioneered residual learning for denoising. Instead of outputting the clean image, it predicts the noise itself and subtracts it from the input.
+        \item \textbf{FFDNet:} Improves upon DnCNN by taking a noise-level map as an explicit input, allowing the network to handle spatially varying noise and generalized degradation.
+        \item \textbf{Restormer:} Adapts Transformers for high-resolution image restoration by computing self-attention across the \textit{feature/channel} dimension rather than the spatial dimension, making it computationally tractable.
+    \end{itemize}
 \end{itemize}
 
 \section*{Chapter 5: Generative Models (GANs \& VAEs)}
 \begin{itemize}
-    \item \textbf{Content Summary:} Learning the underlying probability distribution of training data to generate novel, realistic samples.
-    \item \textbf{Main Takeaway:} VAEs optimize a lower bound (ELBO) on the data likelihood using a probabilistic encoder-decoder and the reparameterization trick. GANs frame generation as a minimax game between a Generator and a Discriminator.
-    \item \textbf{Key Architectures:} Variational Autoencoders (VAEs), Generative Adversarial Networks (GANs), Conditional GANs (cGANs).
+    \item \textbf{Content Summary:} Unsupervised frameworks designed to learn the underlying probability distribution of the training data in order to sample and generate highly realistic, novel data points.
+    \item \textbf{Main Takeaway:} VAEs provide a stable, probabilistically sound framework but tend to produce blurry images. GANs produce razor-sharp, photorealistic images but suffer from severe training instability (like mode collapse) due to their adversarial nature.
+    \item \textbf{Key Architectures:}
+    \begin{itemize}
+        \item \textbf{Variational Autoencoders (VAEs):} Encode inputs into a probability distribution (mean and variance). Uses the \textit{reparameterization trick} to allow backpropagation through stochastic sampling. Optimizes the ELBO.
+        \item \textbf{Generative Adversarial Networks (GANs):} A Generator tries to fool a Discriminator, which tries to distinguish real from fake. Governed by a minimax game. Prone to mode collapse.
+        \item \textbf{Conditional GANs (cGANs):} Injects class labels or text conditioning into both the Generator and Discriminator, allowing user-controlled generation of specific categories.
+    \end{itemize}
 \end{itemize}
 
 \section*{Chapter 6: Diffusion Models}
 \begin{itemize}
-    \item \textbf{Content Summary:} Generating data by gradually adding Gaussian noise (forward process) and learning to reverse this process (reverse denoising process).
-    \item \textbf{Main Takeaway:} Diffusion models offer more stable training than GANs and better quality than VAEs by breaking generation into hundreds of small, manageable denoising steps parameterized by a U-Net.
-    \item \textbf{Key Architectures:} DDPM (Markovian, slow), DDIM (non-Markovian, fast sampling), Latent Diffusion Models (run in compressed latent space for efficiency), Classifier-Free Guidance (text-conditioning).
+    \item \textbf{Content Summary:} The current state-of-the-art for generative tasks, functioning by slowly destroying data with noise and training a neural network to reverse the process.
+    \item \textbf{Main Takeaway:} Diffusion models solve the instability of GANs and the blurriness of VAEs. By breaking the generation process into hundreds of tiny, tractable denoising steps, the network (typically a U-Net) learns a robust score function of the data distribution.
+    \item \textbf{Key Architectures:}
+    \begin{itemize}
+        \item \textbf{DDPM (Denoising Diffusion Probabilistic Models):} Uses a strict Markov chain. Mathematically beautiful and stable, but requires hundreds of slow, sequential steps to generate an image.
+        \item \textbf{DDIM (Denoising Diffusion Implicit Models):} A non-Markovian deterministic variant of DDPM that allows for "skipping steps," drastically accelerating inference sampling times.
+        \item \textbf{Latent Diffusion Models (Stable Diffusion):} Instead of diffusing high-res pixels, it compresses the image into a tiny latent space using a VAE, runs the diffusion process there, and decodes it. Extremely computationally efficient.
+    \end{itemize}
 \end{itemize}
 
 \section*{Chapter 7: 3D Spatial Data \& Point Clouds}
 \begin{itemize}
-    \item \textbf{Content Summary:} Adapting deep learning to 3D representations (voxels, point clouds, meshes) which are sparse, unstructured, and permutation-invariant.
-    \item \textbf{Main Takeaway:} Point clouds cannot be processed by standard CNNs due to lack of grid structure. Networks must use shared MLPs and symmetric pooling functions (like Max Pooling) to remain invariant to point order.
-    \item \textbf{Key Architectures:} PointNet (point-wise MLPs + global max pool), VoxelNet (3D CNNs on voxelized data), PointPillars (2D CNNs on vertical pillars for speed).
+    \item \textbf{Content Summary:} Extending deep learning beyond 2D grids to 3D representations, which are often sparse, unstructured, and memory-intensive.
+    \item \textbf{Main Takeaway:} Standard convolutions fail on point clouds because they lack a regular grid and are order-invariant. We must either convert them to 3D grids (voxels) or use specialized architectures that process points independently and aggregate them globally.
+    \item \textbf{Key Architectures:}
+    \begin{itemize}
+        \item \textbf{PointNet:} The pioneer of raw point cloud processing. Applies shared MLPs to every point independently and uses a symmetric, order-invariant function (Max Pooling) to extract a global feature vector.
+        \item \textbf{VoxelNet:} Converts the continuous 3D space into discrete 3D grids (voxels), processes points within each voxel, and applies massive 3D convolutions. Highly accurate but extremely memory intensive due to empty space.
+        \item \textbf{PointPillars:} Condenses the 3D point cloud into vertical "pillars" (ignoring the Z-axis resolution), allowing the use of highly optimized, lightning-fast 2D CNNs for real-time processing (e.g., in autonomous driving).
+    \end{itemize}
 \end{itemize}
 
 \section*{Chapter 8: Learning on Graphs}
 \begin{itemize}
-    \item \textbf{Content Summary:} Applying neural networks to graph-structured data (nodes, edges) where entities have complex, non-Euclidean relationships.
-    \item \textbf{Main Takeaway:} Graph Neural Networks (GNNs) operate via Message Passing: each node updates its representation by aggregating features from its immediate neighbors, stacking layers to increase the receptive field.
-    \item \textbf{Key Architectures:} Graph Convolutional Networks (GCN - spectral approximation), GraphSAGE (inductive spatial aggregation), Graph Attention Networks (GAT - attention weights on edges).
+    \item \textbf{Content Summary:} Processing data defined in non-Euclidean spaces (like social networks or molecular structures) where nodes have arbitrary numbers of connections (edges).
+    \item \textbf{Main Takeaway:} The core mechanism of Graph Neural Networks (GNNs) is \textit{Message Passing}. In every layer, a node updates its own feature representation by aggregating (e.g., summing or averaging) the features of its immediate neighbors. Stacking $K$ layers expands the receptive field to $K$-hop neighbors.
+    \item \textbf{Key Architectures:}
+    \begin{itemize}
+        \item \textbf{Graph Convolutional Networks (GCN):} A foundational GNN that approximates spectral graph convolutions. It uses a fixed, isotropic aggregation scheme based on the graph's normalized adjacency matrix.
+        \item \textbf{GraphSAGE:} Solves the scalability issues of GCNs by sampling a fixed number of neighbors (inductive learning) rather than operating on the entire graph matrix (transductive learning).
+        \item \textbf{Graph Attention Networks (GAT):} Enhances message passing by using attention mechanisms to weigh the importance of different neighbors dynamically, rather than treating all connections equally.
+    \end{itemize}
 \end{itemize}
 
 \section*{Chapter 9: Advanced Architectures (NeRF \& Explainability)}
 \begin{itemize}
-    \item \textbf{Content Summary:} Neural Radiance Fields (NeRF) for novel view synthesis and XAI (Explainable AI) methods to interpret black-box network decisions.
-    \item \textbf{Main Takeaway:} NeRFs overfit a neural network to represent a single 3D scene (mapping coordinates to color and density). XAI methods generate saliency maps to show *where* a model looked when making a prediction.
-    \item \textbf{Key Architectures/Techniques:} NeRF, 3D Gaussian Splatting (explicit, faster rendering), Grad-CAM (gradient-based visual explanation), LIME (local surrogate models).
+    \item \textbf{Content Summary:} Two distinct frontiers: rendering photorealistic novel 3D views from 2D images (NeRF), and opening the "black box" of deep networks to understand their decision-making (XAI).
+    \item \textbf{Main Takeaway:} NeRFs completely reinvent 3D representation by overfitting an MLP to implicitly store a single 3D scene. XAI methods are vital for critical systems (e.g., medicine) to ensure the network isn't relying on spurious correlations (like a watermark) to make predictions.
+    \item \textbf{Key Architectures/Techniques:}
+    \begin{itemize}
+        \item \textbf{NeRF (Neural Radiance Fields):} Takes a 5D coordinate (3D position + 2D viewing angle) and outputs color and density. It uses volumetric rendering to project these into a 2D image. Extremely slow to train and render.
+        \item \textbf{3D Gaussian Splatting:} A modern alternative to NeRF that represents the scene using explicit 3D Gaussian blobs rather than an implicit MLP network, enabling real-time rasterization and rendering.
+        \item \textbf{Grad-CAM:} An Explainable AI (XAI) technique. It computes the gradient of the target class with respect to the final convolutional feature maps to produce a heatmap highlighting the exact pixels that triggered the decision.
+    \end{itemize}
 \end{itemize}

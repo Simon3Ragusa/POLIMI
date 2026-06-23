@@ -200,3 +200,43 @@ Research is often deeply inspired by traditional priors, meticulously designing 
 CNNs are now more recently used as a powerful prior for natural images, often placed inside iterative denoising schemes such as Residual Unfolding Networks. Often performance is heavily influenced by the raw training power, offering essentially unlimited training data thanks to BSN.
 
 Finally, approaches like CBDNet aim to close the gap toward convolutional blind denoising of real photographs. Existing CNN denoisers tend to be over-fitted to simplistic Gaussian noise and generalize poorly to real-world noisy images with more sophisticated noise. Realistic noise models are the foremost issue for blind denoising of real photographs. By taking into account both the Poisson-Gaussian model and the entire in-camera processing pipeline (e.g. de-mosaicking, Gamma correction, and JPEG compression), CBDNet utilizes two subnetworks (noise estimation and non-blind denoising), adopts an asymmetric loss by imposing more penalty on under-estimation error of the noise level, and routes information through a tightly constrained bottleneck.
+
+\section{Chapter Overview}
+This chapter provides a comprehensive overview of image restoration, focusing on image denoising using deep neural networks. It introduces the mathematical observation model for image degradation and contrasts supervised, unsupervised, and self-supervised learning paradigms in denoising. We explored simple CNN architectures like DnCNN, which leverages residual learning to estimate noise but is limited by its inflexibility to varying noise levels. To address this, FFDNet was discussed, which handles complex, spatially variant noise models by taking a noise level map as input. The chapter also covered Class-Aware Denoising to handle different semantic image statistics through gradual denoising. Finally, we examined self-supervised methods like Noise2Noise and Noise2Void (using Blind-Spot Networks), which eliminate the need for clean target images during training, thus expanding the applicability of deep learning denoising to challenging domains such as medical imaging and outdoor photography.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|p{5cm}|p{5cm}|}
+\hline
+\textbf{Architecture / Method} & \textbf{Pros} & \textbf{Cons} \\
+\hline
+\textbf{DnCNN} & Effective residual learning; avoids predicting low-frequency image content directly. & Overfits to specific noise levels ($\sigma$); struggles with spatially variant or signal-dependent noise. \\
+\hline
+\textbf{FFDNet} & Flexible and fast; handles varying noise levels and spatial-variant noise via a noise level-map $M$; uses pixel-shuffling for efficiency. & Relies on accurate noise estimation; performance degrades if the provided $\sigma$ map is mismatched. \\
+\hline
+\textbf{Class-Aware Denoising} & Strong prior for specific image domains (e.g., faces, natural landscapes); utilizes gradual denoising via skip connections. & Requires prior classification of the image domain; less generalizable across mixed classes. \\
+\hline
+\textbf{Noise2Noise (N2N)} & Does not require clean ground truth images; theoretically matches supervised performance. & Still requires pairs of independently noisy images of the exact same scene, which can be impractical. \\
+\hline
+\textbf{Noise2Void (N2V)} & Requires only a single noisy image per scene; utilizes Blind-Spot Networks (BSN) to prevent identity mapping. & Masking and blind spots can lead to suboptimal loss calculation and harder training compared to N2N. \\
+\hline
+\textbf{CBDNet} & Handles real-world, sophisticated noise models (e.g., Poisson-Gaussian, camera pipeline artifacts); robust blind denoising. & Complex architecture with two subnetworks and asymmetric loss; harder to tune and train. \\
+\hline
+\end{tabular}
+\caption{Comparison of Main Denoising Architectures and Techniques}
+\label{tab:denoising-architectures}
+\end{table}
+
+\subsection{Possible Exam Questions}
+\begin{itemize}
+    \item Explain the fundamental observation model for image denoising and define the roles of the clean signal and additive noise.
+    \item Discuss how image denoising using neural networks bridges the gap between supervised and self-supervised learning.
+    \item Describe the architecture of DnCNN and explain why predicting the noise residual is advantageous over predicting the clean image.
+    \item What are the main limitations of DnCNN, and how does FFDNet overcome them using a noise level map and pixel shuffling?
+    \item Analyze the impact of providing an inaccurate noise level estimate (either too high or too low) to FFDNet.
+    \item Explain the concept of Class-Aware Denoising and the mechanism of gradual denoising across network layers.
+    \item How does the Noise2Noise framework eliminate the need for clean target images, and what are its core assumptions?
+    \item Describe the Identity Function problem encountered when training denoisers on single noisy images.
+    \item How does Noise2Void (N2V) utilize Blind-Spot Networks (BSN) to solve the identity function problem?
+    \item Compare the practical applicability of supervised denoising models versus self-supervised models in fields like medical imaging.
+\end{itemize}

@@ -165,3 +165,41 @@ where $\text{sim}(u, v) = \frac{u^T v}{||u|| ||v||}$ is the cosine similarity, a
 \begin{insightbox}[Why Does SimCLR Work So Well?]
 Imagine taking a photo of a golden retriever, cropping out just its nose, and heavily tinting it green. Then, you take the same original photo, crop out its tail, and blur it heavily. SimCLR forces the network to map the "green nose" and the "blurry tail" to the exact same point in the latent space. To achieve this, the network must abandon trivial shortcuts like color histograms or edge matching. It is forced to understand the high-level semantic concept of "Golden Retriever" that inextricably links the two augmented views, resulting in an exceptionally powerful and robust latent representation.
 \end{insightbox}
+
+%-------------------------------------------------------------------------
+\section{Chapter Overview}
+
+This chapter introduces the transition from heavily supervised deep learning paradigms to more scalable, supervision-free methods, highlighting the limitations of relying exclusively on human-annotated datasets. It explores Unsupervised Learning with Autoencoders, detailing their architecture and how dimensionality reduction forces the learning of compact representations. The discussion then bridges into Semi-Supervised Learning, where Autoencoders serve as powerful feature extractors (via Transfer Learning) to boost performance when labeled data is scarce. Finally, the chapter comprehensively covers Self-Supervised Learning (SSL), which generates automated pseudo-labels from pretext tasks (such as image rotations or jigsaw puzzles). It emphasizes Metric Learning and Siamese Networks through Contrastive and Triplet Losses, culminating in the SimCLR framework, which leverages heavy data augmentation to produce robust semantic representations without explicit manual pretext tasks.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|p{4cm}|p{4cm}|p{4cm}|}
+\hline
+\textbf{Paradigm / Architecture} & \textbf{Core Mechanism} & \textbf{Pros} & \textbf{Cons} \\
+\hline
+\textbf{Autoencoders (Unsupervised)} & Reconstructs the input through an Encoder-Decoder bottleneck. & Simple to train; harnesses massive unlabeled datasets; good for compression. & Focuses on pixel-perfect reconstruction; lacks deep semantic understanding. \\
+\hline
+\textbf{Semi-Supervised Autoencoders} & Pre-trains an Encoder, then fine-tunes a classifier with few labels. & Significantly reduces the need for large labeled datasets; limits overfitting. & Still bounded by the generative nature of the original Autoencoder objective. \\
+\hline
+\textbf{Pretext Tasks (SSL)} & Uses auxiliary tasks (e.g., jigsaw, rotations) to generate pseudo-labels. & Forces the learning of robust visual semantics; avoids manual labeling. & Networks can exploit trivial shortcuts (e.g., chromatic aberration, aliasing). \\
+\hline
+\textbf{Siamese Networks (Metric)} & Learns latent distances using Contrastive or Triplet loss. & Excellent for tasks like Face ID where standard classification fails. & Requires careful tuple/pair mining to avoid trivial solutions. \\
+\hline
+\textbf{SimCLR (Contrastive SSL)} & Maximizes similarity of augmented views of the same image while pushing away others. & State-of-the-art semantic representations without explicit manual pretext tasks. & Heavily dependent on large batch sizes and extreme data augmentations. \\
+\hline
+\end{tabular}
+\caption{Comparison of Unsupervised and Self-Supervised Learning Approaches}
+\end{table}
+
+\subsection{Possible Exam Questions}
+\begin{itemize}
+    \item Explain the fundamental difference between Autoencoders and Self-Supervised Learning in terms of the representations they learn.
+    \item How does the dimensionality of the latent space ($d$) affect the learning process of an Autoencoder? What happens if $d$ is too large or too small?
+    \item Describe how an Autoencoder can be utilized in a Semi-Supervised Learning context via Transfer Learning.
+    \item What is a ``pretext task'' in Self-Supervised Learning? Provide two examples and explain the visual semantics they are designed to teach the network.
+    \item In the context of predicting image rotations or solving jigsaw puzzles, explain the concept of ``trivial shortcuts'' and how they can be mitigated.
+    \item Contrast standard categorical classification with Metric Learning. Why is Metric Learning necessary for systems like Face Identification?
+    \item Define the Contrastive Loss and the Triplet Loss. What is the role of the ``margin'' parameter in both?
+    \item Explain the core workflow of the SimCLR framework and the purpose of the nt-Xent loss function.
+    \item Why does SimCLR rely on extreme data augmentations (like color jittering and heavy blurring) to learn semantic representations?
+\end{itemize}

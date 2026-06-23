@@ -13,19 +13,19 @@ Formally, let $\boldsymbol{s}$ be an image defined over a discrete pixel domain 
 \end{equation}
 
 \begin{insightbox}[Training Scenarios in Anomaly Detection]
-While anomaly detection can conceptually be viewed as a binary semantic segmentation problem, the critical differentiator is the availability of training data $TR$. In practical scenarios, anomalous data are notoriously difficult, rare, or costly to collect, making it impossible to gather a fully representative set of all possible failure modes. Thus, we categorize the training setups into:
+While anomaly detection can conceptually be viewed as a binary semantic segmentation problem, the critical differentiator is the availability of training data $TR$. In practical scenarios, anomalous data are notoriously difficult, rare, or costly to collect, making it impossible to gather a fully representative set of all possible failure modes. This heavy class imbalance forces the problem into specific setups. Thus, we categorize the training setups into:
 \begin{itemize}
-    \item \textbf{Semi-supervised AD (Novelty Detection):} Only normal training data are provided. $TR = \{\boldsymbol{s}_i \in \mathbb{R}^{H \times W \times 3} \mid \boldsymbol{s}_i \text{ is normal}\}$. The assumption is that normal data are abundant and easily obtainable.
+    \item \textbf{Semi-supervised AD (Novelty Detection):} Only normal training data are provided. $TR = \{\boldsymbol{s}_i \in \mathbb{R}^{H \times W \times 3} \mid \boldsymbol{s}_i \text{ is normal}\}$. The assumption is that normal data are abundant and easily obtainable. This is the most prevalent paradigm in industrial inspection.
     \item \textbf{Unsupervised AD:} The dataset $TR$ is provided without any labels and may contain both normal and anomalous samples. The implicit assumption is that the anomalies are exceedingly rare and constitute a negligible fraction of the training data.
 \end{itemize}
 \end{insightbox}
 
-To benchmark progress, several standard datasets have been introduced. The MVTec AD dataset is arguably the most recognized, compartmentalized into texture images (which require translation-invariant analysis) and object images (which require spatial registration). Further extensions include MVTec 3D-AD, which incorporates 3D point cloud scans, and MVTec LOCO AD, which focuses on structural and logical constraints (e.g., a missing screw in an otherwise normal assembly).
+To benchmark progress, several standard datasets have been introduced. The MVTec AD dataset (Bergmann et al., 2019) is arguably the most recognized, compartmentalized into texture images (which require translation-invariant analysis) and object images (which require spatial registration). Further extensions include MVTec 3D-AD, which incorporates 3D point cloud scans for geometric defect detection, and MVTec LOCO AD, which focuses on structural and logical constraints (e.g., a missing screw in an otherwise normal assembly, or miswired cables).
 
 \section{Statistical Framework for Anomaly Detection}
 Within a rigorous statistical framework, the observed input data $\boldsymbol{x}(t)$ (which may represent image patches or extracted feature vectors) are modeled as independent and identically distributed (i.i.d.) realizations of a random variable. Genuine, normal data are presumed to be drawn from an unknown, stationary background distribution $\phi_0$. Conversely, anomalies are instances drawn from a strictly different, unknown distribution $\phi_1$, such that $\phi_1 \neq \phi_0$.
 
-The anomaly detection pipeline typically decomposes into defining a \textit{statistic} characterized by a known response to normal data (e.g., log-likelihood, sample variance, or reconstruction error) and establishing a \textit{decision rule}, such as a threshold $\gamma$, to analyze the statistic: $\mathcal{A}(\boldsymbol{s}) \gtrless \gamma$. 
+The anomaly detection pipeline typically decomposes into defining a \textit{statistic} characterized by a known response to normal data (e.g., log-likelihood, sample variance, or reconstruction error) and establishing a \textit{decision rule}, such as a threshold $\gamma$, to analyze the statistic: $\mathcal{A}(\boldsymbol{s}) \gtrless \gamma$. Setting this threshold often requires evaluating the Receiver Operating Characteristic (ROC) curve to balance false positives and false negatives.
 
 \subsection{Density, Domain, and Distance-based Methods}
 Classical statistical techniques for handling random vectors without utilizing deep representations can be categorized into three major families:
@@ -34,51 +34,51 @@ Classical statistical techniques for handling random vectors without utilizing d
 \begin{equation}
     \mathcal{L}(\boldsymbol{x}) = \log(\hat{\phi}_0(\boldsymbol{x})) < \eta
 \end{equation}
-While providing a robust probabilistic interpretation (acting as a $p$-value), density estimation notoriously suffers from the curse of dimensionality, making it infeasible to directly fit high-dimensional image data.
+While providing a robust probabilistic interpretation (acting as a $p$-value), density estimation notoriously suffers from the curse of dimensionality, making it practically infeasible to directly fit high-dimensional image data without prior dimensionality reduction (like PCA).
 
-\textbf{Domain-based methods:} Rather than estimating the full density profile, these methods estimate a decision boundary encompassing the high-density regions of normal data. The One-Class Support Vector Machine (OC-SVM) defines a binary function $f(\boldsymbol{x}) = \text{sign}(\langle \boldsymbol{w}, \psi(\boldsymbol{x}) \rangle - \rho)$ via a kernel mapping $\psi$. Support Vector Data Description (SVDD) similarly optimizes a minimum-volume hypersphere in the kernel feature space that encloses most of the normal training samples.
+\textbf{Domain-based methods:} Rather than estimating the full density profile, these methods estimate a decision boundary encompassing the high-density regions of normal data. The One-Class Support Vector Machine (OC-SVM) (Schölkopf et al., 2001) defines a binary function $f(\boldsymbol{x}) = \text{sign}(\langle \boldsymbol{w}, \psi(\boldsymbol{x}) \rangle - \rho)$ via a kernel mapping $\psi$. Support Vector Data Description (SVDD) (Tax \& Duin, 2004) similarly optimizes a minimum-volume hypersphere in the kernel feature space that tightly encloses most of the normal training samples.
 
-\textbf{Distance-based methods:} These methods operate under the heuristic that normal data cluster in dense neighborhoods, while anomalies exist as isolated points far from their closest neighbors. The anomaly score is derived by computing the distance between a sample $\boldsymbol{x}$ and its $k$-nearest neighbor within $TR$.
+\textbf{Distance-based methods:} These methods operate under the heuristic that normal data cluster in dense neighborhoods, while anomalies exist as isolated points far from their closest neighbors. The anomaly score is derived by computing the distance between a sample $\boldsymbol{x}$ and its $k$-nearest neighbor within $TR$. These suffer computationally when $TR$ is very large.
 
 \section{Deep Learning for Image Anomaly Detection}
-The deep learning revolution fundamentally transformed anomaly detection by shifting the focus toward robust feature extraction. Modern deep AD architectures follow a standard triad: (1) a background model $\mathcal{M}$ parameterized by a neural network and learned from $TR$, (2) an anomaly score $\mathcal{A}(\boldsymbol{s})$ representing a measure of rareness, and (3) a decision rule often coupled with post-processing (e.g., spatial smoothing) to yield final anomaly segmentations.
+The deep learning revolution fundamentally transformed anomaly detection by shifting the focus toward robust feature extraction. Modern deep AD architectures follow a standard triad: (1) a background model $\mathcal{M}$ parameterized by a neural network and learned from $TR$, (2) an anomaly score $\mathcal{A}(\boldsymbol{s})$ representing a measure of rareness or deviation, and (3) a decision rule often coupled with post-processing (e.g., spatial smoothing or morphological operations) to yield final anomaly segmentations.
 
 \subsection{Reconstruction-based Methods and Autoencoders}
 Autoencoders (AEs) are foundational to semi-supervised AD. An AE consisting of an encoder $\mathcal{E}$ and a decoder $\mathcal{D}$ is trained exclusively on normal images to minimize a reconstruction loss, typically the Mean Squared Error (MSE):
 \begin{equation}
     \ell^2(\boldsymbol{s}, \hat{\boldsymbol{s}}) = \sum_{\boldsymbol{s} \in TR} \| \boldsymbol{s} - \mathcal{D}(\mathcal{E}(\boldsymbol{s})) \|_2^2
 \end{equation}
-The underlying rationale is that the low-dimensional bottleneck forces the network to learn the principal components of normal data. When fed an anomaly, the network cannot accurately reconstruct the unfamiliar pattern. The pixel-wise reconstruction error naturally acts as the anomaly score. In practice, adopting multiscale loss functions that incorporate Structural Similarity (SSIM) or Complex Wavelet SSIM (CW-SSIM) yields substantially better perceptual reconstructions:
+The underlying rationale is that the low-dimensional bottleneck forces the network to learn the principal components of normal data. When fed an anomaly, the network cannot accurately reconstruct the unfamiliar pattern, causing high residuals. The pixel-wise reconstruction error naturally acts as the anomaly score. However, highly capable decoders sometimes over-generalize and successfully reconstruct anomalies (the "identity mapping" problem). In practice, adopting multiscale loss functions that incorporate Structural Similarity (SSIM) (Wang et al., 2004) or Complex Wavelet SSIM (CW-SSIM) yields substantially better perceptual reconstructions and sharper anomaly masks:
 \begin{equation}
     \mathcal{L}(\boldsymbol{s}, \hat{\boldsymbol{s}}) = \ell^2(\boldsymbol{s}, \hat{\boldsymbol{s}}) + \lambda \text{SSIM}(\boldsymbol{s}, \hat{\boldsymbol{s}})
 \end{equation}
 
 \begin{insightbox}[Deep Autoencoding Gaussian Mixture Model (DAGMM)]
-A severe limitation of naive AEs is that minimizing reconstruction error does not necessarily yield a latent space well-suited for density estimation. DAGMM addresses this by jointly learning the autoencoder and a GMM over the latent representation. Specifically, the network simultaneously yields a latent vector $\boldsymbol{\alpha} = \mathcal{E}(\boldsymbol{s})$ and an estimation network predicts the GMM membership weights $\gamma_{n,i}$ via softmax activations. The overall objective minimizes the reconstruction loss, maximizes the likelihood under the GMM, and regularizes the covariance matrices to prevent singularities:
+A severe limitation of naive AEs is that minimizing reconstruction error does not necessarily yield a latent space well-suited for density estimation. DAGMM (Zong et al., 2018) addresses this by jointly learning the autoencoder and a GMM over the latent representation. Specifically, the network simultaneously yields a latent vector $\boldsymbol{\alpha} = \mathcal{E}(\boldsymbol{s})$ and an estimation network predicts the GMM membership weights $\gamma_{n,i}$ via softmax activations. The overall objective minimizes the reconstruction loss, maximizes the likelihood under the GMM, and regularizes the covariance matrices to prevent singularities:
 \begin{equation}
     \min_{\boldsymbol{\theta}} \sum_{\boldsymbol{s}} \| \boldsymbol{s} - \mathcal{D}(\mathcal{E}(\boldsymbol{s})) \|_2^2 - \lambda_1 \log \left( \sum_i \pi_i \varphi_{\boldsymbol{\mu}_i, \boldsymbol{\Sigma}_i}(\mathcal{E}(\boldsymbol{s})) \right) + \lambda_2 \mathcal{R}(\hat{\boldsymbol{\Sigma}})
 \end{equation}
-This joint optimization balances feature learning with density fitting, successfully avoiding suboptimal local minima.
+This joint optimization balances feature learning with density fitting, successfully avoiding suboptimal local minima and producing a compact latent probability model.
 \end{insightbox}
 
-Alternatively, \textbf{Reconstruction by Inpainting} forces the network to resolve a complex inverse problem. By artificially masking regions of normal images during training, the network acts as an inpainter. During inference, multiple masks are systematically applied across the image, and the reconstruction error localized to the inpainted regions flags anomalies.
+Alternatively, \textbf{Reconstruction by Inpainting} forces the network to resolve a complex inverse problem. By artificially masking regions of normal images during training, the network acts as an inpainter. During inference, multiple masks are systematically applied across the image, and the reconstruction error localized to the inpainted regions flags anomalies, preventing the network from merely copying defective pixels.
 
 \subsection{Pre-Trained Feature Extractors}
 Leveraging Convolutional Neural Networks pre-trained on massive supervised datasets (e.g., ImageNet) provides a powerful shortcut, extracting highly discriminative mid-level features while bypassing expensive training.
 
-\textbf{PADIM} (Patch Distribution Modeling) embeds test patches by stacking activations across multiple layers of a pre-trained CNN to achieve fine-grained global representations. It then fits a Multivariate Gaussian $\hat{\phi}_{r,c}$ at \textit{every spatial location} $(r,c)$ using the normal training data. Anomalies are scored via the Mahalanobis distance:
+\textbf{PADIM} (Patch Distribution Modeling) (Defard et al., 2021) embeds test patches by stacking activations across multiple layers of a pre-trained CNN (like ResNet) to achieve fine-grained global representations. It then fits a Multivariate Gaussian $\hat{\phi}_{r,c}$ at \textit{every spatial location} $(r,c)$ using the normal training data. Anomalies are scored via the Mahalanobis distance:
 \begin{equation}
     \mathcal{L}(\boldsymbol{x}_{r,c}) = (\boldsymbol{x}_{r,c} - \boldsymbol{\mu}_{r,c})^\top \boldsymbol{\Sigma}_{r,c}^{-1} (\boldsymbol{x}_{r,c} - \boldsymbol{\mu}_{r,c})
 \end{equation}
-While effective, PADIM imposes a rigid Gaussian prior in high dimensions, which is heavily ill-conditioned and inherently struggles with unaligned textures.
+While effective, PADIM imposes a rigid Gaussian prior in high dimensions, which is heavily ill-conditioned and inherently struggles with unaligned textures or complex multimodal distributions.
 
-\textbf{PatchCore} discards parametric assumptions entirely. It aggregates mid-level features from a CNN (applying spatial smoothing $\boldsymbol{x}_{i,j} = \mathcal{S}(f(\boldsymbol{s}))[i,j]$ to enlarge the receptive field) and stores them in a non-parametric Memory Bank $\mathcal{M}$. Because $\mathcal{M}$ can grow prohibitively large, a greedy coreset subsampling algorithm compresses the bank while preserving maximal latent space coverage. At test time, the anomaly score relies on the Euclidean distance to the nearest neighbor in the core-set:
+\textbf{PatchCore} (Roth et al., 2022) discards parametric assumptions entirely. It aggregates mid-level features from a CNN (applying spatial smoothing $\boldsymbol{x}_{i,j} = \mathcal{S}(f(\boldsymbol{s}))[i,j]$ to enlarge the receptive field and preserve neighborhood context) and stores them in a non-parametric Memory Bank $\mathcal{M}$. Because $\mathcal{M}$ can grow prohibitively large, a greedy coreset subsampling algorithm compresses the bank while preserving maximal latent space coverage. At test time, the anomaly score relies on the Euclidean distance to the nearest neighbor in the core-set:
 \begin{equation}
-    \boldsymbol{m}^* = \text{argmin}_{\boldsymbol{m} \in \mathcal{M}} \| \boldsymbol{x} - \boldsymbol{m} \|_2 \implies \mathcal{A}(\boldsymbol{x}) = w * \| \boldsymbol{x} - \boldsymbol{m}^* \|_2
+    \boldsymbol{m}^* = \text{argmin}_{\boldsymbol{m} \in \mathcal{M}} \| \boldsymbol{x} - \boldsymbol{m} \|_2 \implies \mathcal{A}(\boldsymbol{x}) = w \cdot \| \boldsymbol{x} - \boldsymbol{m}^* \|_2
 \end{equation}
 
 \subsection{Student-Teacher Architectures}
-The Student-Teacher paradigm employs knowledge distillation for anomaly detection. A powerful pre-trained \textit{Teacher} network $\mathcal{T}$ (frozen) generates target feature embeddings. An ensemble of $M$ randomly initialized \textit{Student} networks $\mathcal{S}^i$ is trained to regress the Teacher's outputs exclusively on normal data:
+The Student-Teacher paradigm employs knowledge distillation for anomaly detection (Bergmann et al., 2020). A powerful pre-trained \textit{Teacher} network $\mathcal{T}$ (frozen) generates target feature embeddings. An ensemble of $M$ randomly initialized \textit{Student} networks $\mathcal{S}^i$ is trained to regress the Teacher's outputs exclusively on normal data:
 \begin{equation}
     \mathcal{L}(\mathcal{S}^i) = \frac{1}{WH} \sum_{(r,c)} \| \boldsymbol{\mu}_{(r,c)}^{\mathcal{S}^i} - (\boldsymbol{y}_{(r,c)}^\mathcal{T} - \boldsymbol{\mu})\text{diag}(\boldsymbol{\sigma})^{-1} \|_2^2
 \end{equation}
@@ -86,11 +86,13 @@ During inference, the anomaly score incorporates two terms: (1) the discrepancy 
 \begin{equation}
     v_{(r,c)} = \frac{1}{M} \sum_{i=1}^M \| \boldsymbol{\mu}_{(r,c)}^{\mathcal{S}^i} \|_2^2 - \| \boldsymbol{\mu}_{(r,c)} \|_2^2
 \end{equation}
-On anomalous inputs, the Students fundamentally disagree and fail to mimic the Teacher, triggering high anomaly scores.
+On anomalous inputs, the Students fundamentally disagree and fail to mimic the Teacher, triggering high anomaly scores. This setup provides excellent spatial localization.
 
 \subsection{Self-Supervised Learning}
-Self-supervised methods synthesize proxy tasks to force networks to learn representations sensitive to defects.
-\textbf{CutPaste} introduces synthetic irregularities by excising random patches from normal images, applying jitters or rotations, and pasting them back at random locations. A binary cross-entropy classifier is then trained to distinguish genuine normal images from CutPaste augmented ones.
+Self-supervised methods synthesize proxy tasks to force networks to learn representations sensitive to defects without relying on external datasets.
+
+\textbf{CutPaste} (Li et al., 2021) introduces synthetic irregularities by excising random patches from normal images, applying jitters or rotations, and pasting them back at random locations. A binary cross-entropy classifier is then trained to distinguish genuine normal images from CutPaste augmented ones. This method is highly effective for structural defects but might struggle with subtle textural shifts.
+
 Another paradigm applies discrete geometric transformations $\mathcal{T} = \{\tau_1, \dots, \tau_n\}$ (e.g., $90^\circ, 180^\circ$ rotations) to normal images, training a network to predict the applied transformation. Anomalous images disrupt the semantic structures necessary to predict the transformation correctly, yielding high entropy in the posterior probabilities. The anomaly score is defined as:
 \begin{equation}
     \mathcal{A}(\boldsymbol{s}) = 1 - \frac{1}{n} \sum_{i=1}^n [\boldsymbol{\alpha}_i]_i
@@ -100,24 +102,65 @@ where $[\boldsymbol{\alpha}_i]_i$ is the posterior probability of correctly pred
 \subsection{Zero-Shot and Few-Shot Anomaly Detection via VLMs}
 The ``Cold Start'' problem (having zero or $\le 4$ normal training samples) is addressed by leveraging Vision-Language Models (VLMs) such as CLIP, which natively align text and image embeddings.
 
-\textbf{WinCLIP} formulates AD as a prompt-matching task. It constructs a \textit{Compositional Prompt Ensemble} containing normal templates (``a perfect photo of a [class]'') and anomalous templates (``a damaged photo of a [class]''). The image-wise and window-based pixel-wise anomaly scores are computed as the softmax similarity toward the anomalous text cluster:
+\textbf{WinCLIP} (Jeong et al., 2023) formulates AD as a prompt-matching task. It constructs a \textit{Compositional Prompt Ensemble} containing normal templates (``a perfect photo of a [class]'') and anomalous templates (``a damaged photo of a [class]''). The image-wise and window-based pixel-wise anomaly scores are computed as the softmax similarity toward the anomalous text cluster:
 \begin{equation}
     \mathcal{A}(\boldsymbol{s}) = \frac{\exp(\langle \mathcal{E}_I(\boldsymbol{s}), \boldsymbol{a} \rangle / \tau)}{\exp(\langle \mathcal{E}_I(\boldsymbol{s}), \boldsymbol{n} \rangle / \tau) + \exp(\langle \mathcal{E}_I(\boldsymbol{s}), \boldsymbol{a} \rangle / \tau)}
 \end{equation}
 where $\boldsymbol{n}$ and $\boldsymbol{a}$ are the aggregated text embeddings for normal and anomalous prompts. \textbf{AdaCLIP} pushes this frontier further by fine-tuning static and dynamic learnable prompt tokens on auxiliary defect datasets, drastically improving zero-shot localization capabilities.
 
 \section{Open Set Recognition (OSR)}
-Open Set Recognition is a strictly cognate problem to Anomaly Detection. In OSR, a standard closed-set classifier $\mathcal{K}: \mathbb{R}^{R \times C \times 3} \to \Lambda$ trained on a known label set $\Lambda = \{y_1, \dots, y_L\}$ must simultaneously classify known classes and gracefully reject samples belonging to unseen, unknown classes.
+Open Set Recognition is a strictly cognate problem to Anomaly Detection. In OSR, a standard closed-set classifier $\mathcal{K}: \mathbb{R}^{H \times W \times 3} \to \Lambda$ trained on a known label set $\Lambda = \{y_1, \dots, y_L\}$ must simultaneously classify known classes and gracefully reject samples belonging to unseen, unknown classes. This ensures safety in open-world deployments.
 
-The most rudimentary OSR approach monitors the \textbf{Max-Logit} score, hypothesizing that the maximum logit $\text{MLS}(\boldsymbol{x}) = \max_i [\mathcal{K}(\boldsymbol{x})]_i$ will be significantly lower for out-of-distribution samples. An alternative is the \textbf{Energy Score}, derived from the log-sum-exp of the logits scaled by a temperature parameter $\tau$:
+The most rudimentary OSR approach monitors the \textbf{Max-Logit} score (Hendrycks \& Gimpel, 2017), hypothesizing that the maximum logit $\text{MLS}(\boldsymbol{x}) = \max_i [\mathcal{K}(\boldsymbol{x})]_i$ will be significantly lower for out-of-distribution samples. An alternative is the \textbf{Energy Score} (Liu et al., 2020), derived from the log-sum-exp of the logits scaled by a temperature parameter $\tau$, aligning better with the true density:
 \begin{equation}
     E(\boldsymbol{x}) = -\tau \log \sum_{i=1}^L e^{l_i / \tau}
 \end{equation}
 
 \begin{insightbox}[Soft-Boundary Deep SVDD]
-Deep SVDD elegantly bridges the gap between deep representation learning and domain-based anomaly detection. Rather than using pre-trained features, it simultaneously trains a network $\psi_{\boldsymbol{\theta}}$ and optimizes a hypersphere (center $\boldsymbol{c}$, radius $R$) to enclose the normal representations. The objective function is:
+Deep SVDD (Ruff et al., 2018) elegantly bridges the gap between deep representation learning and domain-based anomaly detection. Rather than using pre-trained features, it simultaneously trains a network $\psi_{\boldsymbol{\theta}}$ and optimizes a hypersphere (center $\boldsymbol{c}$, radius $R$) to enclose the normal representations. The objective function is:
 \begin{equation}
     \min_{R, \boldsymbol{\theta}} R^2 + \frac{1}{\nu N} \sum_{n=1}^N \max \left\{ 0, \| \psi_{\boldsymbol{\theta}}(\boldsymbol{s}_n) - \boldsymbol{c} \|^2 - R^2 \right\} + \lambda \| \boldsymbol{\theta} \|^2
 \end{equation}
-The hyperparameter $\nu \in (0, 1)$ establishes an upper bound on the fraction of expected outliers. To avoid the trivial solution where $\psi_{\boldsymbol{\theta}}$ maps all inputs to a constant vector, the network architecture must strictly avoid bias terms and utilize unbounded activation functions.
+The hyperparameter $\nu \in (0, 1)$ establishes an upper bound on the fraction of expected outliers. To avoid the trivial solution where $\psi_{\boldsymbol{\theta}}$ maps all inputs to a constant vector (hypersphere collapse), the network architecture must strictly avoid bias terms and utilize unbounded activation functions.
 \end{insightbox}
+
+\section{Chapter Overview}
+
+This chapter explored the multifaceted problem of anomaly detection in images, framing it predominantly under semi-supervised and unsupervised scenarios due to the inherent rarity of anomalous data. We surveyed classical statistical frameworks encompassing density, domain, and distance-based methodologies, and tracked their evolution into modern deep learning paradigms. Deep learning architectures utilize reconstruction strategies, leverage powerful pre-trained extractors, employ student-teacher knowledge distillation, and even design self-supervised proxy tasks to uncover anomalies. Finally, we touched upon zero-shot capabilities powered by Vision-Language Models and drew parallels to the cognate field of Open Set Recognition.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|p{3.5cm}|p{4cm}|p{4cm}|}
+\hline
+\textbf{Method Category} & \textbf{Examples} & \textbf{Pros} & \textbf{Cons} \\
+\hline
+Reconstruction (AEs) & Autoencoders, DAGMM & Intuitive, entirely self-contained, no external data required & Blurry reconstructions, prone to identity mapping of anomalies \\
+\hline
+Pre-Trained Features & PADIM, PatchCore & Highly effective on textures, avoids expensive training & Requires large memory (PatchCore), assumes specific distributions (PADIM) \\
+\hline
+Student-Teacher & Uninformed Students & Excellent localization, robust anomaly representations & Sensitive to teacher architecture, training distillation can be unstable \\
+\hline
+Self-Supervised & CutPaste, Transformations & Good at finding structural defects, no pre-training reliance & Often struggles with subtle textural anomalies, reliance on heuristics \\
+\hline
+VLMs (Zero-Shot) & WinCLIP, AdaCLIP & Zero-shot capabilities, flexibly handles unseen classes & Computationally heavy, fundamentally relies on large-scale pre-training \\
+\hline
+Domain-Based (Deep) & Deep SVDD & Optimizes directly for anomaly bounds, mathematically elegant & Risk of hypersphere collapse, sensitive to architectural choices \\
+\hline
+\end{tabular}
+\caption{Comparison of Major Anomaly Detection Approaches}
+\label{tab:ad_methods}
+\end{table}
+
+\subsection{Possible Exam Questions}
+\begin{itemize}
+    \item Define the formal problem of image anomaly detection and clearly distinguish between image-wise and patch-wise detection tasks.
+    \item What is the critical difference between Semi-supervised AD (Novelty Detection) and Unsupervised AD in terms of the training data assumption? Why is supervised training rarely feasible?
+    \item Explain the "curse of dimensionality" as it applies to density-based anomaly detection methods like Gaussian Mixture Models on raw image pixels.
+    \item Describe how a standard Autoencoder is used for anomaly detection. What is the fundamental assumption of this approach, and what is the "identity mapping" problem?
+    \item How does the Deep Autoencoding Gaussian Mixture Model (DAGMM) improve upon simple reconstruction-based autoencoders? Explain the role of joint optimization.
+    \item Explain the core mechanism of PADIM. How does it model the normal distribution spatially, and what metric does it use to score anomalies?
+    \item Describe the PatchCore algorithm. Why is the memory bank subsampled using a coreset approach, and what distance metric is utilized at inference time?
+    \item How does the Student-Teacher framework detect anomalies? Detail the roles of the pre-trained Teacher and the ensemble of Students in computing the anomaly score.
+    \item Explain how self-supervised proxy tasks, such as predicting geometric transformations or CutPaste, can be utilized to train an anomaly detector without anomalous data.
+    \item What is Open Set Recognition (OSR) and how does it relate to Anomaly Detection? Compare the Max-Logit and Energy Score methodologies.
+\end{itemize}

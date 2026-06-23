@@ -146,3 +146,43 @@ Conditioning information such as the diffusion timestep $t$ is injected via sinu
 
 \subsection{Transformer Backbone (DiT)}
 Peebles \& Xie (2023) introduced the Diffusion Transformer (DiT), operating on latent patches. It replaces the U-Net with a standard Transformer architecture. The noise latent of size $I \times I \times C$ is ``patchified'' into patches of size $p$, converting it into a sequence of $(I/p)^2$ tokens. This sequence passes through Transformer blocks utilizing Adaptive Layer Normalization (adaLN) to condition on the timestep and class labels. The DiT decoder outputs the noise predictions and a diagonal covariance matrix prediction, showcasing that transformers scale exceptionally well for diffusion tasks without relying on convolutional inductive biases.
+
+\section{Chapter Overview}
+
+This chapter presented a comprehensive overview of diffusion models, a transformative approach in generative AI that formulates generation as a Markov chain of iterative denoising. Key topics included the mathematical foundations of the forward and reverse diffusion processes, and the transition from linear to cosine variance schedulers to better preserve structural information. To enable controllable generation, guidance mechanisms such as Classifier Guided Diffusion and Classifier-Free Guidance (CFG) were discussed. Furthermore, the chapter explored methods to address the slow inference speeds inherent to diffusion models, including Progressive Distillation and Consistency Models. Finally, modern architectural innovations like Latent Diffusion Models (LDM) and Diffusion Transformers (DiT) were detailed, highlighting how diffusion is effectively scaled to high-dimensional spaces like images.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|p{4cm}|p{4.5cm}|p{4.5cm}|}
+\hline
+\textbf{Technique / Architecture} & \textbf{Pros} & \textbf{Cons} \\
+\hline
+Original DDPM & Strong theoretical foundation, high sample quality. & Very slow inference (thousands of sequential steps). \\
+\hline
+Cosine Schedulers & Preserves structural information longer, better generation quality. & Still requires many steps; does not completely solve inference speed. \\
+\hline
+Classifier-Free Guidance (CFG) & Drastically improves prompt adherence, no need for a separate classifier. & Computationally heavier during training and sampling (two forward passes per step). \\
+\hline
+Consistency Models & Enables single-step or few-step generation. & Requires specific training objectives and trades compute during training. \\
+\hline
+Latent Diffusion Models (LDM) & Exponentially reduces computational cost, operates in semantically rich latent space. & Requires a pre-trained optimized autoencoder, potential loss of imperceptible high-frequency details. \\
+\hline
+Diffusion Transformer (DiT) & Highly scalable, effectively utilizes attention mechanism, no convolutional inductive biases. & High memory footprint, requires patchification of latents. \\
+\hline
+\end{tabular}
+\caption{Comparison of Diffusion Model Techniques and Architectures}
+\label{tab:diffusion_comparison}
+\end{table}
+
+\subsection{Possible Exam Questions}
+
+\begin{itemize}
+    \item Explain the forward and reverse diffusion processes. Why is the exact reverse process intractable and how is it approximated?
+    \item Derive the formulation for predicting the noise $\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)$ instead of the mean directly in the reverse process. Why is this beneficial?
+    \item What is the reparameterization trick in the context of diffusion models, and how does it allow sampling $\mathbf{x}_t$ at any arbitrary timestep $t$ in closed form?
+    \item Compare linear variance schedulers with cosine-based schedulers. Why does the cosine scheduler improve generation quality?
+    \item Describe the difference between Classifier Guided Diffusion and Classifier-Free Guidance (CFG). What are the advantages of CFG over explicitly training a classifier?
+    \item How do Progressive Distillation and Consistency Models address the slow inference speed of standard diffusion models?
+    \item What is the main motivation behind Latent Diffusion Models (LDM)? Explain the roles of the encoder and decoder in this framework.
+    \item Contrast the traditional U-Net backbone with the Diffusion Transformer (DiT) architecture for diffusion models.
+\end{itemize}

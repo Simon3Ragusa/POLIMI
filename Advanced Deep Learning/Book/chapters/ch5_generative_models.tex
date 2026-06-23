@@ -2,7 +2,7 @@
 \label{ch:generative_models}
 
 \section{Introduction to Generative Models}
-Generative models represent a profound paradigm shift in modern machine learning. Rather than performing discriminative tasks—such as classifying an image or predicting a continuous variable—the primary objective of a generative model is to synthesize entirely new, highly realistic data instances. Formally, given a training set of images $TR = \{x_i\}$, the goal is to generate novel images that are statistically indistinguishable from those present in $TR$. The successful deployment of generative models has revolutionized several domains, offering robust solutions for data augmentation, complex simulation, strategic planning, and tackling ill-posed inverse problems like super-resolution, inpainting, and colorization.
+Generative models represent a profound paradigm shift in modern machine learning. Rather than performing discriminative tasks—such as classifying an image or predicting a continuous variable—the primary objective of a generative model is to synthesize entirely new, highly realistic data instances. Formally, given a training set of images $TR = \{x_i\}$, the goal is to generate novel images that are statistically indistinguishable from those present in $TR$. The successful deployment of generative models has revolutionized several domains, offering robust solutions for data augmentation, complex simulation, strategic planning, and tackling ill-posed inverse problems like super-resolution, inpainting, and colorization. In recent years, generative models have expanded into cross-modal applications such as text-to-image generation and sophisticated audio synthesis, drastically expanding the creative toolset of artificial intelligence.
 
 \begin{insightbox}[The Holy Grail of Image Processing]
 Natural images do not uniformly populate the high-dimensional space of all possible pixel combinations. Instead, they reside on a highly complex, low-dimensional manifold embedded within this vast space. The ultimate goal of generative modeling—often considered the "holy grail" of image processing—is to accurately capture the underlying probability distribution of this manifold. Uncovering this distribution enables highly effective regularization for auxiliary tasks and provides a mathematically rigorous foundation for identifying outliers and performing anomaly detection.
@@ -13,12 +13,12 @@ Autoencoders (AEs) are foundational neural network architectures utilized for un
 
 The network is trained by minimizing the reconstruction loss over a mini-batch $S$:
 \begin{equation}
-\ell(S) = \sum_{s \in S} ||s - \mathcal{D}(\mathcal{E}(s))||_2
+\ell(S) = \sum_{s \in S} ||s - \mathcal{D}(\mathcal{E}(s))||_2^2
 \end{equation}
-Training proceeds via standard backpropagation algorithms, such as Stochastic Gradient Descent (SGD). By minimizing this loss, the autoencoder learns an approximation of the identity mapping. In practice, modern autoencoders are instantiated as deep neural networks—stacking multiple hidden layers—to capture highly nonlinear and hierarchical representations. Convolutional layers and transpose convolutions are frequently employed to implement deep convolutional autoencoders optimized for spatial data.
+Training proceeds via standard backpropagation algorithms, such as Stochastic Gradient Descent (SGD) or Adam. By minimizing this loss, the autoencoder learns an approximation of the identity mapping. In practice, modern autoencoders are instantiated as deep neural networks—stacking multiple hidden layers—to capture highly nonlinear and hierarchical representations. Convolutional layers and transpose convolutions are frequently employed to implement deep convolutional autoencoders optimized for spatial data. Regularized variants such as Denoising Autoencoders (DAEs) and Sparse Autoencoders are also employed to further prevent mere memorization and extract robust features.
 
 \begin{insightbox}[Latent Representation Constraints]
-Because the autoencoder is constrained by the bottleneck where $n \ll d$, it cannot simply memorize the training data. This architectural limitation forces the network to distill the input into a compact, semantically meaningful latent representation. Furthermore, one can introduce explicit regularization terms, such as $+\lambda \mathcal{R}(s)$, to steer the latent vector $\mathcal{E}(s)$ toward desired properties (e.g., sparsity) or enforce specific structural characteristics in the reconstruction (e.g., smoothness or edge preservation).
+Because the autoencoder is constrained by the bottleneck where $d \ll n$, it cannot simply memorize the training data. This architectural limitation forces the network to distill the input into a compact, semantically meaningful latent representation. Furthermore, one can introduce explicit regularization terms, such as $+\lambda \mathcal{R}(s)$, to steer the latent vector $\mathcal{E}(s)$ toward desired properties (e.g., sparsity) or enforce specific structural characteristics in the reconstruction (e.g., smoothness or edge preservation).
 \end{insightbox}
 
 While it is tempting to use a trained autoencoder as a generative model by discarding the encoder and feeding randomly sampled vectors $z \sim \phi_z$ into the decoder, this approach is fundamentally flawed. The primary issue is that the true empirical distribution of the latent representations is unknown and generally intractable to estimate. As the dimensionality $d$ increases, the latent space becomes increasingly sparse. Consequently, drawing a random vector is overwhelmingly likely to fall into an unpopulated region of the latent space, resulting in decoded outputs that do not correspond to any realistic class.
@@ -47,7 +47,7 @@ Unlike traditional deterministic neural networks, the components of a VAE are de
 
 Similarly, the decoder $\mathcal{D}_\theta$ processes a stochastically sampled realization $z$ and outputs the defining parameters for the data distribution $p_\theta(x|z) = \mathcal{N}(\mathcal{D}_\theta(\boldsymbol{\mu}_{x|z}), \boldsymbol{\Sigma}')$. It can be shown mathematically that maximizing this specific probability corresponds directly to minimizing the Mean Squared Error (MSE) between the decoder's output and the real image:
 \begin{equation}
-\log(p_\theta(x|z)) = -\frac{1}{2} ||\mathcal{D}_\theta(\boldsymbol{\mu}_{x|z}) - x||_2 + C
+\log(p_\theta(x|z)) = -\frac{1}{2} ||\mathcal{D}_\theta(\boldsymbol{\mu}_{x|z}) - x||_2^2 + C
 \end{equation}
 where $C$ is a positive constant independent of $\theta$.
 
@@ -56,7 +56,7 @@ Jointly training the encoder and decoder to maximize the true likelihood require
 \begin{equation}
 \log p_{\theta,\phi}(x) \ge \mathbb{E}_{z \sim q_\phi(z|x)} [\log(p_\theta(x|z))] - \text{KL}(q_\phi(z|x) || p(z))
 \end{equation}
-The first term is the expected reconstruction log-likelihood, practically implemented as the MSE computed over training minibatches. The second term is the Kullback-Leibler (KL) divergence, which penalizes the deviation of the approximate posterior $q_\phi(z|x)$ from the prior $p(z)$. Because both distributions are Gaussian, this KL divergence can be computed analytically in a closed-form expression, greatly simplifying the optimization process.
+The first term is the expected reconstruction log-likelihood, practically implemented as the MSE computed over training minibatches. The second term is the Kullback-Leibler (KL) divergence, which penalizes the deviation of the approximate posterior $q_\phi(z|x)$ from the prior $p(z)$. Because both distributions are Gaussian, this KL divergence can be computed analytically in a closed-form expression, greatly simplifying the optimization process. Balancing these two terms can sometimes be tricky; generalized formulations like $\beta$-VAEs introduce a hyperparameter $\beta$ to control the emphasis on the KL divergence, leading to better latent space disentanglement.
 
 \begin{insightbox}[The Reparameterization Trick]
 A fundamental challenge in VAE training is backpropagating gradients through the stochastic sampling operation $z \sim q_\phi(z|x)$. The standard backpropagation algorithm cannot differentiate through a random node. The "reparameterization trick" solves this by expressing $z$ as a deterministic linear transformation of an independent auxiliary noise variable $\epsilon \sim \mathcal{N}(0, \mathbb{I})$:
@@ -65,7 +65,7 @@ This elegant formulation decouples the stochasticity from the network parameters
 \end{insightbox}
 
 \section{Generative Adversarial Networks (GANs)}
-An alternative, highly disruptive approach to deep generative modeling is the Generative Adversarial Network (GAN). Distinct from VAEs, GANs completely eschew the need for explicit probability density estimation. Instead, they rely on a game-theoretic framework where two competing neural networks are trained simultaneously in a zero-sum minimax game, implicitly learning to model the intricate manifold of natural images.
+An alternative, highly disruptive approach to deep generative modeling is the Generative Adversarial Network (GAN). Distinct from VAEs, GANs completely eschew the need for explicit probability density estimation. Instead, they rely on a game-theoretic framework where two competing neural networks are trained simultaneously in a zero-sum minimax game, implicitly learning to model the intricate manifold of natural images. By sidestepping the computation of maximum likelihood, GANs often yield sharper, more perceptually realistic images compared to the relatively blurrier outputs characteristic of standard VAEs.
 
 \subsection{The Adversarial Framework}
 The GAN architecture explicitly divides the generative task between two distinct, antagonistic models:
@@ -79,11 +79,13 @@ The training of GANs is elegantly formulated as a continuous minimax optimizatio
 \begin{equation}
 \min_{\theta_g} \max_{\theta_d} V(\mathcal{D}, \mathcal{G}) = \mathbb{E}_{s \sim \phi_s}[\log \mathcal{D}(s, \theta_d)] + \mathbb{E}_{z \sim \phi_z}[\log(1 - \mathcal{D}(\mathcal{G}(z, \theta_g), \theta_d))]
 \end{equation}
-A theoretically optimal discriminator seeks to maximize this functional, rigorously ensuring that $\mathcal{D}(s)$ approaches $1$ for all authentic images and that $\mathcal{D}(\mathcal{G}(z))$ collapses to $0$ for all generated forgeries. Conversely, the generator endeavors to minimize this exact same functional, dynamically adjusting its parameters to force the discriminator into classifying $\mathcal{G}(z)$ as genuine.
+A theoretically optimal discriminator seeks to maximize this functional, rigorously ensuring that $\mathcal{D}(s)$ approaches $1$ for all authentic images and that $\mathcal{D}(\mathcal{G}(z))$ collapses to $0$ for all generated forgeries. Conversely, the generator endeavors to minimize this exact same functional, dynamically adjusting its parameters to force the discriminator into classifying $\mathcal{G}(z)$ as genuine. 
 
-\begin{insightbox}[Training Dynamics and the Generator Gradient Trick]
+\begin{insightbox}[Training Dynamics, the Generator Gradient Trick, and Mode Collapse]
 In practice, optimizing the minimax objective directly can be profoundly unstable. GAN training requires carefully synchronizing alternating steps: executing $k$ steps of stochastic gradient ascent to update $\mathcal{D}$, immediately followed by a single step of descent for $\mathcal{G}$.
 During the initial epochs of training, the generator $\mathcal{G}$ typically produces trivial noise, allowing the discriminator $\mathcal{D}$ to reject the samples with overwhelming confidence. Consequently, $\mathcal{D}(\mathcal{G}(z)) \approx 0$, which causes the gradient of the function $\log(1 - \mathcal{D}(\mathcal{G}(z)))$ to vanish almost completely. To circumvent this fatal stagnation, modern implementations instruct the generator to maximize $\log(\mathcal{D}(\mathcal{G}(z, \theta_g)))$ rather than minimizing the theoretical objective. This crucial modification does not alter the theoretical fixed point of the game but guarantees a robust, non-vanishing gradient signal during the critical early stages of learning.
+
+Another pervasive challenge is \textit{mode collapse}, where the generator discovers a small handful of samples that successfully trick the discriminator, leading to a lack of diversity in the generated output. Techniques such as minibatch discrimination and using specialized losses (e.g., Wasserstein GANs) are widely employed to combat this phenomenon.
 \end{insightbox}
 
 \subsection{Latent Space Interpolation and Vector Arithmetic}
@@ -98,7 +100,7 @@ and subsequently decoding $z_{new}$ through the generator $\mathcal{G}$ reliably
 \section{Conditional GANs and Advanced Architectures}
 While standard GANs possess formidable generative capabilities, they offer no direct mechanism to control the specific semantic class of the synthesized image. Deep Convolutional Conditional GANs (cGANs) elegantly resolve this by injecting auxiliary conditioning information $y$, such as categorical class labels. This auxiliary vector $y$ is typically encoded in a one-hot format and directly concatenated with the input noise vector $z$ before being processed by the generator. Simultaneously, the identical conditioning vector $y$ is concatenated to the input of the discriminator. By exposing both networks to the condition, the discriminator is forced to evaluate not only the absolute photorealism of the sample but also its strict consistency with the requested label $y$, effectively coercing the generator into reliable, conditionally accurate synthesis.
 
-Through iterative refinement, the community has dramatically stabilized these architectures. Deep Convolutional GANs (DCGANs) pioneered the use of fully convolutional layers without dense bottlenecks, integrating aggressive batch normalization to prevent mode collapse, thus allowing the synthesis of high-resolution imagery.
+Through iterative refinement, the community has dramatically stabilized these architectures. Deep Convolutional GANs (DCGANs) pioneered the use of fully convolutional layers without dense bottlenecks, integrating aggressive batch normalization and replacing spatial pooling with strided convolutions and transposed convolutions to prevent mode collapse, thus allowing the synthesis of high-resolution imagery. Evaluation metrics such as the Fréchet Inception Distance (FID) and Inception Score (IS) have also been standardized to objectively quantify the quality and diversity of these advanced generative architectures.
 
 \section{Anomaly Detection using GANs}
 The profound capacity of generative models to encapsulate the structural manifold of a dataset provides a remarkably robust foundation for sophisticated anomaly detection protocols. The foundational premise is intuitive: if a highly expressive generator is trained exclusively upon an unpolluted dataset of "normal" images, it precisely maps the prior noise distribution to the complex manifold of normalcy. Consequently, any severely anomalous image fundamentally violates this geometry, residing strictly outside the span of the generator's capabilities, rendering accurate reconstruction impossible.
@@ -128,3 +130,40 @@ During the critical inference stage, the final anomaly score seamlessly integrat
 \text{Anomaly Score} \propto ||\mathcal{G}(\mathcal{E}(s)) - s||_2 + (\mathcal{D}(s, \mathcal{E}(s)) - 1)^2
 \end{equation}
 The term $(\mathcal{D}(s, \mathcal{E}(s)) - 1)^2$ serves as a rigorous probabilistic penalty, isolating and penalizing specific regional patches that the discriminator successfully identifies as anomalous or mathematically improbable, while the explicit reconstruction penalty highlights absolute structural deviations from the learned normal texture manifold.
+
+\section{Chapter Overview}
+
+This chapter provided a rigorous examination of modern deep generative models, with a primary focus on Variational Autoencoders (VAEs) and Generative Adversarial Networks (GANs). We reviewed the limitations of standard autoencoders for generative tasks, which paved the way for the probabilistic framing of VAEs using the Evidence Lower Bound (ELBO) and the reparameterization trick. We subsequently explored the game-theoretic training dynamics of GANs, investigating the minimax objective, the generator gradient trick, and phenomena such as mode collapse and latent space arithmetic. Finally, we demonstrated how these models can be extended into Conditional GANs for guided synthesis, and how architectures like BiGANs are effectively utilized for sophisticated anomaly detection tasks.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|p{3.5cm}|p{5.5cm}|p{5.5cm}|}
+\hline
+\textbf{Architecture} & \textbf{Pros} & \textbf{Cons} \\
+\hline
+\textbf{Autoencoders (AEs)} & Conceptually simple, effective for unsupervised feature learning and straightforward dimensionality reduction. & Latent space is often unstructured; not inherently capable of generating realistic, novel samples. \\
+\hline
+\textbf{Variational Autoencoders (VAEs)} & Probabilistically sound framework, stable training (via ELBO), enforces a smooth, organized latent space. & Tends to produce blurrier images due to the MSE reconstruction loss; relies on explicit density approximation. \\
+\hline
+\textbf{Generative Adversarial Networks (GANs)} & Yields extremely sharp, perceptually realistic high-resolution images; does not require explicit Markov chains or tractable likelihoods. & Training is highly unstable (minimax game), prone to mode collapse, and evaluating convergence is conceptually difficult. \\
+\hline
+\textbf{Bidirectional GANs (BiGANs)} & Adds an explicit encoder mapping data back to the latent space; highly effective for tasks like anomaly detection. & Inherits training instabilities of GANs; requires optimizing three separate networks simultaneously. \\
+\hline
+\end{tabular}
+\caption{Comparison of Main Generative Architectures}
+\label{tab:gen_architectures}
+\end{table}
+
+\subsection{Possible Exam Questions}
+\begin{itemize}
+    \item What is the main structural limitation of standard autoencoders that prevents them from being effectively utilized as generative models?
+    \item Explain the components of the Evidence Lower Bound (ELBO) in Variational Autoencoders. Why is the KL divergence term necessary?
+    \item Describe the reparameterization trick in VAEs and discuss why it is essential for backpropagating gradients during training.
+    \item Formulate the minimax game objective of a Generative Adversarial Network (GAN). What are the specific goals of the generator and the discriminator?
+    \item What is the ``generator gradient trick'' in GAN training, and how does it address the issue of vanishing gradients during early epochs?
+    \item Explain the concept of ``mode collapse'' in GANs and briefly mention one architectural or training strategy used to mitigate it.
+    \item How does a Conditional GAN (cGAN) differ from a standard GAN in terms of its architecture and optimization objectives?
+    \item Describe the underlying principle of using a trained generative model for anomaly detection. Why are highly anomalous images poorly reconstructed?
+    \item Detail the role of the encoder in a Bidirectional GAN (BiGAN) and explain how its inclusion modifies the standard adversarial framework.
+    \item Provide the mathematical formulation of a comprehensive anomaly score utilizing a BiGAN. What two types of discrepancies does this score combine?
+\end{itemize}

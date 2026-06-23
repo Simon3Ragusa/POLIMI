@@ -184,3 +184,42 @@ To completely sidestep the shattering gradients phenomena, perturbation algorith
 \end{itemize}
 
 Finally, \textbf{Perception Visualization (PV)} constructs a deterministic bridge between semantic explanation (what) and spatial localization (where). Given an encoder network $E$, PV introduces a specialized decoder $D$ optimized explicitly to invert and reconstruct the latent feature representations into visual space. By calculating Grad-CAM coordinates on these reconstructed artifacts, PV delivers unparalleled visual insight, systematically unraveling why a CNN catastrophically misclassified a train traversing a bridge as a "boat", exposing the precise sub-textures that deceived the convolutional layers.
+
+\section{Chapter Overview}
+
+This chapter provided a comprehensive exploration of two crucial themes in modern deep learning: neural 3D scene representation and neural network explainability. We first discussed the foundations of novel view synthesis, moving from explicit geometric reconstruction to the implicit, continuous volumetric rendering approach of Neural Radiance Fields (NeRF). We also examined 3D Gaussian Splatting as an explicit and highly efficient alternative to NeRF's computationally expensive ray-marching.
+
+In the second half, the chapter focused on unraveling the "black box" nature of Convolutional Neural Networks. We explored saliency maps starting from Class Activation Mapping (CAM), progressing into gradient-based attribution methods such as Integrated Gradients and SmoothGrad, which mathematically address issues like gradient saturation and noise. We further detailed Grad-CAM and its augmented variants, concluding with perturbation-based approaches like RISE and Score-CAM that avoid reliance on gradients altogether.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|p{5cm}|p{5cm}|}
+\hline
+\textbf{Technique} & \textbf{Pros} & \textbf{Cons} \\
+\hline
+NeRF & High-quality, continuous volumetric representation; photorealistic novel view synthesis. & Extremely computationally expensive during inference; requires millions of MLP evaluations per frame. \\
+\hline
+Gaussian Splatting & Real-time rendering through ultra-fast tile-based rasterizer; state-of-the-art visual quality. & Explicit geometry (points) instead of continuous volume; relies heavily on a good initial point cloud (e.g., from SfM). \\
+\hline
+CAM & Provides foundational saliency maps for visual explainability. & Requires specific architectures (GAP layers), leading to catastrophic drops in classification accuracy. \\
+\hline
+Integrated Gradients & Resolves the gradient saturation problem; mathematically satisfies the Completeness Property. & Computationally heavier than vanilla gradients; requires selecting a baseline image. \\
+\hline
+Grad-CAM & Highly flexible across various tasks without strict architectural prerequisites. & Spatial resolution is heavily constrained by the depth of the extracted feature maps. \\
+\hline
+Perturbation Methods (e.g., RISE) & Completely sidesteps shattering gradients and does not rely on backpropagation. & Computationally demanding, requiring many forward passes with different random masks. \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Possible Exam Questions}
+\begin{itemize}
+    \item Explain the fundamental differences between implicit representations (like NeRF) and explicit representations (like 3D Gaussian Splatting) for novel view synthesis. What are their respective strengths and weaknesses?
+    \item How does Neural Radiance Fields (NeRF) enforce that physical matter in a scene remains invariant to the observer's perspective while allowing for view-dependent specularities?
+    \item Describe the problem of spectral bias in deep neural networks and explain how NeRF addresses it using positional encoding.
+    \item Why does Class Activation Mapping (CAM) typically cause drops in classification accuracy, and how does Grad-CAM solve this architectural limitation?
+    \item Discuss the shattering gradient problem in vanilla gradient attribution and explain how Integrated Gradients mathematically resolves it.
+    \item What is the purpose of the baseline image in Integrated Gradients, and what is the Completeness Property that its path integral satisfies?
+    \item Explain the mechanism behind SmoothGrad. How does it improve the visual quality of gradient-based attribution maps?
+    \item Compare and contrast gradient-based attribution methods (e.g., Grad-CAM) with perturbation-based methods (e.g., RISE) in terms of their computational approach and robustness.
+\end{itemize}

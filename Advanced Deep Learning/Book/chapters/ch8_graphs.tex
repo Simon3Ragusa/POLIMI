@@ -184,3 +184,40 @@ This computational screening guides the formulation of safer combination treatme
 Many real-world graphs are dynamic, evolving over time. These spatial-temporal graphs appear in recommender systems, financial transactions, and notably in video analysis for \textbf{Skeleton-based Activity Recognition}. 
 In this domain, human body joints form the nodes of a graph, while bones act as edges. Standard models like the Spatial-Temporal Graph Convolutional Network (ST-GCN) apply spatial convolutions within frames and temporal convolutions across frames. 
 However, ST-GCNs suffer from a fixed topology that struggles to capture long-range correlations. A modern solution is the \textbf{Spatial Temporal Transformer Network} (ST-TR), which leverages a Spatial Self-Attention module within each frame, and a Temporal Self-Attention module between frames, allowing for dynamic, long-range correlation modeling both spatially and temporally.
+
+\section{Chapter Overview}
+
+This chapter introduces the fundamental concepts of learning on graphs, transitioning from shallow node embeddings to advanced deep learning architectures. It begins with shallow encodings, such as adjacency-based similarity and random walk approaches (e.g., DeepWalk and node2vec), which are transductive and scale linearly with the number of nodes. To address these limitations, Graph Neural Networks (GNNs) are introduced, utilizing Neighborhood Aggregation (Message Passing) to enable inductive learning and incorporate node features. Key GNN variants discussed include Graph Convolutional Networks (GCNs), GraphSAGE, and Gated Graph Neural Networks (GGNNs). To overcome the static weighting of neighbors in standard GNNs, Graph Attention Networks (GAT) introduce a dynamic, data-dependent attention mechanism. Furthermore, the chapter addresses the inherent limitations of Message Passing Neural Networks (MPNNs)—namely over-smoothing and over-squashing—by exploring Graph Transformers (like Graphormer), which apply self-attention globally and re-inject graph topology via specialized positional and structural encodings. Finally, the chapter highlights practical applications, including recommender systems (PinSage), polypharmacy, and skeleton-based activity recognition.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|p{4.5cm}|p{4.5cm}|}
+\hline
+\textbf{Architecture / Technique} & \textbf{Pros} & \textbf{Cons} \\
+\hline
+Shallow Encodings (e.g., node2vec) & Efficient for local similarities; well-suited for transductive tasks & Parameters grow as $\mathcal{O}(|\mathcal{V}|)$; purely transductive; ignores node features \\
+\hline
+Graph Convolutional Networks (GCN) & Incorporates node features; inductive capability; efficient vectorized computation & Relies on isotropic/static weights; suffers from over-smoothing in deep models \\
+\hline
+GraphSAGE & Flexible aggregation (Mean, Pool, LSTM); effective for unseen nodes & Inherits locality constraints of standard MPNNs \\
+\hline
+Gated Graph Neural Networks (GGNN) & Alleviates overfitting and vanishing gradients, allowing deeper models (>10 layers) & Recurrent GRU updates increase computational overhead \\
+\hline
+Graph Attention Networks (GAT) & Dynamic, data-dependent neighbor weighting; scalable with multi-head attention & Standard GAT attention is static/limited expressiveness (solved by GATv2) \\
+\hline
+Graph Transformers (Graphormer) & Captures long-range dependencies; effectively mitigates over-smoothing and over-squashing & $\mathcal{O}(|\mathcal{V}|^2)$ complexity; requires complex structural/spatial encodings \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Possible Exam Questions}
+\begin{itemize}
+    \item What are the main limitations of shallow encoding approaches for node embedding?
+    \item Explain the concept of Neighborhood Aggregation (Message Passing) and how it enables inductive learning in GNNs.
+    \item Describe how random walk approaches like DeepWalk or node2vec optimize node embeddings through Negative Sampling.
+    \item Why do standard message-passing models like GCNs struggle when scaled to many layers, and what is this phenomenon called?
+    \item How does the aggregation mechanism in Graph Attention Networks (GAT) differ fundamentally from that in Graph Convolutional Networks (GCN)?
+    \item Discuss the "over-squashing" and "over-smoothing" problems in Message Passing Neural Networks (MPNNs).
+    \item How does the Graphormer inject graph topological information into the permutation-invariant standard Transformer architecture?
+    \item Explain the difference between transductive and inductive learning in the context of graph networks.
+\end{itemize}

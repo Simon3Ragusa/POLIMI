@@ -204,3 +204,44 @@ Given a batch of $N$ (image, text) pairs, CLIP computes the embeddings for all i
 Building upon CLIP, \textbf{LSeg} (Li et al., ICLR 2022) adapts this multi-modal approach for dense predictions. While standard segmentation models output a predefined channel dimension for each pixel, LSeg uses a ViT image encoder trained to yield dense pixel-level activations that mathematically align with the CLIP embeddings of text queries.
 
 This allows users to perform \textit{zero-shot semantic segmentation}. At test time, a user can input novel classes (e.g., "furry", "plant", "stone") that were never seen during training, and the network will segment the image by computing the dot product between the dense image features and the CLIP text embeddings of those arbitrary words.
+
+%-------------------------------------------------------------------------
+\section{Chapter Overview}
+
+\subsection{Summary}
+This chapter chronicles the evolution of sequence modeling from foundational RNN-based Encoder-Decoder architectures to the highly parallelizable Transformer. We discussed how early sequence-to-sequence learning suffered from a representation bottleneck, leading to the introduction of the Attention mechanism to enable dynamic, soft alignment between source and target tokens. Building upon this, the Transformer architecture entirely discarded recurrence in favor of Self-Attention and Multi-Head Attention, overcoming previous limitations in parallelization. Finally, we explored the extension of these architectures to the visual domain and multi-modal learning, highlighting Vision Transformers (ViT), Swin Transformers, CLIP, and LSeg, which unlocked new capabilities in zero-shot classification and semantic segmentation.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|p{5cm}|p{5cm}|}
+\hline
+\textbf{Architecture / Technique} & \textbf{Pros} & \textbf{Cons} \\
+\hline
+RNNs \& LSTMs & Effectively model sequential data; maintain hidden state across time. & Inherently sequential (bottlenecking parallelization); struggle with very long-range dependencies. \\
+\hline
+Encoder-Decoder with Attention & Solves the representation bottleneck; provides interpretable soft alignments. & Still relies on sequential RNNs/LSTMs, limiting training efficiency and scalability. \\
+\hline
+Transformer & Highly parallelizable; constant-time sequential operations; handles long dependencies well. & Quadratic computational and memory complexity with respect to sequence length ($O(n^2 \cdot d)$). \\
+\hline
+Vision Transformer (ViT) & Drops restrictive inductive biases (locality, translation equivariance); massive capacity scales well with large data. & Requires massive datasets to outperform CNNs; global self-attention is intractable for high-resolution images. \\
+\hline
+Swin Transformer & Hierarchical structure with local windowed attention restores linear complexity; enables multi-scale features. & More complex implementation compared to pure ViT; reintroduces some structural priors. \\
+\hline
+CLIP & Enables powerful open-set and zero-shot image classification via contrastive multi-modal pre-training. & Requires massive pairs of image-text data for pre-training; not inherently designed for dense prediction. \\
+\hline
+\end{tabular}
+\caption{Comparison of Main Architectures and Techniques}
+\label{tab:architecture_comparison}
+\end{table}
+
+\subsection{Possible Exam Questions}
+\begin{itemize}
+    \item Explain the fundamental difference between Teacher Forcing and inference (Greedy Decoding vs. Beam Search) in seq2seq models.
+    \item What is the ``Encoder-Decoder Bottleneck'', and how does the Attention mechanism solve it?
+    \item Describe the QKV (Query, Key, Value) paradigm in the context of Self-Attention. What is the role of the $\sqrt{d_k}$ scaling factor?
+    \item How does Multi-Head Attention differ from single-head attention, and what specialized roles can different heads learn?
+    \item Why do Transformers require Positional Encoding, and how is it typically implemented?
+    \item Compare the inductive biases of Convolutional Neural Networks (CNNs) with those of Vision Transformers (ViTs).
+    \item Discuss the primary drawbacks of the standard ViT architecture and how hierarchical models like the Swin Transformer address them.
+    \item How does the Contrastive Loss function work in CLIP, and how does it enable zero-shot classification?
+\end{itemize}

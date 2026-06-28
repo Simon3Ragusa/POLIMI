@@ -968,7 +968,7 @@ Assume that:
     \item[\textbf{2.}] [2 points] 2. Focus only on the stack-based buffer overflow(s) you found. Write an exploit for this vulnerability that must execute the following shellcode, composed of 16 bytes, which opens a shell: 0x20 0x30 0x40 0x50 0x60 0x70 0x80 0x90.
     \item[\textbf{3.}] [2 points] Focus only on the format string vulnerability you found. Assume that you were able to find this working exploit to execute a piece of shellcode saved in an environment variable.
 \end{itemize}
-"\textbackslash{}xb6\textbackslash{}x06\textbackslash{}x3a\textbackslash{}x44\textbackslash{}xb8\textbackslash{}x06\textbackslash{}x3a\textbackslash{}x44\%26543c\\%4\$hn\%9529c\%5\$hn"'`
+"\textbackslash{}xb6\textbackslash{}x06\textbackslash{}x3a\textbackslash{}x44\textbackslash{}xb8\textbackslash{}x06\textbackslash{}x3a\textbackslash{}x44\%26543c\%4\$hn\%9529c\%5\$hn"'`
 \begin{itemize}
     \item[\textbf{4.}] [1 points] Consider ONLY the â€œNon-executable stack (NX)â€ mitigation technique. A friend of yours suggests that there is an alternative way to exploit the vulnerability/ies you found to spawn a privileged shell in the program without executing any shellcode or calling library functions.
 \end{itemize}
@@ -1006,7 +1006,7 @@ The exploit writes a 32-bit address in two 16-bit halves using \texttt{\%hn}.
 \begin{itemize}
     \item \textbf{The address where we want to write}: The payload starts with the addresses \texttt{0x443a06b6} and \texttt{0x443a06b8}. These point to the two contiguous memory half-words of the saved return address on the stack.
     \item \textbf{What to write}: The characters printed so far dictate the value written by \texttt{\%hn}. First write: 8 bytes (addresses) + 26543 = 26551 (0x67B7) written to \texttt{0x443a06b6}. Second write: 26551 + 9529 = 36080 (0x8CF0) written to \texttt{0x443a06b8}. The final combined address pointing to the shellcode is \texttt{0x8CF067B7}.
-    \item \textbf{The displacement}: The format specifiers \texttt{\\%4\$hn} and \texttt{\%5\$hn} indicate that the addresses to write to are located at the 4th and 5th positions (words) up the stack relative to the format string's processing pointer.
+    \item \textbf{The displacement}: The format specifiers \texttt{\%4\$hn} and \texttt{\%5\$hn} indicate that the addresses to write to are located at the 4th and 5th positions (words) up the stack relative to the format string's processing pointer.
 
 \end{itemize}
 \textbf{4. NX Mitigation Alternative:}
@@ -1177,7 +1177,7 @@ C program with scramble() function... The program is affected by typical buffer 
 \begin{itemize}
     \item \textbf{Goal}: Use \texttt{\%n} to overwrite a specific memory location.
     \item \textbf{Mechanism}: The attacker calculates the exact integer values needed to write the target address byte-by-byte using \texttt{\%hn} (half-word writes).
-    \item \textbf{Payload Construction}: The payload looks like \texttt{\textbackslash{}xe6\textbackslash{}xfe...\%(54260-8)c\\%7\$hn\%(58964-54260)c\\%8\$hn}. Because the \texttt{scanf} restricts input to 15 characters, this long payload must be split across the multiple iterations of the \texttt{scramble} loop. The first half is injected during one iteration, and the second half during the next, carefully aligning the stack pointers so \texttt{printf} evaluates the concatenated format string correctly to overwrite the target.
+    \item \textbf{Payload Construction}: The payload looks like \texttt{\textbackslash{}xe6\textbackslash{}xfe...\%(54260-8)c\%7\$hn\%(58964-54260)c\%8\$hn}. Because the \texttt{scanf} restricts input to 15 characters, this long payload must be split across the multiple iterations of the \texttt{scramble} loop. The first half is injected during one iteration, and the second half during the next, carefully aligning the stack pointers so \texttt{printf} evaluates the concatenated format string correctly to overwrite the target.
 \end{itemize}
 
 \subsection{Exercise 3 - Binary Vulnerabilities}
@@ -1809,16 +1809,16 @@ Let's analyze the code against standard web vulnerabilities:
 \begin{itemize}
     \item \textbf{SQL Injection (SQLi):} Look at how user inputs are concatenated into SQL queries.
 \end{itemize}
-In \texttt{send()}, line 18: \texttt{check_r = "SELECT user_id FROM users WHERE username = '" + receiver + "';"}. The \texttt{receiver} variable is directly taken from \texttt{request["receiver"]} and appended to the string. This is a classic SQL injection flaw. An attacker can input \texttt{' OR '1'='1} to alter the query logic.
-How to fix: Use parameterized queries (prepared statements), just as the \texttt{login} function correctly does on line 38 (\texttt{db_execute_query_with_statement}).
+In \texttt{send()}, line 18: \texttt{check\_r = "SELECT user\_id FROM users WHERE username = '" + receiver + "';"}. The \texttt{receiver} variable is directly taken from \texttt{request["receiver"]} and appended to the string. This is a classic SQL injection flaw. An attacker can input \texttt{' OR '1'='1} to alter the query logic.
+How to fix: Use parameterized queries (prepared statements), just as the \texttt{login} function correctly does on line 38 (\texttt{db\_execute\_query\_with\_statement}).
 \begin{itemize}
     \item \textbf{Cross-Site Scripting (XSS):} Look for places where user input is reflected in the HTML without sanitization.
 \end{itemize}
-In \texttt{send()}, line 21: \texttt{return render_template("home.html", error="Receiver" + xss_sanitize(receiver) + " not found!")}. The developer explicitly used \texttt{xss_sanitize()} here. So XSS is mitigated.
+In \texttt{send()}, line 21: \texttt{return render\_template("home.html", error="Receiver" + xss\_sanitize(receiver) + " not found!")}. The developer explicitly used \texttt{xss\_sanitize()} here. So XSS is mitigated.
 \begin{itemize}
     \item \textbf{Cross-Site Request Forgery (CSRF):} Look at state-changing actions (like transferring money) and how they are triggered.
 \end{itemize}
-The \texttt{/send} endpoint is a \texttt{GET} request. It checks \texttt{is_session_valid(session)} but it has no CSRF token. If an authenticated user clicks a malicious link, their browser will automatically include their valid session cookie, executing the transfer without their consent.
+The \texttt{/send} endpoint is a \texttt{GET} request. It checks \texttt{is\_session\_valid(session)} but it has no CSRF token. If an authenticated user clicks a malicious link, their browser will automatically include their valid session cookie, executing the transfer without their consent.
 How to fix: Use \texttt{POST} for state-changing actions and require an unpredictable, user-specific CSRF token in the request body that the server validates before executing the transaction.
 
 \textbf{Step 2: Reproducing the CSRF Attack.}
@@ -1828,15 +1828,15 @@ Attacker constructs: \texttt{https://westerosbank.com/send?amount=1000\&receiver
 The attacker can embed this in an \texttt{<img>} tag on a malicious site or a forum like 4chan: \texttt{<img src="https://westerosbank.com/send?amount=1000\&receiver=Law" width="0" height="0">}. When the victim's browser tries to load the "image", it makes the GET request. If the victim is logged into WesterosBank, their cookies are sent, and the bank processes the valid transfer.
 
 \textbf{Step 3: Exploiting the SQL Injection to Steal Passwords (Blind SQLi).}
-The vulnerability is on line 18: \texttt{SELECT user_id FROM users WHERE username = '<receiver>'}.
+The vulnerability is on line 18: \texttt{SELECT user\_id FROM users WHERE username = '<receiver>'}.
 If the query returns a row, the code proceeds to update balances. If it returns no row, it throws a "Receiver not found" error (line 21).
 This boolean outcome (Error vs. Success/Different Error) creates a side-channel for a \textbf{Blind Boolean SQL Injection}. We can ask the database true/false questions and infer the answers based on the application's response.
 To steal a password, we can inject a condition into the \texttt{WHERE} clause that tests the characters of the victim's password one by one.
-Payload for \texttt{receiver}: \texttt{nonexistent_user' OR username='target_victim' AND password LIKE 'a\%}
+Payload for \texttt{receiver}: \texttt{nonexistent\_user' OR username='target\_victim' AND password LIKE 'a\%}
 The resulting query becomes:
-\texttt{SELECT user_id FROM users WHERE username = 'nonexistent_user' OR username='target_victim' AND password LIKE 'a\%';}
+\texttt{SELECT user\_id FROM users WHERE username = 'nonexistent\_user' OR username='target\_victim' AND password LIKE 'a\%';}
 \begin{itemize}
-    \item If the victim's password starts with 'a', the condition is TRUE. The query returns a user_id, and the application proceeds (we'll likely get a different error later, or a success message if we set \texttt{amount} correctly, but definitely *not* the "Receiver not found" error).
+    \item If the victim's password starts with 'a', the condition is TRUE. The query returns a user\_id, and the application proceeds (we'll likely get a different error later, or a success message if we set \texttt{amount} correctly, but definitely *not* the "Receiver not found" error).
     \item If the password does not start with 'a', the condition is FALSE. The query returns empty, and the application shows "Receiver not found".
 \end{itemize}
 By automating this process, iterating through characters (\texttt{a\%}, \texttt{b\%}, \texttt{c\%}...) and then expanding (\texttt{aa\%}, \texttt{ab\%}...), an attacker can extract the entire password character by character without ever seeing the database output directly.
@@ -1844,7 +1844,7 @@ By automating this process, iterating through characters (\texttt{a\%}, \texttt{
 \subsection{Exercise 4 - Web Vulnerabilities}
 \subsubsection*{Problem}
 ChatterChaos is a web service for group chatting. Users can view and post messages in channels of personal interest. The relevant code of the application is reported below.
-Assume the following: The session is correctly handled; is_session_valid correctly checks if the user is logged in; db_execute_query_with_statement correctly executes queries with prepared statements; render_template does not perform any sanitization of the input; The DBMS does not support stacked queries; The DBMS is case-sensitive; The username is checked with the function blacklist available in the code; is_numeric returns true if the string contains only numbers.
+Assume the following: The session is correctly handled; is\_session\_valid correctly checks if the user is logged in; db\_execute\_query\_with\_statement correctly executes queries with prepared statements; render\_template does not perform any sanitization of the input; The DBMS does not support stacked queries; The DBMS is case-sensitive; The username is checked with the function blacklist available in the code; is\_numeric returns true if the string contains only numbers.
 
 \begin{itemize}
     \item[\textbf{1.}] [3 points] Fill out the following table by answering the questions for each class of vulnerabilities (SQL Injection, XSS, CSRF).
@@ -1857,17 +1857,17 @@ Assume the following: The session is correctly handled; is_session_valid correct
 
 \textbf{Question 1: Vulnerability Table}
 \begin{itemize}
-    \item \textbf{SQL Injection (SQLi)}: \textbf{No}. The code relies exclusively on parameterized queries (\texttt{db_execute_query_with_statement}), safely separating SQL logic from user data.
+    \item \textbf{SQL Injection (SQLi)}: \textbf{No}. The code relies exclusively on parameterized queries (\texttt{db\_execute\_query\_with\_statement}), safely separating SQL logic from user data.
     \item \textbf{Cross-Site Scripting (XSS)}: \textbf{Yes (Stored XSS)}. On lines 82-83, the user's input for \texttt{color} is injected directly into the \texttt{style} HTML attribute without context-aware escaping. The \texttt{blacklist} function filters angle brackets, but breaking out of an attribute context does not require them. *Fix*: Implement strict whitelisting for allowed colors and use proper HTML escaping.
-    \item \textbf{Cross-Site Request Forgery (CSRF)}: \textbf{Yes}. The \texttt{post_message} function performs a state-changing action (posting a message) but only verifies session cookies. It lacks anti-CSRF tokens to verify that the request originated intentionally from the legitimate application interface. *Fix*: Implement synchronizer CSRF tokens.
+    \item \textbf{Cross-Site Request Forgery (CSRF)}: \textbf{Yes}. The \texttt{post\_message} function performs a state-changing action (posting a message) but only verifies session cookies. It lacks anti-CSRF tokens to verify that the request originated intentionally from the legitimate application interface. *Fix*: Implement synchronizer CSRF tokens.
 
 \end{itemize}
 \textbf{Question 2: Reproducing the CSRF Exploit}
 *Mechanism*: The attacker hosts a malicious web page (e.g., on a streaming site). When the authenticated ChatterChaos user visits this page, it automatically triggers a cross-origin \texttt{POST} request to the ChatterChaos server. The victim's browser automatically attaches their session cookies, making the request valid.
 *Exploit Code*: The attacker embeds a hidden, auto-submitting form on their site:
 \texttt{}`html
-<form method="POST" action="http://chatterchaos.com/post_message">
-<input type="hidden" name="channel_id" value="100">
+<form method="POST" action="http://chatterchaos.com/post\_message">
+<input type="hidden" name="channel\_id" value="100">
 <input type="hidden" name="message" value="You want some easy money! Visit easycrypto.com!">
 <input type="submit" onload="this.click()">
 </form>
@@ -1902,16 +1902,16 @@ Review the provided Python Flask application code managing an AI chat platform.
 \textbf{Step-by-Step Reasoning:}
 \begin{itemize}
     \item \textbf{SQL Injection (SQLi):}
-    \item *Presence:* Yes, present at lines 1-5 inside \texttt{load_history}.
-    \item *Exploitation:* The \texttt{chat_id} variable is directly concatenated into the SQL query string (\texttt{"SELECT * FROM chats WHERE user_id = " + user_id + " AND chat_id = " + chat_id}). An attacker can inject malicious SQL clauses (like \texttt{UNION ALL}) via the \texttt{chat_id} parameter to read arbitrary data from the database.
+    \item *Presence:* Yes, present at lines 1-5 inside \texttt{load\_history}.
+    \item *Exploitation:* The \texttt{chat\_id} variable is directly concatenated into the SQL query string (\texttt{"SELECT * FROM chats WHERE user\_id = " + user\_id + " AND chat\_id = " + chat\_id}). An attacker can inject malicious SQL clauses (like \texttt{UNION ALL}) via the \texttt{chat\_id} parameter to read arbitrary data from the database.
     \item *Mitigation:* Use Prepared Statements (Parameterized Queries) for all database interactions. The DB driver handles escaping automatically.
     \item \textbf{Cross-Site Scripting (XSS):}
     \item *Presence:* Yes, Stored XSS is present.
-    \item *Exploitation:* At line 28, the \texttt{prompt} and \texttt{completion} are inserted into the database without sanitization. Later, in \texttt{view_public_chat} (line 41), the template renders this history. If the template engine doesn't automatically escape variables (or if explicitly told not to), malicious JavaScript stored in the prompt will execute in the victim's browser when they view the chat.
-    \item *Mitigation:* Apply the provided \texttt{xss_sanitize()} function to the data *before* inserting it into the database, or ensure the template engine automatically HTML-escapes all output variables (Context-Aware Output Encoding).
+    \item *Exploitation:* At line 28, the \texttt{prompt} and \texttt{completion} are inserted into the database without sanitization. Later, in \texttt{view\_public\_chat} (line 41), the template renders this history. If the template engine doesn't automatically escape variables (or if explicitly told not to), malicious JavaScript stored in the prompt will execute in the victim's browser when they view the chat.
+    \item *Mitigation:* Apply the provided \texttt{xss\_sanitize()} function to the data *before* inserting it into the database, or ensure the template engine automatically HTML-escapes all output variables (Context-Aware Output Encoding).
     \item \textbf{Cross-Site Request Forgery (CSRF):}
     \item *Presence:* Yes, CSRF is present on the \texttt{/ask} endpoint (lines 12-29).
-    \item *Exploitation:* The endpoint is a \texttt{GET} request and relies only on the session cookie. An attacker can craft a malicious website containing an invisible \texttt{<img>} or \texttt{<iframe>} pointing to \texttt{http://ChatAI.com/ask?chat_id=1\&prompt=MaliciousPrompt}. When an authenticated user visits the attacker's site, their browser automatically sends the request with their session cookies, silently performing actions on their behalf.
+    \item *Exploitation:* The endpoint is a \texttt{GET} request and relies only on the session cookie. An attacker can craft a malicious website containing an invisible \texttt{<img>} or \texttt{<iframe>} pointing to \texttt{http://ChatAI.com/ask?chat\_id=1\&prompt=MaliciousPrompt}. When an authenticated user visits the attacker's site, their browser automatically sends the request with their session cookies, silently performing actions on their behalf.
     \item *Mitigation:* Implement Anti-CSRF Tokens. Generate a unique, unpredictable token for the user's session, include it in all forms/requests, and verify it on the server-side. Additionally, state-changing actions should use \texttt{POST} instead of \texttt{GET}.
 
 \end{itemize}
@@ -1919,13 +1919,13 @@ Review the provided Python Flask application code managing an AI chat platform.
 \textbf{Step-by-Step Reasoning:}
 The attacker needs to extract data from the \texttt{users} table. Since the query \texttt{SELECT * FROM chats ...} returns results that are likely displayed, a UNION-based SQL injection is appropriate.
 \begin{itemize}
-    \item The original query structure is: \texttt{SELECT * FROM chats WHERE user_id = X AND chat_id = [INPUT]}.
+    \item The original query structure is: \texttt{SELECT * FROM chats WHERE user\_id = X AND chat\_id = [INPUT]}.
     \item We can inject a \texttt{UNION} clause to append results from the \texttt{users} table.
-    \item We set \texttt{chat_id} to a value that makes the first half of the query return nothing (e.g., \texttt{-1}), so only our injected results are returned.
-    \item \textbf{Exploit Payload:} We set \texttt{chat_id} to: \texttt{-1 UNION ALL SELECT password, password FROM users WHERE username = 'my_target_username'--}
+    \item We set \texttt{chat\_id} to a value that makes the first half of the query return nothing (e.g., \texttt{-1}), so only our injected results are returned.
+    \item \textbf{Exploit Payload:} We set \texttt{chat\_id} to: \texttt{-1 UNION ALL SELECT password, password FROM users WHERE username = 'my\_target\_username'--}
     \item This makes the final executed query look like:
 \end{itemize}
-\texttt{SELECT * FROM chats WHERE user_id = 1 AND chat_id = -1 UNION ALL SELECT password, password FROM users WHERE username = 'my_target_username'--}
+\texttt{SELECT * FROM chats WHERE user\_id = 1 AND chat\_id = -1 UNION ALL SELECT password, password FROM users WHERE username = 'my\_target\_username'--}
 \begin{itemize}
     \item The application will execute the query and display the password hashes/plaintext on the page where it normally displays chat history.
 
@@ -1940,7 +1940,7 @@ The goal is to execute JavaScript in the victim's browser when they visit a publ
 \texttt{<SCRIPT>alert("AI will take over the world!!!");</SCRIPT>}
 \begin{itemize}
     \item \textbf{Step 3:} The vulnerable backend (line 28) stores this exact string into the \texttt{history} table in the database.
-    \item \textbf{Step 4:} The attacker makes the chat public and sends the URL (\texttt{/view_public_chat?chat_id=...}) to a friend.
+    \item \textbf{Step 4:} The attacker makes the chat public and sends the URL (\texttt{/view\_public\_chat?chat\_id=...}) to a friend.
     \item \textbf{Step 5:} The friend opens the URL. The backend retrieves the unsanitized prompt from the DB and inserts it into the HTML DOM. The victim's browser parses the \texttt{<SCRIPT>} tag and executes the arbitrary JavaScript alert.
 \end{itemize}
 
@@ -1953,7 +1953,7 @@ Step-by-Step Solution:
 
 \begin{itemize}
     \item[\textbf{1.}] Vulnerability Identification:
-    \item SQL Injection: Present on line 21 during the \texttt{INSERT INTO tickets} query. User input (seat and concert_id) is concatenated directly into the query string. Fix: Use prepared statements.
+    \item SQL Injection: Present on line 21 during the \texttt{INSERT INTO tickets} query. User input (seat and concert\_id) is concatenated directly into the query string. Fix: Use prepared statements.
     \item XSS: Not explicitly present in this specific Python snippet, but typically occurs if inputs like 'band' or 'seat' are reflected without sanitization.
     \item CSRF: The \texttt{buy} function relies solely on session cookies and lacks an anti-CSRF token. Fix: Implement randomized CSRF tokens for state-changing requests.
 
@@ -1961,7 +1961,7 @@ Step-by-Step Solution:
     \item The attacker hosts a malicious HTML page containing an auto-submitting form:
 \end{itemize}
 `<form action="http://stagepass.com/buy" method="POST">
-<input type="hidden" name="concert_id" value="ATTACKER_CONCERT">
+<input type="hidden" name="concert\_id" value="ATTACKER\_CONCERT">
 <input type="hidden" name="seat" value="A1">
 </form>
 <script>document.forms[0].submit();</script>`
@@ -1970,11 +1970,11 @@ Step-by-Step Solution:
 
     \item[\textbf{3.}] SQLi Exploit (Two for One):
     \item Goal: Purchase one ticket for yourself and one for user 'Law' for the price of one.
-    \item Vulnerable query: \texttt{INSERT INTO tickets VALUES (user_id, 'seat', concert_id);}
-    \item Payload for \texttt{seat}: \texttt{A1', 1); INSERT INTO tickets VALUES (Law_ID, 'A2}
+    \item Vulnerable query: \texttt{INSERT INTO tickets VALUES (user\_id, 'seat', concert\_id);}
+    \item Payload for \texttt{seat}: \texttt{A1', 1); INSERT INTO tickets VALUES (Law\_ID, 'A2}
     \item Wait, the problem states the DBMS does NOT support stacked queries. So we must use a subquery or multi-row insert.
-    \item Payload for \texttt{concert_id}: \texttt{1), (SELECT user_id FROM users WHERE username='Law', 'A2', 1)}
-    \item The resulting query becomes: \texttt{INSERT INTO tickets VALUES (my_id, 'seat', 1), (SELECT user_id FROM users WHERE username='Law', 'A2', 1);} which inserts multiple rows.
+    \item Payload for \texttt{concert\_id}: \texttt{1), (SELECT user\_id FROM users WHERE username='Law', 'A2', 1)}
+    \item The resulting query becomes: \texttt{INSERT INTO tickets VALUES (my\_id, 'seat', 1), (SELECT user\_id FROM users WHERE username='Law', 'A2', 1);} which inserts multiple rows.
 \end{itemize}
 
 \subsection{Exercise 4 - Web Vulnerabilities}
@@ -1986,18 +1986,18 @@ Step-by-Step Solution:
 
 \begin{itemize}
     \item[\textbf{1.}] Vulnerabilities Identification:
-    \item SQL Injection: Line 34 \texttt{insert_q = "INSERT INTO photos ... VALUES ('" +user_id+ "', '"+title+ "');"}. The \texttt{title} is concatenated directly into the query. Fix: Use \texttt{db_execute_query_with_statements} (prepared statements).
+    \item SQL Injection: Line 34 \texttt{insert\_q = "INSERT INTO photos ... VALUES ('" +user\_id+ "', '"+title+ "');"}. The \texttt{title} is concatenated directly into the query. Fix: Use \texttt{db\_execute\_query\_with\_statements} (prepared statements).
     \item XSS (Reflected): Lines 28-30. The \texttt{title} parameter from the POST request is checked for length > 100, and if true, it is directly reflected in the error message template without sanitization. Fix: Escape the \texttt{title} variable before rendering it in the template.
-    \item CSRF: The \texttt{post_photo} function implements a CSRF check. However, on line 15, the condition \texttt{if token in session["csrf_tokens"].keys() or get_time() < expiration} uses an logical \texttt{OR}. This means if *any* condition is met (like the current time being before the token expiration), it incorrectly returns True. The validation is fundamentally broken.
+    \item CSRF: The \texttt{post\_photo} function implements a CSRF check. However, on line 15, the condition \texttt{if token in session["csrf\_tokens"].keys() or get\_time() < expiration} uses an logical \texttt{OR}. This means if *any* condition is met (like the current time being before the token expiration), it incorrectly returns True. The validation is fundamentally broken.
 
     \item[\textbf{2.}] XSS Exploit:
     \item Submit a photo with a title longer than 100 characters containing the payload: \texttt{"<script>alert('My photos should be in a museum!!!')</script>" + "A" * 100}.
     \item The server triggers the error condition on line 29 and reflects the script tag, executing it in the victim's browser.
 
     \item[\textbf{3.}] Path Traversal Exploit:
-    \item The image path is constructed as \texttt{path = "/photos/" + user_id + "/" + title} (Line 36).
+    \item The image path is constructed as \texttt{path = "/photos/" + user\_id + "/" + title} (Line 36).
     \item An attacker can exploit this by setting \texttt{title} to traverse directories and overwrite other users' photos.
-    \item Payload for \texttt{title}: \texttt{../<victim_user_id>/<existing_photo_title>}.
+    \item Payload for \texttt{title}: \texttt{../<victim\_user\_id>/<existing\_photo\_title>}.
     \item When the file is opened for writing (\texttt{"wb"}), it overwrites the victim's photo with the attacker's uploaded image (a cat).
 \end{itemize}
 
@@ -2010,7 +2010,7 @@ Step-by-Step Solution:
 
 \begin{itemize}
     \item[\textbf{1.}] Vulnerability Identification:
-    \item SQL Injection: Line 9 (INSERT) and Line 25 (SELECT). The \texttt{file.filename}, \texttt{uuid}, and \texttt{owner_id} are concatenated directly into the query strings. Fix: Use parameterized queries (\texttt{db_execute_query_with_statements}).
+    \item SQL Injection: Line 9 (INSERT) and Line 25 (SELECT). The \texttt{file.filename}, \texttt{uuid}, and \texttt{owner\_id} are concatenated directly into the query strings. Fix: Use parameterized queries (\texttt{db\_execute\_query\_with\_statements}).
     \item XSS (Stored): The \texttt{filename} is stored in the database and later reflected directly into the HTML on line 60 \texttt{<h1>{{ filename }}</h1>} without HTML escaping. Fix: Sanitize/escape the filename variable before rendering.
     \item CSRF: The \texttt{upload} function on line 01 processes a state-changing POST request using only session validation. There is no CSRF token check. Fix: Implement and validate a unique CSRF token for the upload form.
 
@@ -2022,7 +2022,7 @@ Step-by-Step Solution:
 
     \item[\textbf{3.}] SQL Injection Password Leak:
     \item Goal: Leak the admin's password via the download page.
-    \item Vulnerability: Line 25 \texttt{SELECT * FROM files WHERE uuid = '...' AND owner_id = '...'}.
+    \item Vulnerability: Line 25 \texttt{SELECT * FROM files WHERE uuid = '...' AND owner\_id = '...'}.
     \item Exploit: Provide a crafted \texttt{uuid} parameter in the GET request to perform a UNION SQL injection.
     \item Payload: \texttt{' UNION ALL SELECT 1, password, password FROM users WHERE username = 'admin'; -- }
     \item How it works: The original query returns no rows (if the fake UUID doesn't match). The UNION query executes and returns the admin's password in the columns where \texttt{filename} and \texttt{uuid} are expected. The application then displays the password on the download page.
@@ -2037,17 +2037,17 @@ Step-by-Step Solution:
 
 \begin{itemize}
     \item[\textbf{1.}] Vulnerabilities Identification:
-    \item SQL Injection: Line 23 \texttt{inquiry_q = "INSERT INTO inquiries VALUES ... '" + text + " ');"}. The user input \texttt{text} is concatenated directly into the SQL query string. Fix: Use parameterized queries.
-    \item XSS (Stored): The \texttt{text} of the inquiry is stored in the database. When an admin views the inquiry (line 39 \texttt{view_inquiry.html}), it is reflected into the HTML (line 61 \texttt{<p>{{ inquiry }}</p>}) without sanitization. Fix: HTML escape the output.
-    \item CSRF: Both the \texttt{add_coupon} and \texttt{send_inquiry} functions perform state-changing actions (database inserts) using only session validation without CSRF tokens.
+    \item SQL Injection: Line 23 \texttt{inquiry\_q = "INSERT INTO inquiries VALUES ... '" + text + " ');"}. The user input \texttt{text} is concatenated directly into the SQL query string. Fix: Use parameterized queries.
+    \item XSS (Stored): The \texttt{text} of the inquiry is stored in the database. When an admin views the inquiry (line 39 \texttt{view\_inquiry.html}), it is reflected into the HTML (line 61 \texttt{<p>{{ inquiry }}</p>}) without sanitization. Fix: HTML escape the output.
+    \item CSRF: Both the \texttt{add\_coupon} and \texttt{send\_inquiry} functions perform state-changing actions (database inserts) using only session validation without CSRF tokens.
 
     \item[\textbf{2.}] CSRF Exploit (Admin Discount):
     \item Goal: Trick an admin into creating a coupon for a 99.99\% discount.
     \item The attacker sets up a malicious website (\texttt{QuickSmart.com}).
     \item The website contains an auto-submitting form targeting the vulnerable endpoint:
 \end{itemize}
-`<form id="csrf" method="POST" action="http://QuickCart.com/add_coupon">
-<input type="hidden" name="coupon_code" value="HACKED99">
+`<form id="csrf" method="POST" action="http://QuickCart.com/add\_coupon">
+<input type="hidden" name="coupon\_code" value="HACKED99">
 <input type="hidden" name="discount" value="0.9999">
 </form>
 <script>document.getElementById('csrf').submit();</script>`
@@ -2066,14 +2066,14 @@ During a recent incident response at Async Labs... 1. Fill the following table s
 
 \subsubsection*{Solution}
 \begin{itemize}
-    \item[\textbf{1.}] Polymorphism: YES, The malware decrypts enc_payload using XOR and executes it via execute_payload. When spreading, mutate_and_spread decrypts the current payload and re-encrypts it with a supposedly fresh key before calling deploy, matching the pattern of a polymorphic mutation engine that generates a new sample per infection. Anti-Debugging: YES, IsDebuggerPresent() returns TRUE if a debugger is currently attached to the process. The malware checks this at startup and immediately exits if a debugger is detected, preventing dynamic analysis.
+    \item[\textbf{1.}] Polymorphism: YES, The malware decrypts enc\_payload using XOR and executes it via execute\_payload. When spreading, mutate\_and\_spread decrypts the current payload and re-encrypts it with a supposedly fresh key before calling deploy, matching the pattern of a polymorphic mutation engine that generates a new sample per infection. Anti-Debugging: YES, IsDebuggerPresent() returns TRUE if a debugger is currently attached to the process. The malware checks this at startup and immediately exits if a debugger is detected, preventing dynamic analysis.
 
-    \item[\textbf{2.}] Polymorphism: Incorrectly Implemented. (i) Why it is flawed: The PRNG is seeded with the fixed constant srand(42). Since rand() is deterministic, calling srand(42) always produces the same value for new_key across every run and every machine. (ii) Defender's perspective: Since srand(42) always produces the same new_key, all copies spread by mutate_and_spread are byte-for-byte identical to each other. Therefore, every copy deployed by mutate_and_spread always carries the same new_enc byte sequence. A signature-based antivirus can trivially fingerprint any deployed copy, defeating the goal of polymorphism entirely.
+    \item[\textbf{2.}] Polymorphism: Incorrectly Implemented. (i) Why it is flawed: The PRNG is seeded with the fixed constant srand(42). Since rand() is deterministic, calling srand(42) always produces the same value for new\_key across every run and every machine. (ii) Defender's perspective: Since srand(42) always produces the same new\_key, all copies spread by mutate\_and\_spread are byte-for-byte identical to each other. Therefore, every copy deployed by mutate\_and\_spread always carries the same new\_enc byte sequence. A signature-based antivirus can trivially fingerprint any deployed copy, defeating the goal of polymorphism entirely.
 
 \end{itemize}
 \#\#\# Improved Step-by-Step Explanation:
-For 1: The code demonstrates polymorphism by attempting to change its payload encryption key each time it spreads (\texttt{mutate_and_spread} function). This is intended to evade static signature-based detection. It also implements anti-debugging by checking \texttt{IsDebuggerPresent()} early in \texttt{main()} and exiting if true, aiming to thwart dynamic analysis by security researchers.
-For 2: The polymorphic engine is fundamentally flawed because it relies on the C standard library's \texttt{rand()} function initialized with a hardcoded, static seed (\texttt{srand(42)}). Pseudorandom number generators are deterministic; given the same seed, they will produce the exact same sequence of numbers. Consequently, the \texttt{new_key} generated will be identical every time the malware spreads. This means the "mutated" payload will always be encrypted with the same key, resulting in the exact same binary payload across all infections. A defender can simply generate a static signature for this specific encrypted payload, rendering the polymorphic feature completely useless.
+For 1: The code demonstrates polymorphism by attempting to change its payload encryption key each time it spreads (\texttt{mutate\_and\_spread} function). This is intended to evade static signature-based detection. It also implements anti-debugging by checking \texttt{IsDebuggerPresent()} early in \texttt{main()} and exiting if true, aiming to thwart dynamic analysis by security researchers.
+For 2: The polymorphic engine is fundamentally flawed because it relies on the C standard library's \texttt{rand()} function initialized with a hardcoded, static seed (\texttt{srand(42)}). Pseudorandom number generators are deterministic; given the same seed, they will produce the exact same sequence of numbers. Consequently, the \texttt{new\_key} generated will be identical every time the malware spreads. This means the "mutated" payload will always be encrypted with the same key, resulting in the exact same binary payload across all infections. A defender can simply generate a static signature for this specific encrypted payload, rendering the polymorphic feature completely useless.
 
 \subsection{Exercise 6 - Malware}
 \subsubsection*{Problem}
@@ -2094,7 +2094,7 @@ For 2: The malware does not encrypt files and demand payment, so it's not Ransom
 Neo Tokyo 3 is a town in Japan equipped with advanced defense technologies to protect its civilians from attacks by the Angels... Gendo Ikari... has sent you a sample of the malware for analysis.
 01 int main() {
 02 int ecx;
-03 __asm__ (
+03 \_\_asm\_\_ (
 04 "mov eax, 1" // Sets the parameter of the CPUID instruction
 05 "cpuid" // Execute the CPUID instruction
 06 : "=c"(ecx) // Stores the result in the ecx variable
@@ -2103,7 +2103,7 @@ Neo Tokyo 3 is a town in Japan equipped with advanced defense technologies to pr
 09 if ((ecx >> 31) \& 0x1) // Checks if the 31th bit of ecx is 0x1
 10 exit();
 11 else
-12 malicious_stuff(); // Call the malicious code
+12 malicious\_stuff(); // Call the malicious code
 13 }
 [2 points] 1. This malware employs one evasive technique? Please explicitly state which evasive technique is being employed, and explain how it works in this particular case.
 [2 points] 2. Which type of analysis would you apply to the collected sample? Please state also why it is applicable, and how you would conduct such an analysis.
@@ -2114,15 +2114,15 @@ Neo Tokyo 3 is a town in Japan equipped with advanced defense technologies to pr
 The malware executes the \texttt{cpuid} instruction with \texttt{eax} set to \texttt{1}. As the hint explains, this queries processor features, returning the results in \texttt{ecx}.
 Line 09 checks: \texttt{if ((ecx >> 31) \& 0x1)}. This isolates the 31st bit of the \texttt{ecx} register.
 According to the hint, on physical Intel hardware, this bit is always 0. However, hypervisors (like Microsoft Hyper-V, VMware, VirtualBox) set this bit to 1 to indicate to the guest OS that it is running inside a Virtual Machine.
-If the bit is 1, the malware calls \texttt{exit()} and terminates without doing anything malicious. If it is 0, it proceeds to \texttt{malicious_stuff()}.
+If the bit is 1, the malware calls \texttt{exit()} and terminates without doing anything malicious. If it is 0, it proceeds to \texttt{malicious\_stuff()}.
 This technique is called \textbf{Anti-Virtualization (or VM Evasion)}. Security analysts usually run malware inside sandboxed Virtual Machines to observe its behavior safely. By detecting the VM and exiting, the malware hides its true malicious nature from the automated sandbox analysis.
 
 \textbf{Step 2: Choosing an Analysis Method.}
 We have two main options: Static Analysis (examining the code without running it) and Dynamic Analysis (observing its behavior while running).
 \begin{itemize}
-    \item \textbf{Static Analysis:} This is highly applicable here. The code is provided in clear assembly. It is not packed, encrypted, or heavily obfuscated. An analyst can simply open the executable in a disassembler (like IDA Pro or Ghidra), read the \texttt{cpuid} check, understand the logic, and manually analyze the \texttt{malicious_stuff()} function to determine its intent. Furthermore, signature-based detection (creating a hash or byte sequence rule of the binary) would easily flag this specific file.
+    \item \textbf{Static Analysis:} This is highly applicable here. The code is provided in clear assembly. It is not packed, encrypted, or heavily obfuscated. An analyst can simply open the executable in a disassembler (like IDA Pro or Ghidra), read the \texttt{cpuid} check, understand the logic, and manually analyze the \texttt{malicious\_stuff()} function to determine its intent. Furthermore, signature-based detection (creating a hash or byte sequence rule of the binary) would easily flag this specific file.
     \item \textbf{Dynamic Analysis:} If we want to observe it dynamically, the standard sandbox will fail because of the evasion. To make it work, we must bypass the check:
-    \item[\textbf{1.}] *Patch the binary:* Open the file in a hex editor and change the conditional jump (e.g., \texttt{jz} to \texttt{jnz}, or replace the check with \texttt{NOP}s) so it always calls \texttt{malicious_stuff()}.
+    \item[\textbf{1.}] *Patch the binary:* Open the file in a hex editor and change the conditional jump (e.g., \texttt{jz} to \texttt{jnz}, or replace the check with \texttt{NOP}s) so it always calls \texttt{malicious\_stuff()}.
     \item[\textbf{2.}] *Hardened Sandbox:* Use a specially configured hypervisor that deliberately lies and returns \texttt{0} for the 31st bit of \texttt{ecx} when \texttt{cpuid} is called.
     \item[\textbf{3.}] *Bare-Metal Analysis:* Run the malware on a dedicated physical laptop (no hypervisor) equipped with monitoring tools (like Wireshark, Process Monitor).
 
@@ -2152,7 +2152,7 @@ This technique is called \textbf{Metamorphism}. Metamorphic malware rewrites its
 \subsection{Exercise 6 - Malware}
 \subsubsection*{Problem}
 The information system of Penacony has been infected with malware. Suppose the malware has been written to work on Linux systems.
-[C Code snippet shows the use of signal(SIGTRAP, bad_stuff), a sleep calculated based on the timestamp of 22/06/2024, and a call to raise(SIGTRAP)]
+[C Code snippet shows the use of signal(SIGTRAP, bad\_stuff), a sleep calculated based on the timestamp of 22/06/2024, and a call to raise(SIGTRAP)]
 
 \begin{itemize}
     \item[\textbf{1.}] [3 points] Which stealth techniques does this malware employ? Please explain how they are implemented in this particular case. Please note: giving vague answers and naming wrong techniques will make you lose points.
@@ -2169,21 +2169,21 @@ The information system of Penacony has been infected with malware. Suppose the m
     \item *Implementation*: The malware checks the current system time against a hardcoded future timestamp (the Charmony Festival date). It calculates the difference and calls \texttt{sleep()}, remaining entirely dormant until that exact moment.
     \item *Purpose*: This evades automated dynamic analysis sandboxes, which typically only monitor program execution for a few minutes before terminating it, resulting in a false "benign" classification.
     \item[\textbf{2.}] \textbf{Anti-Debugging via Signal Manipulation}:
-    \item *Implementation*: Debuggers use the \texttt{SIGTRAP} signal to pause execution and handle breakpoints. The malware registers a custom handler for \texttt{SIGTRAP} that triggers the actual malicious payload (\texttt{bad_stuff()}). Later, it artificially raises \texttt{SIGTRAP} on itself.
+    \item *Implementation*: Debuggers use the \texttt{SIGTRAP} signal to pause execution and handle breakpoints. The malware registers a custom handler for \texttt{SIGTRAP} that triggers the actual malicious payload (\texttt{bad\_stuff()}). Later, it artificially raises \texttt{SIGTRAP} on itself.
     \item *Purpose*: If run normally, the OS delivers the signal, and the payload executes. If run inside a debugger, the debugger intercepts the \texttt{SIGTRAP} (assuming it hit a breakpoint) and suppresses it from the application. Consequently, the payload function is never called, hiding the malicious behavior from the analyst.
 
 \end{itemize}
 \textbf{Question 2: Malware Analysis Methodology}
 Given the presence of sleep-based time bombs and robust anti-debugging features, we must apply \textbf{Static Analysis} (examining the code without running it).
-*Motivation*: Attempting dynamic analysis would fail; the program would either sleep indefinitely or the debugger would swallow the trigger signal. By using static tools like disassemblers or decompilers, an analyst can inspect the full control flow graph and discover the \texttt{bad_stuff()} payload directly.
+*Motivation*: Attempting dynamic analysis would fail; the program would either sleep indefinitely or the debugger would swallow the trigger signal. By using static tools like disassemblers or decompilers, an analyst can inspect the full control flow graph and discover the \texttt{bad\_stuff()} payload directly.
 *Assumptions*: We assume the binary is not heavily obfuscated or packed in a way that defeats static disassembly.
 
 \textbf{Question 3: Variant Analysis (Polymorphism)}
 *New Technique*: \textbf{Polymorphism / Simple Packing (Code Obfuscation via XOR)}.
-*Implementation*: The new variant contains an encrypted payload. At runtime, the \texttt{main} function loops over the memory of the \texttt{init_program} function, applying a bitwise XOR operation (\texttt{^= 0x43}) to decrypt the instructions before executing them. This defeats static signature-based detection (Antivirus).
+*Implementation*: The new variant contains an encrypted payload. At runtime, the \texttt{main} function loops over the memory of the \texttt{init\_program} function, applying a bitwise XOR operation (\texttt{\textasciicircum{}= 0x43}) to decrypt the instructions before executing them. This defeats static signature-based detection (Antivirus).
 *Analysis Technique*: We must use a \textbf{Hybrid Analysis Approach}.
 \begin{itemize}
-    \item[\textbf{1.}] \textbf{Dynamic Analysis}: We execute the malware inside a controlled debugger, placing a breakpoint *after* the decryption loop finishes but *before* \texttt{init_program()} is called.
+    \item[\textbf{1.}] \textbf{Dynamic Analysis}: We execute the malware inside a controlled debugger, placing a breakpoint *after* the decryption loop finishes but *before* \texttt{init\_program()} is called.
     \item[\textbf{2.}] \textbf{Memory Dumping}: We extract the decrypted memory segment to disk.
     \item[\textbf{3.}] \textbf{Static Analysis}: We then apply static analysis to the decrypted memory dump to understand the true payload.
 \end{itemize}
@@ -2260,8 +2260,8 @@ Step-by-Step Solution:
 
 \begin{itemize}
     \item[\textbf{1.}] Anti-Analysis Techniques:
-    \item Anti-Debugging: The code executes \texttt{1 / 0}, intentionally triggering a \texttt{SIGFPE} exception. Debuggers usually intercept error signals and halt, preventing the custom signal handler \texttt{sig_handler} from running. This disrupts dynamic analysis in a debugger.
-    \item Polymorphism / Obfuscation: The payload is encrypted (\texttt{decrypt(buffer, key, bytecode_len)}). This hides the actual malicious code from static analysis tools until it is decrypted at runtime.
+    \item Anti-Debugging: The code executes \texttt{1 / 0}, intentionally triggering a \texttt{SIGFPE} exception. Debuggers usually intercept error signals and halt, preventing the custom signal handler \texttt{sig\_handler} from running. This disrupts dynamic analysis in a debugger.
+    \item Polymorphism / Obfuscation: The payload is encrypted (\texttt{decrypt(buffer, key, bytecode\_len)}). This hides the actual malicious code from static analysis tools until it is decrypted at runtime.
 
     \item[\textbf{2.}] Improved Malware Distribution:
     \item Metamorphic Solution: The attacker should generate versions of the malware that are syntactically different but semantically identical (e.g., using instruction substitution, reordering, and inserting junk code). All versions can use the same key, but the decryption routine itself changes signature.
@@ -2281,7 +2281,7 @@ Step-by-Step Solution:
 
 \begin{itemize}
     \item[\textbf{1.}] Anti-Analysis Techniques Present:
-    \item Anti-Virtualization: YES. The code uses \texttt{__rdtsc()} before and after executing the \texttt{cpuid} instruction. In a virtualized environment (like an analysis sandbox), \texttt{cpuid} causes a VM-Exit to the hypervisor, which takes significantly more clock cycles than a native execution. The malware measures this time difference (\texttt{r2 - r1}) to detect if it's running in a VM.
+    \item Anti-Virtualization: YES. The code uses \texttt{\_\_rdtsc()} before and after executing the \texttt{cpuid} instruction. In a virtualized environment (like an analysis sandbox), \texttt{cpuid} causes a VM-Exit to the hypervisor, which takes significantly more clock cycles than a native execution. The malware measures this time difference (\texttt{r2 - r1}) to detect if it's running in a VM.
     \item Polymorphism / Event-Triggered / Anti-Debugging: NO. None of these are correctly implemented in the provided snippet.
 
     \item[\textbf{2.}] Fixing the Implementation:
@@ -2308,7 +2308,7 @@ Step-by-Step Solution:
     \item Metamorphism: The malware includes a mutation engine that rewrites its own code. It modifies the assembly instructions (e.g., swapping registers, replacing instructions with equivalent ones like \texttt{xor eax, eax} vs \texttt{mov eax, 0}, inserting junk instructions) without changing the program's logic. The resulting binary is structurally different, evading signature detection without needing encryption.
 
     \item[\textbf{3.}] Malware Analysis Approach:
-    \item Since this specific snippet lacks encryption and meaningful obfuscation, Static Analysis is highly effective. You can open the binary in a disassembler (like IDA Pro or Ghidra) and directly analyze the \texttt{evil_bytecode} array.
+    \item Since this specific snippet lacks encryption and meaningful obfuscation, Static Analysis is highly effective. You can open the binary in a disassembler (like IDA Pro or Ghidra) and directly analyze the \texttt{evil\_bytecode} array.
     \item Dynamic Analysis can also be used. You must patch out the \texttt{sleep(500)} instruction to bypass the time delay, then run the binary in a debugger to observe the memory mapping (\texttt{mmap}) and the execution of the injected code.
 \end{itemize}
 
@@ -2321,11 +2321,11 @@ Step-by-Step Solution:
 
 \begin{itemize}
     \item[\textbf{1.}] Anti-Analysis Techniques Present:
-    \item Anti-Debugging: YES. The code uses \texttt{SetUnhandledExceptionFilter} to register a custom exception handler (\texttt{excep_DebugBreak}). It then intentionally calls \texttt{DebugBreak()} to trigger a breakpoint exception. If a debugger is attached, it will intercept the exception and pause execution, preventing the custom handler from running.
-    \item Dormant Code (Time-based Evasion): YES. The code attempts to delay execution using \texttt{usleep(10)} before triggering \texttt{malicious_actions()}.
+    \item Anti-Debugging: YES. The code uses \texttt{SetUnhandledExceptionFilter} to register a custom exception handler (\texttt{excep\_DebugBreak}). It then intentionally calls \texttt{DebugBreak()} to trigger a breakpoint exception. If a debugger is attached, it will intercept the exception and pause execution, preventing the custom handler from running.
+    \item Dormant Code (Time-based Evasion): YES. The code attempts to delay execution using \texttt{usleep(10)} before triggering \texttt{malicious\_actions()}.
 
     \item[\textbf{2.}] Implementation Flaws and Improvements:
-    \item Flawed Anti-Debugging: The logic relies on the \texttt{flag} variable. It initializes \texttt{flag = 1}. The exception handler sets \texttt{flag = 0}. The main function checks \texttt{if (flag) { malicious_actions(); }}.
+    \item Flawed Anti-Debugging: The logic relies on the \texttt{flag} variable. It initializes \texttt{flag = 1}. The exception handler sets \texttt{flag = 0}. The main function checks \texttt{if (flag) { malicious\_actions(); }}.
     \item The Mistake: If NO debugger is present, the handler runs, sets \texttt{flag = 0}, and the \texttt{if (flag)} evaluates to false, meaning the malware *does not execute*. If a debugger IS present, it intercepts the exception, the handler never runs, \texttt{flag} remains 1, and the malware *executes*. This is the exact opposite of intended behavior.
     \item Improvement: Change the condition to \texttt{if (!flag)} so malicious actions only run if the custom handler successfully executed.
     \item Flawed Dormant Code: \texttt{usleep(10)} sleeps for 10 microseconds. This is a microscopic delay that will instantly bypass without draining any meaningful time in a sandbox.

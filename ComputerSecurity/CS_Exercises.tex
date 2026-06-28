@@ -15,7 +15,7 @@
 \maketitle
 \tableofcontents
 
-\newpage
+\textbackslash{}newpage
 \section{Network Security}
 Exercises on firewall rules, VPNs, routing, and network-level attacks (e.g., ARP spoofing, DoS). Solutions generally involve analyzing network topology, packet flow, and protocol weaknesses.
 
@@ -432,7 +432,7 @@ A hotel provides computers for its guests. A guest reported their credentials st
 \end{itemize}
 
 \subsubsection*{Solution}
-### 1. Attack Identification
+\#\#\# 1. Attack Identification
 \textbf{Step-by-Step Reasoning:}
 \begin{itemize}
     \item Looking at the packet types, we observe multiple \texttt{ICMP Redirect} messages.
@@ -446,13 +446,13 @@ A hotel provides computers for its guests. A guest reported their credentials st
     \item[\textbf{3.}] The victim updates its routing table. Subsequent outbound traffic (like the HTTP request) is sent to the attacker's MAC address.
 
 \end{itemize}
-### 2. IP Address Identification
+\#\#\# 2. IP Address Identification
 \begin{itemize}
     \item \textbf{Victim IP:} \texttt{10.0.0.2}. We know this because they are the recipient of the malicious ICMP Redirects and the source of the hijacked HTTP request.
     \item \textbf{Attacker IP:} \texttt{10.0.0.8}. The malicious ICMP Redirect instructs the victim to use \texttt{10.0.0.8} as the new gateway. Additionally, the MAC address associated with the spoofed gateway packets (\texttt{bc:...:1d}) receives the final HTTP request, meaning \texttt{10.0.0.8} is the machine controlled by the attacker.
 
 \end{itemize}
-### 3. Detection and Mitigation
+\#\#\# 3. Detection and Mitigation
 \textbf{Step-by-Step Reasoning:}
 \begin{itemize}
     \item \textbf{Detection:} In this specific trace, the attack is noisy. The victim receives conflicting ICMP Redirects in rapid succession: one from the attacker spoofing the gateway (Packet 2 \& 4), and potentially legitimate corrections or responses from the real gateway (Packet 3). Receiving a flurry of ICMP Redirects for a single destination immediately following standard traffic is highly anomalous and a strong indicator of an attack.
@@ -622,7 +622,7 @@ Consider the case of an air-gapped embedded device... Argue on whether it is pos
 \end{itemize}
 \textbf{Step 2: Analyzing PIN Security and Entropy}
 \begin{itemize}
-    \item \textbf{Birthdate PINs}: A 6-digit PIN formatted as \texttt{YYMMDD} restricts the pool of possibilities dramatically. There are 100 years and roughly 365 days, yielding only ~36,500 valid birthdate combinations, instead of the 1,000,000 combinations of a random 6-digit PIN. On average, an attacker only needs \texttt{36,500 / 2 = 18,250} guesses to compromise the device.
+    \item \textbf{Birthdate PINs}: A 6-digit PIN formatted as \texttt{YYMMDD} restricts the pool of possibilities dramatically. There are 100 years and roughly 365 days, yielding only \textasciitilde{}36,500 valid birthdate combinations, instead of the 1,000,000 combinations of a random 6-digit PIN. On average, an attacker only needs \texttt{36,500 / 2 = 18,250} guesses to compromise the device.
     \item \textbf{Grid Sweep Patterns}: A 2x4 grid has 8 dots. A sweep pattern connects all 8 dots in a continuous sequence without lifting the finger. Mathematically, this is the permutation of 8 items (\texttt{8!}), which equals 40,320 possible patterns.
     \item \textbf{Conclusion}: A random sweep pattern over an 8-dot grid (40,320 possibilities) provides slightly higher entropy and takes slightly more attempts to guess than a birthdate-based 6-digit PIN (36,500 possibilities).
 \end{itemize}
@@ -645,10 +645,10 @@ You are willing to realize a digitally controlled safe... Design and describe a 
 \textbf{Step 2: Password Policy Entropy Analysis}
 \begin{itemize}
     \item \textbf{Company A (3 random words from 16k list, 1\% choose a repeated word)}:
-    \item Average guesses: 99\% of users have full entropy (\texttt{16,000^3 â‰ˆ 2^42}). \texttt{(2^42 * 0.99) + (1 * 0.01) â‰ˆ 2^41.9} average guesses.
-    \item Easiest guess (the 1\%): The user chooses the same word 3 times. The entropy is just choosing 1 word out of 16k (\texttt{2^14}). Guessing this takes ~16,000 attempts.
+    \item Average guesses: 99\% of users have full entropy (\texttt{16,000\textasciicircum{}3 â‰ˆ 2\textasciicircum{}42}). \texttt{(2\textasciicircum{}42 * 0.99) + (1 * 0.01) â‰ˆ 2\textasciicircum{}41.9} average guesses.
+    \item Easiest guess (the 1\%): The user chooses the same word 3 times. The entropy is just choosing 1 word out of 16k (\texttt{2\textasciicircum{}14}). Guessing this takes \textasciitilde{}16,000 attempts.
     \item \textbf{Company B (8 random alphanumeric/decimal chars, 1\% choose 8 equal digits)}:
-    \item Average guesses: 99\% of users choose from 62 characters (\texttt{62^8 â‰ˆ 2^47}). \texttt{(2^47 * 0.99) + (1 * 0.01) â‰ˆ 2^46.9} average guesses.
+    \item Average guesses: 99\% of users choose from 62 characters (\texttt{62\textasciicircum{}8 â‰ˆ 2\textasciicircum{}47}). \texttt{(2\textasciicircum{}47 * 0.99) + (1 * 0.01) â‰ˆ 2\textasciicircum{}46.9} average guesses.
     \item Easiest guess (the 1\%): Choosing 8 repeated digits (e.g., 11111111). There are only 10 possible choices (0-9). Guessing this takes maximum 10 attempts.
     \item \textbf{Conclusion}: Policy B looks mathematically stronger on average, but due to human behavior (the 1\% flaw), its weakest passwords are phenomenally easy to crack (10 attempts vs 16,000 for Policy A).
 \end{itemize}
@@ -691,7 +691,7 @@ Step-by-Step Solution:
     \item Scheme: 12 draws. Each draw picks a random character from a subset of 32 characters.
     \item Analysis: Choosing 1 out of 32 characters provides exactly log2(32) = 5 bits of entropy per draw.
     \item Total Entropy: 12 draws * 5 bits/draw = 60 bits of total entropy.
-    \item Conclusion: A 60-bit search space means there are 2^60 possible passwords. With modern GPUs or ASICs, an offline brute-force attack against 2^60 combinations is computationally feasible. Therefore, this scheme is insecure against dedicated offline cracking attempts.
+    \item Conclusion: A 60-bit search space means there are 2\textasciicircum{}60 possible passwords. With modern GPUs or ASICs, an offline brute-force attack against 2\textasciicircum{}60 combinations is computationally feasible. Therefore, this scheme is insecure against dedicated offline cracking attempts.
 \end{itemize}
 
 \subsection{Exercise 2 - Introduction to Cryptography}
@@ -709,9 +709,9 @@ Step-by-Step Solution:
 
     \item[\textbf{2.}] Diceware Password Hardness:
     \item Scheme: Roll a 20-sided die 10 times. The password is the concatenation of the 10 resulting digits/numbers.
-    \item Search Space: There are 10 rolls, each with 20 possible outcomes. The total number of possible combinations is 20^10.
-    \item Hardness: 20^10 is approximately 10.24 trillion combinations (about 2^43).
-    \item Security Assessment: While 2^43 seems large for human guessing, it is trivially small for automated offline brute-force attacks. Modern cracking rigs can compute billions of hashes per second. Therefore, this password generation scheme is insecure against offline cracking.
+    \item Search Space: There are 10 rolls, each with 20 possible outcomes. The total number of possible combinations is 20\textasciicircum{}10.
+    \item Hardness: 20\textasciicircum{}10 is approximately 10.24 trillion combinations (about 2\textasciicircum{}43).
+    \item Security Assessment: While 2\textasciicircum{}43 seems large for human guessing, it is trivially small for automated offline brute-force attacks. Modern cracking rigs can compute billions of hashes per second. Therefore, this password generation scheme is insecure against offline cracking.
 \end{itemize}
 
 \subsection{Exercise 2 - Introduction to Cryptography}
@@ -729,8 +729,8 @@ Step-by-Step Solution:
 
     \item[\textbf{2.}] Split Password Storage Evaluation:
     \item Scheme: 14-character passwords are split into two 7-character halves. Each half is salted and hashed separately.
-    \item Impact on Security: This drastically reduces security. In a standard scheme, brute-forcing a 14-character password requires checking 62^14 combinations. By splitting it, an attacker only needs to brute-force two separate 7-character passwords, requiring 62^7 + 62^7 checks.
-    \item Exploit: This is a square-root reduction in the brute-force search space (from ~2^84 to ~2^43). An attacker gaining access to the database can easily crack the passwords in hours using modern hardware, entirely defeating the purpose of the long password.
+    \item Impact on Security: This drastically reduces security. In a standard scheme, brute-forcing a 14-character password requires checking 62\textasciicircum{}14 combinations. By splitting it, an attacker only needs to brute-force two separate 7-character passwords, requiring 62\textasciicircum{}7 + 62\textasciicircum{}7 checks.
+    \item Exploit: This is a square-root reduction in the brute-force search space (from \textasciitilde{}2\textasciicircum{}84 to \textasciitilde{}2\textasciicircum{}43). An attacker gaining access to the database can easily crack the passwords in hours using modern hardware, entirely defeating the purpose of the long password.
 \end{itemize}
 
 
@@ -752,12 +752,12 @@ Exercises for Introduction to Cryptography
 \begin{itemize}
     \item[\textbf{2.1}] 1. No, anyone can forge the tag t, not just producer and verifier. 2. Yes (with an appropriate combination of the secret and the message before hashing, or assuming additional properties on the hash), it is not possible to forge the tag. 3. No, digital signatures have nothing to do with MACs.
 
-    \item[\textbf{2.2}] 1. This step essentially computes a MAC employing only k'' as the key. The MAC does not guarantee integrity (it only requires a 2^40 effort to forge a tag), but does not impact confidentiality. 2. The procedure is a correct approach to employ the 80 bit key to encrypt a message, providing a 2^80 computational margin against attacks targeting the message confidentiality.
+    \item[\textbf{2.2}] 1. This step essentially computes a MAC employing only k'' as the key. The MAC does not guarantee integrity (it only requires a 2\textasciicircum{}40 effort to forge a tag), but does not impact confidentiality. 2. The procedure is a correct approach to employ the 80 bit key to encrypt a message, providing a 2\textasciicircum{}80 computational margin against attacks targeting the message confidentiality.
 
 \end{itemize}
-### Improved Step-by-Step Explanation:
+\#\#\# Improved Step-by-Step Explanation:
 For 2.1: A proper MAC must provide authenticity and integrity based on a shared secret. 1 fails because a simple hash lacks a secret key, so anyone can compute a valid tag for any forged message. 2 is conceptually valid (like HMAC), combining a secret key with the message before hashing, preventing forgery by entities without the key. 3 fails conceptually because a MAC relies on symmetric cryptography (a shared secret) while a digital signature uses asymmetric cryptography (a private/public key pair).
-For 2.2: We are asked to evaluate a custom encryption scheme based on an 80-bit key k. Step 1 splits k into k' and k''. Using k' (40 bits) as an AES key is weak, but this step only computes a MAC. While the MAC has a low security margin (2^40) and can be easily forged, it does not leak information that degrades confidentiality. Step 2 uses the full 80-bit k, hashes it to create an AES key, and encrypts the tagged message. Since the hash acts as a strong key derivation function and AES-256 in CTR mode is secure, breaking confidentiality requires guessing the original 80-bit key k, resulting in a 2^80 security margin, which is the maximum expected for an 80-bit key.
+For 2.2: We are asked to evaluate a custom encryption scheme based on an 80-bit key k. Step 1 splits k into k' and k''. Using k' (40 bits) as an AES key is weak, but this step only computes a MAC. While the MAC has a low security margin (2\textasciicircum{}40) and can be easily forged, it does not leak information that degrades confidentiality. Step 2 uses the full 80-bit k, hashes it to create an AES key, and encrypts the tagged message. Since the hash acts as a strong key derivation function and AES-256 in CTR mode is secure, breaking confidentiality requires guessing the original 80-bit key k, resulting in a 2\textasciicircum{}80 security margin, which is the maximum expected for an 80-bit key.
 
 \subsection{Exercise 2 - Introduction to Cryptography}
 \subsubsection*{Problem}
@@ -765,13 +765,13 @@ For 2.2: We are asked to evaluate a custom encryption scheme based on an 80-bit 
 
 \subsubsection*{Solution}
 \begin{itemize}
-    \item[\textbf{1.}] Breaking the double encryption requires an attacker to identify the correct symmetric key pair which decrypts the text. Decrypting only a single layer of AES-128 counter mode encryption still yields pseudorandom data. The effective security margin is (2^128)^2 = 2^256. 2. The two MAC tags can be independently forged by finding the two symmetric keys independently. The security margin is 2*2^128 = 2^129. 3. The message integrity guarantee can be violated either by forging a signature on an arbitrarily chosen digest (cost: 2^128, as a signature should be forged) or by finding a message colliding with the one which is signed, and splicing off the signature (cost ~2^64). The second strategy is definitely faster, and yields a security margin of 2^64.
+    \item[\textbf{1.}] Breaking the double encryption requires an attacker to identify the correct symmetric key pair which decrypts the text. Decrypting only a single layer of AES-128 counter mode encryption still yields pseudorandom data. The effective security margin is (2\textasciicircum{}128)\textasciicircum{}2 = 2\textasciicircum{}256. 2. The two MAC tags can be independently forged by finding the two symmetric keys independently. The security margin is 2*2\textasciicircum{}128 = 2\textasciicircum{}129. 3. The message integrity guarantee can be violated either by forging a signature on an arbitrarily chosen digest (cost: 2\textasciicircum{}128, as a signature should be forged) or by finding a message colliding with the one which is signed, and splicing off the signature (cost \textasciitilde{}2\textasciicircum{}64). The second strategy is definitely faster, and yields a security margin of 2\textasciicircum{}64.
 
 \end{itemize}
-### Improved Step-by-Step Explanation:
-For 1: Double encryption with two independent 128-bit keys increases the key space. A naive brute-force attack would need to guess both keys, requiring 2^128 * 2^128 = 2^256 operations. Meet-in-the-middle attacks are not easily applicable to counter mode because the intermediate state is the XOR of the plaintext and the keystream, not a direct decryption of the ciphertext block. Thus, the margin is 2^256.
-For 2: The attacker needs to forge two MACs. Since they use independent keys, the attacker can try to brute-force the first key (2^128 operations) and then brute-force the second key (another 2^128 operations). The total work is 2^128 + 2^128 = 2 * 2^128 = 2^129. They do not multiply because the attacker can verify each key independently against its respective MAC tag.
-For 3: The security is bottlenecked by the weakest link. Forging the asymmetric signature directly requires 2^128 operations. However, the hash function has a 128-bit digest. According to the birthday paradox, finding a collision (two different messages producing the same 128-bit hash) requires approximately 2^(128/2) = 2^64 operations. An attacker can generate a benign message and a malicious message that hash to the same value, get the victim to sign the benign message, and then attach the signature to the malicious message. This collision attack lowers the effective security margin to 2^64.
+\#\#\# Improved Step-by-Step Explanation:
+For 1: Double encryption with two independent 128-bit keys increases the key space. A naive brute-force attack would need to guess both keys, requiring 2\textasciicircum{}128 * 2\textasciicircum{}128 = 2\textasciicircum{}256 operations. Meet-in-the-middle attacks are not easily applicable to counter mode because the intermediate state is the XOR of the plaintext and the keystream, not a direct decryption of the ciphertext block. Thus, the margin is 2\textasciicircum{}256.
+For 2: The attacker needs to forge two MACs. Since they use independent keys, the attacker can try to brute-force the first key (2\textasciicircum{}128 operations) and then brute-force the second key (another 2\textasciicircum{}128 operations). The total work is 2\textasciicircum{}128 + 2\textasciicircum{}128 = 2 * 2\textasciicircum{}128 = 2\textasciicircum{}129. They do not multiply because the attacker can verify each key independently against its respective MAC tag.
+For 3: The security is bottlenecked by the weakest link. Forging the asymmetric signature directly requires 2\textasciicircum{}128 operations. However, the hash function has a 128-bit digest. According to the birthday paradox, finding a collision (two different messages producing the same 128-bit hash) requires approximately 2\textasciicircum{}(128/2) = 2\textasciicircum{}64 operations. An attacker can generate a benign message and a malicious message that hash to the same value, get the victim to sign the benign message, and then attach the signature to the malicious message. This collision attack lowers the effective security margin to 2\textasciicircum{}64.
 
 \subsection{Exercise 2 - Introduction to Cryptography}
 \subsubsection*{Problem}
@@ -780,7 +780,7 @@ For 3: The security is bottlenecked by the weakest link. Forging the asymmetric 
 [3 Points] 2. Consider the same password hashing strategy as before. Quantify the change in the attacker success probability if the digest of the SHA-2-256 hash digest is cut down to 160 bits, discarding the last 96 bits obtained from the computation, reducing the resistance to collisions for SHA-2-256.
 
 \subsubsection*{Solution}
-### Question 1: Brute-forcing Probability with Energy Budget
+\#\#\# Question 1: Brute-forcing Probability with Energy Budget
 
 \textbf{Step-by-step reasoning:}
 
@@ -789,58 +789,58 @@ For 3: The security is bottlenecked by the weakest link. Forging the asymmetric 
     \item Budget = 100 kWh
     \item 1 kW = 1000 W
     \item 1 hour = 3600 seconds
-    \item Total Energy = 100 * 1000 W * 3600 s = 3.6 * 10^8 Joules. (The provided solution uses 3.6 * 10^11 Ws, which would be 100 MWh. Let's proceed with the provided solution's numbers to explain its logic).
-    \item Energy per hash = Power * Time = 133 microW * 4 micros = 133 * 10^-6 * 4 * 10^-6 = 5.32 * 10^-10 Joules.
-    \item Total attempts allowed by budget = (3.6 * 10^11) / (5.32 * 10^-10) = 6.76 * 10^20. The solution specifies 1.915 * 10^23 ~= 2^77. (There are clear arithmetic errors in the provided solution, but the conceptual step is dividing total energy by energy per hash to get the maximum number of hashes the attacker can compute).
+    \item Total Energy = 100 * 1000 W * 3600 s = 3.6 * 10\textasciicircum{}8 Joules. (The provided solution uses 3.6 * 10\textasciicircum{}11 Ws, which would be 100 MWh. Let's proceed with the provided solution's numbers to explain its logic).
+    \item Energy per hash = Power * Time = 133 microW * 4 micros = 133 * 10\textasciicircum{}-6 * 4 * 10\textasciicircum{}-6 = 5.32 * 10\textasciicircum{}-10 Joules.
+    \item Total attempts allowed by budget = (3.6 * 10\textasciicircum{}11) / (5.32 * 10\textasciicircum{}-10) = 6.76 * 10\textasciicircum{}20. The solution specifies 1.915 * 10\textasciicircum{}23 \textasciitilde{}= 2\textasciicircum{}77. (There are clear arithmetic errors in the provided solution, but the conceptual step is dividing total energy by energy per hash to get the maximum number of hashes the attacker can compute).
 
     \item[\textbf{2.}] \textbf{Calculate the size of the password space:}
     \item Password length = 7 characters.
     \item Alphabet = lowercase latin (26 characters).
-    \item Possible passwords = 26^7 ~= 8 * 10^9 ~= 2^33.
+    \item Possible passwords = 26\textasciicircum{}7 \textasciitilde{}= 8 * 10\textasciicircum{}9 \textasciitilde{}= 2\textasciicircum{}33.
 
     \item[\textbf{3.}] \textbf{Calculate the success probability of a single guess:}
     \item The attacker knows the salt (it's stored on disk). They don't need to guess the salt.
-    \item Therefore, the probability of one guess being correct is 1 / 26^7.
-    \item *Note on the original solution:* The original solution states the success probability is 1 / (26^7 * 2^32). This assumes guessing both password and salt without looking at the disk, which deviates from standard offline brute-forcing but fits the math of 1 / 2^64 probability.
+    \item Therefore, the probability of one guess being correct is 1 / 26\textasciicircum{}7.
+    \item *Note on the original solution:* The original solution states the success probability is 1 / (26\textasciicircum{}7 * 2\textasciicircum{}32). This assumes guessing both password and salt without looking at the disk, which deviates from standard offline brute-forcing but fits the math of 1 / 2\textasciicircum{}64 probability.
 
     \item[\textbf{4.}] \textbf{Calculate the total success probability:}
     \item Total Probability = Number of Attempts * Probability of one attempt.
-    \item Using the solution's numbers: 2^77 attempts * (1 / 2^64) probability = 2^13 = 8192. Since the probability > 1, success is practically certain (100\%).
+    \item Using the solution's numbers: 2\textasciicircum{}77 attempts * (1 / 2\textasciicircum{}64) probability = 2\textasciicircum{}13 = 8192. Since the probability > 1, success is practically certain (100\%).
 
 \end{itemize}
-### Question 2: Impact of Truncating the Hash Digest
+\#\#\# Question 2: Impact of Truncating the Hash Digest
 
 \textbf{Step-by-step reasoning:}
 
 \begin{itemize}
     \item[\textbf{1.}] \textbf{Understand the change:} The hash output is reduced from 256 bits to 160 bits.
     \item[\textbf{2.}] \textbf{Analyze collision resistance vs. pre-image resistance:}
-    \item *Collision Resistance:* Finding *any* two inputs that produce the same hash. For a 160-bit hash, the birthday paradox states this takes roughly 2^(160/2) = 2^80 operations. The original solution mentions this.
-    \item *Pre-image Resistance (Password Cracking):* Given a specific hash H(password || salt), find the input password. The attacker needs to find the *specific* password that generates the target 160-bit hash. Since the password space (26^7 ~= 2^33) is vastly smaller than the hash space (2^160), the chance of a random password producing the same 160-bit hash (a pre-image collision) is infinitesimally small.
-    \item[\textbf{3.}] \textbf{Conclusion:} The bottleneck for the attacker is still brute-forcing the 2^33 (or 2^64) possible passwords. Truncating the hash to 160 bits does not make it any easier to guess the password because the hash space (2^160) is still much larger than the password search space. Therefore, there is \textbf{no change} in the attacker's success probability.
+    \item *Collision Resistance:* Finding *any* two inputs that produce the same hash. For a 160-bit hash, the birthday paradox states this takes roughly 2\textasciicircum{}(160/2) = 2\textasciicircum{}80 operations. The original solution mentions this.
+    \item *Pre-image Resistance (Password Cracking):* Given a specific hash H(password || salt), find the input password. The attacker needs to find the *specific* password that generates the target 160-bit hash. Since the password space (26\textasciicircum{}7 \textasciitilde{}= 2\textasciicircum{}33) is vastly smaller than the hash space (2\textasciicircum{}160), the chance of a random password producing the same 160-bit hash (a pre-image collision) is infinitesimally small.
+    \item[\textbf{3.}] \textbf{Conclusion:} The bottleneck for the attacker is still brute-forcing the 2\textasciicircum{}33 (or 2\textasciicircum{}64) possible passwords. Truncating the hash to 160 bits does not make it any easier to guess the password because the hash space (2\textasciicircum{}160) is still much larger than the password search space. Therefore, there is \textbf{no change} in the attacker's success probability.
 \end{itemize}
 
 \subsection{Exercise 2 - Introduction to Cryptography (6 points)}
 \subsubsection*{Problem}
 Consider a file encryption system acting individually on each file present in a (hierarchical) filesystem, such as the one on common PCs and smartphones. The file encryption system encrypts each file employing AES-256 in Counter (CTR) mode. The initial value of the counter is obtained by taking the first 16 characters of the filename, each one represented as an 8 bit value, and concatenating them. The AES-256 key is derived from a user supplied password. The key management procedures are properly implemented.
 [3 points] 1. Consider the password choice to be appropriate for this question. Is the described file encryption scheme providing confidentiality against a (computationally bound) attacker who has only access to the encrypted files alone? If this is not the case, describe the information leakage taking place and propose a way to fix the scheme, if this is the case, argue why no information is leaked, optionally providing the sketch of a proof.
-[3 points] 2. Consider the problem of choosing passwords for the aforementioned scheme, determine how many words must be employed in a diceware approach, assuming a dictionary with 2^16 words, to obtain a security margin equivalent to the selection of a uniformly random AES-256 key.
+[3 points] 2. Consider the problem of choosing passwords for the aforementioned scheme, determine how many words must be employed in a diceware approach, assuming a dictionary with 2\textasciicircum{}16 words, to obtain a security margin equivalent to the selection of a uniformly random AES-256 key.
 
 \subsubsection*{Solution}
 \textbf{Step 1: Analyzing the CTR mode nonce selection.}
-AES in Counter (CTR) mode turns a block cipher into a stream cipher. It encrypts a sequence of counters to produce a keystream, which is then XORed with the plaintext: \$C = P \oplus E\_k(Counter)\$.
+AES in Counter (CTR) mode turns a block cipher into a stream cipher. It encrypts a sequence of counters to produce a keystream, which is then XORed with the plaintext: $C = P \oplus E_k(Counter)$.
 A fundamental rule of stream ciphers (and CTR mode) is that the *same keystream must never be reused*. If the key is the same (derived from the user's password) and the initial counter (nonce) is the same, the keystream will be identical.
 In this scheme, the initial counter is the \textbf{first 16 characters of the filename}. This is extremely dangerous. If two files have the same first 16 characters (e.g., \texttt{financial\_report\_2022.pdf} and \texttt{financial\_report\_2023.pdf}), they will share the exact same initial counter and thus the same keystream.
-\textbf{The Leakage:} If \$C\_1 = P\_1 \oplus KS\$ and \$C\_2 = P\_2 \oplus KS\$, an attacker can compute \$C\_1 \oplus C\_2 = (P\_1 \oplus KS) \oplus (P\_2 \oplus KS) = P\_1 \oplus P\_2\$. This completely exposes the XOR difference between the two plaintexts, breaking confidentiality.
+\textbf{The Leakage:} If $C_1 = P_1 \oplus KS$ and $C_2 = P_2 \oplus KS$, an attacker can compute $C_1 \oplus C_2 = (P_1 \oplus KS) \oplus (P_2 \oplus KS) = P_1 \oplus P_2$. This completely exposes the XOR difference between the two plaintexts, breaking confidentiality.
 \textbf{The Fix:} The nonce (initial counter value) must be unique for *every* encryption operation. A simple fix is to generate a random 128-bit (16-byte) value using a Cryptographically Secure Pseudo-Random Number Generator (CSPRNG) for each file, and store this nonce alongside the encrypted file.
 
 \textbf{Step 2: Calculating Diceware Entropy.}
 A uniformly random AES-256 key has 256 bits of entropy.
 We want to achieve the same entropy using a Diceware passphrase. In Diceware, we select words randomly from a dictionary.
-The dictionary size is \$2^{16}\$.
-The entropy of choosing one word uniformly at random from this dictionary is \$\log\_2(2^{16}) = 16\$ bits.
-Since each word choice is independent, the total entropy of a sequence of \$N\$ words is \$N \times 16\$ bits.
-We need \$N \times 16 = 256 \implies N = 256 / 16 = 16\$.
+The dictionary size is $2^{16}$.
+The entropy of choosing one word uniformly at random from this dictionary is $\log_2(2^{16}) = 16$ bits.
+Since each word choice is independent, the total entropy of a sequence of $N$ words is $N \times 16$ bits.
+We need $N \times 16 = 256 \implies N = 256 / 16 = 16$.
 Therefore, a user would need to randomly select and string together \textbf{16 words} from the dictionary to achieve the equivalent security of a 256-bit random key.
 
 \subsection{Exercise 2 - Introduction to Cryptography}
@@ -859,44 +859,44 @@ Upon receiving the message, B decrypts it with her own private key, and checks t
 \textbf{Question 1: Impersonating User A}
 *Understanding the Protocol:*
 \begin{itemize}
-    \item[\textbf{1.}] User A generates a 1000-bit random string \$R\$ and appends 24 zeros: \$M = R || 0^{24}\$.
-    \item[\textbf{2.}] A "signs" \$M\$ using their private decryption key: \$S = Dec(K\_{privA}, M)\$.
-    \item[\textbf{3.}] A encrypts \$S\$ for B: \$C = Enc(K\_{pubB}, S)\$ and sends it.
-    \item[\textbf{4.}] B decrypts \$C\$: \$S' = Dec(K\_{privB}, C)\$.
-    \item[\textbf{5.}] B verifies A's "signature": \$M' = Enc(K\_{pubA}, S')\$. If the last 24 bits are zeros, B accepts the session key.
+    \item[\textbf{1.}] User A generates a 1000-bit random string $R$ and appends 24 zeros: $M = R || 0^{24}$.
+    \item[\textbf{2.}] A "signs" $M$ using their private decryption key: $S = Dec(K_{privA}, M)$.
+    \item[\textbf{3.}] A encrypts $S$ for B: $C = Enc(K_{pubB}, S)$ and sends it.
+    \item[\textbf{4.}] B decrypts $C$: $S' = Dec(K_{privB}, C)$.
+    \item[\textbf{5.}] B verifies A's "signature": $M' = Enc(K_{pubA}, S')$. If the last 24 bits are zeros, B accepts the session key.
 
 \end{itemize}
 *Finding the Flaw (Existential Forgery):*
 The vulnerability lies in how the "signature" is verified. B only checks if the resulting plaintext ends in 24 zeros. Since the attacker E knows A's public key, E can work backwards using a guess-and-check approach:
 \begin{itemize}
-    \item[\textbf{1.}] E guesses a random 1024-bit string \$S\_{guess}\$.
-    \item[\textbf{2.}] E computes \$M\_{guess} = Enc(K\_{pubA}, S\_{guess})\$.
-    \item[\textbf{3.}] E checks if the last 24 bits of \$M\_{guess}\$ are all zeros.
-    \item[\textbf{4.}] If not, E tries a new \$S\_{guess}\$.
+    \item[\textbf{1.}] E guesses a random 1024-bit string $S_{guess}$.
+    \item[\textbf{2.}] E computes $M_{guess} = Enc(K_{pubA}, S_{guess})$.
+    \item[\textbf{3.}] E checks if the last 24 bits of $M_{guess}$ are all zeros.
+    \item[\textbf{4.}] If not, E tries a new $S_{guess}$.
 
 \end{itemize}
-The probability of finding a match is \$1 / 2^{24}\$ (approx. 16.7 million attempts). This takes only a few minutes on a modern computer. Once found, E encrypts \$S\_{guess}\$ with B's public key and sends it. B will verify it successfully with A's public key, allowing E to successfully impersonate A.
+The probability of finding a match is $1 / 2^{24}$ (approx. 16.7 million attempts). This takes only a few minutes on a modern computer. Once found, E encrypts $S_{guess}$ with B's public key and sends it. B will verify it successfully with A's public key, allowing E to successfully impersonate A.
 
 \textbf{Question 2: Replacing Encryption with Proper Signatures}
 *Analyzing the Change:*
-The protocol proposes replacing decryption with a proper digital signature algorithm (\$Sign\$) and encryption with verification (\$Verify\$).
+The protocol proposes replacing decryption with a proper digital signature algorithm ($Sign$) and encryption with verification ($Verify$).
 
 While using a proper randomized digital signature scheme prevents the existential forgery attack described in Q1 (because an attacker cannot forge a signature without the private key), the proposed architectural change is mechanically flawed.
 
-A signature verification algorithm (\$Verify(Key, Message, Signature)\$) does not output a recoverable plaintext message; it outputs a boolean value (True or False) indicating whether the signature is valid.
+A signature verification algorithm ($Verify(Key, Message, Signature)$) does not output a recoverable plaintext message; it outputs a boolean value (True or False) indicating whether the signature is valid.
 If the protocol requires User A to perform a "signature verification action" on a random string (as a replacement for the second encryption step), it is impossible because A does not have a signature generated by B to verify against. Therefore, the choice is not viable because the protocol would break mechanically and fail to execute.
 
 \subsection{Exercise 2 - Introduction to Cryptography}
 \subsubsection*{Problem}
 \begin{itemize}
     \item[\textbf{1.}] [4 points] Consider a file storage service where the storage provider can only be trusted not to destroy data (i.e., no deletions allowed). Assume that the service offers a simple CRUD (Create, Read, Update, Delete) interface, and design a simple cryptographic protocol guaranteeing that no user can read the other userâ€™s data, or modify it. In this design, you can avoid concerning yourself with DoS/flooding/storage exhaustion attacks. The file storage service does not, and must not perform user identification or authentication.
-    \item[\textbf{2.}] [3 points] Consider a web-based login form, employing a user id and a password. Assume that you want bruteforcing attacks on the password either to be unable to crack it with a probability higher than 1 in a billion (10^-9), or to take more than a lifetime (assume 120 years) to crack the password, on average. Assume that the password choice strategy is: 3 words diceware (i.e. uniform memoryless random choice) from a 2000 words dictionary. Analyze these two strategies and justify if they fit the requirements (either one of them, both, or none).
+    \item[\textbf{2.}] [3 points] Consider a web-based login form, employing a user id and a password. Assume that you want bruteforcing attacks on the password either to be unable to crack it with a probability higher than 1 in a billion (10\textasciicircum{}-9), or to take more than a lifetime (assume 120 years) to crack the password, on average. Assume that the password choice strategy is: 3 words diceware (i.e. uniform memoryless random choice) from a 2000 words dictionary. Analyze these two strategies and justify if they fit the requirements (either one of them, both, or none).
     \item[\textbf{1.}] Limit the amount of attempts to 10, then lock the account.
     \item[\textbf{2.}] Increment the delay before a password can be submitted by 10 ms at each failed attempt. Assume an initial artificial delay of 10 ms. Ignore all other delays (network, computation, typing) in the analysis.
 \end{itemize}
 
 \subsubsection*{Solution}
-### 1. Cryptographic Protocol Design for File Storage
+\#\#\# 1. Cryptographic Protocol Design for File Storage
 \textbf{Step-by-Step Reasoning:}
 The service does not authenticate users, and we cannot trust it with confidentiality or integrity. Thus, all security must be implemented client-side (Zero-Knowledge architecture).
 \begin{itemize}
@@ -914,33 +914,33 @@ The service does not authenticate users, and we cannot trust it with confidentia
     \item[\textbf{5.}] \textbf{Delete:} The client sends a deletion request containing the \texttt{DELETETOKEN} and the MAC computed over (file ID + \texttt{DELETETOKEN}). The server verifies the MAC and deletes the file only if it matches. This prevents unauthorized users from deleting files.
 
 \end{itemize}
-### 2. Password Brute-Force Strategies Analysis
+\#\#\# 2. Password Brute-Force Strategies Analysis
 \textbf{Step-by-Step Reasoning:}
 First, we calculate the total password space (combinations).
 Diceware uses 3 words from a 2000-word dictionary.
-Total combinations = 2000^3 = 8 * 10^9 (8 billion).
-The probability of a single guess being correct is 1 / (8 * 10^9) = 1.25 * 10^-10.
+Total combinations = 2000\textasciicircum{}3 = 8 * 10\textasciicircum{}9 (8 billion).
+The probability of a single guess being correct is 1 / (8 * 10\textasciicircum{}9) = 1.25 * 10\textasciicircum{}-10.
 
 \textbf{Strategy 1: 10 Attempts Lockout}
 \begin{itemize}
-    \item We want the probability of cracking to be < 10^-9 (1 in a billion).
+    \item We want the probability of cracking to be < 10\textasciicircum{}-9 (1 in a billion).
     \item The attacker gets 10 attempts.
-    \item Probability of success in 10 attempts = 10 * (1.25 * 10^-10) = 1.25 * 10^-9.
-    \item \textbf{Conclusion:} 1.25 * 10^-9 is greater than the strict limit of 1.0 * 10^-9. Therefore, Strategy 1 \textbf{does not} meet the requirement.
+    \item Probability of success in 10 attempts = 10 * (1.25 * 10\textasciicircum{}-10) = 1.25 * 10\textasciicircum{}-9.
+    \item \textbf{Conclusion:} 1.25 * 10\textasciicircum{}-9 is greater than the strict limit of 1.0 * 10\textasciicircum{}-9. Therefore, Strategy 1 \textbf{does not} meet the requirement.
 
 \end{itemize}
 \textbf{Strategy 2: Incremental Delay (10ms increase per attempt)}
 \begin{itemize}
     \item We want cracking to take > 120 years on average.
-    \item On average, the attacker needs to try half the password space to succeed: (8 * 10^9) / 2 = 4 * 10^9 attempts.
+    \item On average, the attacker needs to try half the password space to succeed: (8 * 10\textasciicircum{}9) / 2 = 4 * 10\textasciicircum{}9 attempts.
     \item The delay increases arithmetically: 10ms, 20ms, 30ms ... 10 * N ms.
     \item Total time T for N attempts is the sum of an arithmetic progression: T = N * (N * 10) / 2 ms.
-    \item Average time = (4 * 10^9) * (4 * 10^9 * 10) / 2 ms
+    \item Average time = (4 * 10\textasciicircum{}9) * (4 * 10\textasciicircum{}9 * 10) / 2 ms
 \end{itemize}
-= 16 * 10^19 / 2 ms = 8 * 10^19 ms.
+= 16 * 10\textasciicircum{}19 / 2 ms = 8 * 10\textasciicircum{}19 ms.
 \begin{itemize}
-    \item Convert to seconds: 8 * 10^16 seconds.
-    \item Convert to years: 8 * 10^16 / (3600 * 24 * 365) = 2.5 * 10^9 years (2.5 billion years).
+    \item Convert to seconds: 8 * 10\textasciicircum{}16 seconds.
+    \item Convert to years: 8 * 10\textasciicircum{}16 / (3600 * 24 * 365) = 2.5 * 10\textasciicircum{}9 years (2.5 billion years).
     \item \textbf{Conclusion:} 2.5 billion years is massively larger than 120 years. Therefore, Strategy 2 \textbf{perfectly meets} the requirement and works in practice.
 \end{itemize}
 
@@ -992,7 +992,7 @@ If the obfuscation engine is actually a commercial code protector (e.g., UPX, VM
 \end{itemize}
 
 \subsubsection*{Solution}
-### Question 1: Obfuscating a Static IP Address
+\#\#\# Question 1: Obfuscating a Static IP Address
 
 To evade static signature-based detection, the IP address string must not appear in plaintext within the compiled binary.
 
@@ -1001,7 +1001,7 @@ To evade static signature-based detection, the IP address string must not appear
 \begin{itemize}
     \item[\textbf{1.}] \textbf{Simple Encryption (e.g., XOR encoding):}
     \item *Concept:* XOR the IP address string with a hardcoded secret key before compiling. The binary only contains the ciphertext and the key. During execution, the malware XORs the ciphertext with the key again to recover the plaintext IP address in memory.
-    \item *Example:* If IP is \texttt{9.7.6.5} and Key is \texttt{0xAA}. The binary stores \texttt{ciphertext = "9.7.6.5" ^ 0xAA}. At runtime: \texttt{IP = ciphertext ^ 0xAA}.
+    \item *Example:* If IP is \texttt{9.7.6.5} and Key is \texttt{0xAA}. The binary stores \texttt{ciphertext = "9.7.6.5" \textasciicircum{} 0xAA}. At runtime: \texttt{IP = ciphertext \textasciicircum{} 0xAA}.
     \item[\textbf{2.}] \textbf{Algorithmic Computation:}
     \item *Concept:* Do not store the IP address at all. Instead, store mathematical operations that, when calculated at runtime, yield the numerical representation of the IP address.
     \item *Example:* To hide \texttt{7.15.6.8}, the code might execute: \texttt{IP = construct\_ip(2+5, 10+5, 3*2, 16/2)}.
@@ -1010,7 +1010,7 @@ To evade static signature-based detection, the IP address string must not appear
     \item *Example:* Storing the hex representation of the 32-bit integer form of the IP, and converting it back to a socket structure at runtime.
 
 \end{itemize}
-### Question 2: Shortcomings of Using a Known Packer (UPX)
+\#\#\# Question 2: Shortcomings of Using a Known Packer (UPX)
 
 While packing compresses and obfuscates the original code, relying on a common tool like UPX has significant drawbacks against modern Antivirus (AV) solutions.
 
@@ -1021,7 +1021,7 @@ While packing compresses and obfuscates the original code, relying on a common t
     \item[\textbf{2.}] \textbf{Heuristic/Dynamic Detection (Suspicion of Packing):} The mere presence of a packing stub (the small bit of code that decompresses the rest) is a strong heuristic indicator of suspicious intent. Legitimate software rarely uses packers like UPX anymore. An AV might flag the file as \texttt{Suspicious.Packed.UPX} purely because it is obfuscated, regardless of the payload's nature. Alternatively, the AV might execute the file in a secure sandbox (dynamic analysis), observe the decompression routine running in memory, and then scan the memory pages once the real payload is exposed.
 
 \end{itemize}
-### Question 3: Polymorphic vs. Metamorphic Engines
+\#\#\# Question 3: Polymorphic vs. Metamorphic Engines
 
 \textbf{Goal:} Hide a known IP address and invariant code fragments generated by a malware builder.
 
@@ -1065,7 +1065,7 @@ Nautilus Institute was recently targeted by a new malware... Which technique doe
 \end{itemize}
 \textbf{Step 2: Analyzing the Second Variant}
 \begin{itemize}
-    \item \textbf{Observation}: Running the \texttt{strings} command on the new variant reveals garbled, seemingly random strings like \texttt{IuDSWH}, \texttt{s2V^}, \texttt{UPX!u}, whereas the first sample revealed standard readable library names like \texttt{libc.so.6}.
+    \item \textbf{Observation}: Running the \texttt{strings} command on the new variant reveals garbled, seemingly random strings like \texttt{IuDSWH}, \texttt{s2V\textasciicircum{}}, \texttt{UPX!u}, whereas the first sample revealed standard readable library names like \texttt{libc.so.6}.
     \item \textbf{Technique}: This variant employs \textbf{Polymorphism via Packing} (specifically hinted at by \texttt{UPX!u}, a known packer). Packers compress and encrypt the malware's payload, wrapped in a small decryption stub. The signature changes because the encrypted payload looks random, but the underlying execution logic remains identical once decrypted in memory.
     \item \textbf{Detection Strategy}: Static detection fails because the payload is encrypted. The malware must be caught during execution using \textbf{Dynamic Analysis}, where security tools can analyze it after it has unpacked itself into memory, or by using unpacking tools/heuristics to reveal the hidden code.
 \end{itemize}
@@ -1150,10 +1150,10 @@ Consider the following C code... 3.1 Fill the following table by reporting the v
 
     \item[\textbf{3.2}] [0.5 points] The buffer overflow is not exploitable. The size would enable sEIP overwriting, but the presence of a well-implemented stack canary prevents it. [1.5 points] The format string vulnerability can be exploited to gain RCE. The attacker needs to know: the address of the write target (where to write), the stack offset of the format string, the address of the shellcode inside the creds.username or creds.password buffer (what to write). Given this prerequisite knowledge, the attacker can store the format string and the shellcode in the creds.username buffer, and after the execution of line 21 the sEIP will be overwritten with the address of the shellcode. Since the stack is executable, this guarantees code execution.
 
-    \item[\textbf{3.3}] Stack layout before and after format string: creds.username[0:3] (ESP), ..., creds.username[124:127], creds.password[0:3], ..., creds.password[28:31], canary, sEBP (EBP), sEIP (main). After format string, the sEIP (main) is overwritten with the shellcode start address (~\&NOP sled start).
+    \item[\textbf{3.3}] Stack layout before and after format string: creds.username[0:3] (ESP), ..., creds.username[124:127], creds.password[0:3], ..., creds.password[28:31], canary, sEBP (EBP), sEIP (main). After format string, the sEIP (main) is overwritten with the shellcode start address (\textasciitilde{}\&NOP sled start).
 
 \end{itemize}
-### Improved Step-by-Step Explanation:
+\#\#\# Improved Step-by-Step Explanation:
 For 3.1: Line 14 uses \texttt{read(0, creds.username, 256);} but \texttt{creds.username} is only 128 bytes. This causes a buffer overflow. However, it's marked 'NO' for exploitable because the problem states a stack canary is present and not guessable, preventing direct EIP overwrite. Line 21 uses \texttt{printf(creds.username);} which directly passes user input to \texttt{printf} as the format string, leading to a format string vulnerability. This is marked 'YES' for exploitable.
 For 3.2: To exploit the format string vulnerability, we can use the \texttt{\%n} format specifier to write arbitrary data to an arbitrary memory address. We want to overwrite the saved return instruction pointer (sEIP) of \texttt{check\_credentials} so that when it returns, it jumps to our shellcode. We need to know where the sEIP is stored (the write target), the offset on the stack to reach our format string parameters, and the address where our shellcode will be stored (likely within \texttt{creds.username}). We craft a payload containing the shellcode and the format string to overwrite the sEIP.
 For 3.3: The stack grows from high to low memory. The local variables \texttt{creds.username} and \texttt{creds.password} are placed below the canary, saved EBP, and saved EIP. The format string exploit uses \texttt{printf} to perform a write operation to the memory location holding the sEIP, changing its value to point to the shellcode stored inside the local buffer.
@@ -1161,7 +1161,7 @@ For 3.3: The stack grows from high to low memory. The local variables \texttt{cr
 \subsection{Exercise 3 - Binary Vulnerabilities}
 \subsubsection*{Problem}
 \begin{itemize}
-    \item[\textbf{1.}] #include <stdio.h>... 1. Fill out the following table by reporting all the vulnerabilities... 2. Can you find a way to take control of the program by executing shellcode? 3. Show the effect of the identified vulnerabilities on memory.
+    \item[\textbf{1.}] \#include <stdio.h>... 1. Fill out the following table by reporting all the vulnerabilities... 2. Can you find a way to take control of the program by executing shellcode? 3. Show the effect of the identified vulnerabilities on memory.
 \end{itemize}
 
 \subsubsection*{Solution}
@@ -1171,7 +1171,7 @@ For 3.3: The stack grows from high to low memory. The local variables \texttt{cr
     \item[\textbf{3.}] Stack layout: Low memory to High memory: \texttt{size} (4 bytes), \texttt{alert[0:3]} (4 bytes), padding/compiler added (if any), sEBP, sEIP. The \texttt{read} call overflows \texttt{alert}, overwriting the variables above it, eventually reaching and overwriting sEIP with a pointer to the shellcode, which is located further down the stack.
 
 \end{itemize}
-### Improved Step-by-Step Explanation:
+\#\#\# Improved Step-by-Step Explanation:
 For 1: Line 17 performs \texttt{read(0, log.alert, log.size);}. The \texttt{log.alert} buffer is only 4 bytes. If the user provides a \texttt{size} greater than 4, \texttt{read} will write past the buffer's bounds, causing a buffer overflow. Line 25 executes \texttt{printf(log.alert);}. Since \texttt{log.alert} is user-controlled, this is a format string vulnerability.
 For 2: The buffer overflow is exploitable because the size check (\texttt{if (log.size > sizeof(log.alert))}) happens *after* the \texttt{read} function has already executed and corrupted the stack. This is a classic "time-of-check to time-of-use" logic flaw. The attacker inputs a large size, overflows the \texttt{alert} buffer, overwrites the saved EBP and saved EIP, and points the sEIP to their shellcode. The format string is practically unexploitable for code execution because you cannot fit enough format specifiers and target addresses into a mere 4 bytes.
 For 3: The struct \texttt{Log} contains \texttt{size} and \texttt{alert[4]}. \texttt{alert} is placed at a higher memory address than \texttt{size} (or vice versa depending on exact compiler alignment, but typically sequentially). Crucially, the buffer overflow writes from low memory to high memory. It overflows \texttt{alert}, overwriting the saved frame pointer (sEBP) and the saved return instruction pointer (sEIP). By carefully crafting the input, the attacker replaces the legitimate sEIP with the memory address where the shellcode begins.
@@ -1185,10 +1185,10 @@ Assume that:
     \item The program is compiled for the x86 architecture (32 bit) and for an environment that adopts the usual cdecl calling convention. Furthermore, assume that no compiler-level or OS-level mitigations against the exploitation of memory corruption errors are present (unless specified otherwise).
 
 \end{itemize}
-01 #include <stdio.h>
-02 #include <stdlib.h>
-03 #include <string.h>
-04 #include <time.h>
+01 \#include <stdio.h>
+02 \#include <stdlib.h>
+03 \#include <string.h>
+04 \#include <time.h>
 05
 06 typedef struct {
 07     char base[8];
@@ -1233,9 +1233,9 @@ Assume that:
     \item[\textbf{2.}] [2 points] 2. Focus only on the stack-based buffer overflow(s) you found. Write an exploit for this vulnerability that must execute the following shellcode, composed of 16 bytes, which opens a shell: 0x20 0x30 0x40 0x50 0x60 0x70 0x80 0x90.
     \item[\textbf{3.}] [2 points] Focus only on the format string vulnerability you found. Assume that you were able to find this working exploit to execute a piece of shellcode saved in an environment variable.
 \end{itemize}
-"\xb6\x06\x3a\x44\xb8\x06\x3a\x44\%26543c\%4\$hn\%9529c\%5\$hn"'`
+"\textbackslash{}xb6\textbackslash{}x06\textbackslash{}x3a\textbackslash{}x44\textbackslash{}xb8\textbackslash{}x06\textbackslash{}x3a\textbackslash{}x44\%26543c\%4$hn\%9529c\%5$hn"'`
 \begin{itemize}
-    \item[\textbf{4.}] [1 points] Consider ONLY the â€œNon-executable stack (NX)â€ mitigation technique. A friend of yours suggests that there is an alternative way to exploit the vulnerability/ies you found to spawn a privileged shell in the program without executing any shellcode or calling library functions.
+    \item[\textbf{4.}] [1 points] Consider ONLY the â€œNon-executable stack (NX)â€ mitigation technique. A friend of yours suggests that there is an alternative way to exploit the vulnerability/ies you found to spawn a privileged shell in the program without executing any shellcode or calling library functions.
 \end{itemize}
 
 \subsubsection*{Solution}
@@ -1271,7 +1271,7 @@ The exploit writes a 32-bit address in two 16-bit halves using \texttt{\%hn}.
 \begin{itemize}
     \item \textbf{The address where we want to write}: The payload starts with the addresses \texttt{0x443a06b6} and \texttt{0x443a06b8}. These point to the two contiguous memory half-words of the saved return address on the stack.
     \item \textbf{What to write}: The characters printed so far dictate the value written by \texttt{\%hn}. First write: 8 bytes (addresses) + 26543 = 26551 (0x67B7) written to \texttt{0x443a06b6}. Second write: 26551 + 9529 = 36080 (0x8CF0) written to \texttt{0x443a06b8}. The final combined address pointing to the shellcode is \texttt{0x8CF067B7}.
-    \item \textbf{The displacement}: The format specifiers \texttt{\%4\$hn} and \texttt{\%5\$hn} indicate that the addresses to write to are located at the 4th and 5th positions (words) up the stack relative to the format string's processing pointer.
+    \item \textbf{The displacement}: The format specifiers \texttt{\%4$hn} and \texttt{\%5$hn} indicate that the addresses to write to are located at the 4th and 5th positions (words) up the stack relative to the format string's processing pointer.
 
 \end{itemize}
 \textbf{4. NX Mitigation Alternative:}
@@ -1299,7 +1299,7 @@ Assume that:
 [3 points] 3. Focus only on the format-string vulnerability you found. Consider ONLY the correctly implemented "NX" mitigation technique. Someone told us that you can use this vulnerability to obtain a shell, even with the NX mitigation enabled. Rumors say there might be three working exploits that do not require neither ret2libc nor ROP. If the rumors are true, explain the exploits, otherwise explain why the vulnerability cannot be exploited. Describe all the steps and assumptions required to successfully execute the exploits.
 
 \subsubsection*{Solution}
-### Question 1: Identifying Vulnerabilities
+\#\#\# Question 1: Identifying Vulnerabilities
 
 \begin{itemize}
     \item[\textbf{1.}] \textbf{Buffer Overflow:}
@@ -1313,7 +1313,7 @@ Assume that:
     \item \textbf{Modification:} Replace with \texttt{printf("\%s", data->username);}.
 
 \end{itemize}
-### Question 2: Exploiting the Buffer Overflow
+\#\#\# Question 2: Exploiting the Buffer Overflow
 
 \textbf{2.a) Steps and Assumptions for Exploitation:}
 
@@ -1337,7 +1337,7 @@ Assume that:
 | \texttt{data.secret[0-7]} | \texttt{secret} content | Untouched |
 | \texttt{data.username[0-31]}| \texttt{NOPs + Shellcode + Addr} | Untouched |
 
-### Question 3: Exploiting Format String with NX Enabled
+\#\#\# Question 3: Exploiting Format String with NX Enabled
 
 NX (No-eXecute) prevents execution of code on the stack. Therefore, we cannot jump to our shellcode. However, we can still use the format string vulnerability to write data to arbitrary memory locations using the \texttt{\%n} format specifier. The goal is to bypass the token check to execute \texttt{system("/bin/sh");} located at line 25.
 
@@ -1408,10 +1408,10 @@ Vulnerable C program handling a user\_t struct... Focus only on the stack-based 
     \item \textbf{Goal}: Execute 8-byte shellcode.
     \item \textbf{Mechanism}: The struct \texttt{user\_t} holds \texttt{username} [40] immediately followed by \texttt{password} [20]. The \texttt{read} at line 27 fills \texttt{username} with 40 bytes (no null byte). The \texttt{read} at line 30 fills \texttt{password} with 20 bytes.
     \item \textbf{Payload Construction}:
-    \item[\textbf{1.}] Fill \texttt{username} (40 bytes) with a NOP sled (\texttt{\x90\x90...}) and the 8-byte shellcode.
+    \item[\textbf{1.}] Fill \texttt{username} (40 bytes) with a NOP sled (\texttt{\textbackslash{}x90\textbackslash{}x90...}) and the 8-byte shellcode.
     \item[\textbf{2.}] Fill \texttt{password} (first 8 bytes) with junk (e.g., "AAAAAAAA"), followed by the memory address pointing back to the NOP sled in \texttt{message}.
     \item \textbf{Execution}: When \texttt{strcat} executes, it copies the 40 bytes of \texttt{username}, fails to find a null byte, and continues copying the contents of \texttt{password}. This massive string overflows the 52-byte \texttt{message} buffer, overwriting the saved Return Address (sEIP) with the attacker-controlled address.
-    \item \textbf{Assumptions}: Address Space Layout Randomization (ASLR) and Non-Executable Stack (NX) must be disabled. The target return address must not contain null bytes (\texttt{\x00}), or \texttt{strcat} will terminate prematurely.
+    \item \textbf{Assumptions}: Address Space Layout Randomization (ASLR) and Non-Executable Stack (NX) must be disabled. The target return address must not contain null bytes (\texttt{\textbackslash{}x00}), or \texttt{strcat} will terminate prematurely.
 
 \end{itemize}
 \textbf{Step 3: ASLR Mitigation Context}
@@ -1442,7 +1442,7 @@ C program with scramble() function... The program is affected by typical buffer 
 \begin{itemize}
     \item \textbf{Goal}: Use \texttt{\%n} to overwrite a specific memory location.
     \item \textbf{Mechanism}: The attacker calculates the exact integer values needed to write the target address byte-by-byte using \texttt{\%hn} (half-word writes).
-    \item \textbf{Payload Construction}: The payload looks like \texttt{\xe6\xfe...\%(54260-8)c\%7\$hn\%(58964-54260)c\%8\$hn}. Because the \texttt{scanf} restricts input to 15 characters, this long payload must be split across the multiple iterations of the \texttt{scramble} loop. The first half is injected during one iteration, and the second half during the next, carefully aligning the stack pointers so \texttt{printf} evaluates the concatenated format string correctly to overwrite the target.
+    \item \textbf{Payload Construction}: The payload looks like \texttt{\textbackslash{}xe6\textbackslash{}xfe...\%(54260-8)c\%7$hn\%(58964-54260)c\%8$hn}. Because the \texttt{scanf} restricts input to 15 characters, this long payload must be split across the multiple iterations of the \texttt{scramble} loop. The first half is injected during one iteration, and the second half during the next, carefully aligning the stack pointers so \texttt{printf} evaluates the concatenated format string correctly to overwrite the target.
 \end{itemize}
 
 \subsection{Exercise 3 - Binary Vulnerabilities}
@@ -1475,10 +1475,10 @@ Vulnerable C program with upload\_file()... Buffer overflow and format string...
 \subsection{Exercise 3 - Binary Vulnerabilities (6 points)}
 \subsubsection*{Problem}
 \begin{itemize}
-    \item[\textbf{1.}] #include <stdio.h>
-    \item[\textbf{2.}] #include <string.h>
-    \item[\textbf{3.}] #include <unistd.h>
-    \item[\textbf{4.}] #include <stdlib.h>
+    \item[\textbf{1.}] \#include <stdio.h>
+    \item[\textbf{2.}] \#include <string.h>
+    \item[\textbf{3.}] \#include <unistd.h>
+    \item[\textbf{4.}] \#include <stdlib.h>
 \end{itemize}
 5.
 \begin{itemize}
@@ -1534,8 +1534,8 @@ Vulnerable C program with upload\_file()... Buffer overflow and format string...
 [2 points] 2. Focus only on the stack-based buffer overflow(s) you found. Write an exploit for this vulnerability that must execute a very sophisticated shellcode composed of 60 bytes.
 2.a) Describe all the steps and assumptions required to successfully exploit the vulnerability. Include also any assumption on how you must call and run the program...
 2.b) Make sure that you show how the exploit will appear in the process memory with respect to the stack layout right before and after the execution of the vulnerable line...
-[2 points] 3. To solve the problem, the senior developer, Pario Molino, decides to compile the program with a correctly implemented â€œStack Canaryâ€ mitigation technique (i.e, randomly generated and non-guessable). Is it effective to prevent your exploit?
-[1 point] 4. Driven by desperation, the senior developer, Pario Molino, decides to compile the program with both the â€œStack Canaryâ€ and â€œNXâ€ mitigation techniques. Is it possible to get a shell using one of the techniques you know? How?
+[2 points] 3. To solve the problem, the senior developer, Pario Molino, decides to compile the program with a correctly implemented â€œStack Canaryâ€ mitigation technique (i.e, randomly generated and non-guessable). Is it effective to prevent your exploit?
+[1 point] 4. Driven by desperation, the senior developer, Pario Molino, decides to compile the program with both the â€œStack Canaryâ€ and â€œNXâ€ mitigation techniques. Is it possible to get a shell using one of the techniques you know? How?
 
 \subsubsection*{Solution}
 \textbf{Step 1: Identifying the Vulnerabilities.}
@@ -1549,8 +1549,8 @@ The stack layout grows from high to low addresses. Local variables are placed on
 Layout (from lowest to highest address): \texttt{h.name} (4 bytes) -> \texttt{h.description} (36 bytes) -> \texttt{h.hack\_index} (4 bytes) -> \texttt{saved EBP} (4 bytes) -> \texttt{saved EIP} (4 bytes) -> \texttt{Caller's frame}.
 Notice that \texttt{h.name} is at the lowest address. When \texttt{scanf} writes to \texttt{h.name}, it writes towards higher addresses, naturally overflowing into \texttt{description}, then \texttt{hack\_index}, \texttt{sEBP}, and finally \texttt{sEIP}.
 To redirect execution, we must overwrite the \texttt{sEIP} with the address of our shellcode.
-However, we have a problem: the \texttt{while} loop continues as long as \texttt{h.hack\_index > 0}. Because \texttt{h.name} is before \texttt{h.hack\_index} in memory, our overflow will necessarily overwrite \texttt{h.hack\_index} before it reaches \texttt{sEIP}. If we overwrite it with a positive value, the loop will continue, and the function will not return (thus not popping \texttt{sEIP} into \texttt{EIP}). If we overwrite it with \$0\$ or a negative value, the loop terminates!
-Moreover, our shellcode is 60 bytes long. The space between \texttt{h.name} and \texttt{sEIP} is \$4 + 36 + 4 + 4 = 48\$ bytes. We cannot fit the 60-byte shellcode *before* \texttt{sEIP}. We must place it *after* \texttt{sEIP} (in the caller's stack frame).
+However, we have a problem: the \texttt{while} loop continues as long as \texttt{h.hack\_index > 0}. Because \texttt{h.name} is before \texttt{h.hack\_index} in memory, our overflow will necessarily overwrite \texttt{h.hack\_index} before it reaches \texttt{sEIP}. If we overwrite it with a positive value, the loop will continue, and the function will not return (thus not popping \texttt{sEIP} into \texttt{EIP}). If we overwrite it with $0$ or a negative value, the loop terminates!
+Moreover, our shellcode is 60 bytes long. The space between \texttt{h.name} and \texttt{sEIP} is $4 + 36 + 4 + 4 = 48$ bytes. We cannot fit the 60-byte shellcode *before* \texttt{sEIP}. We must place it *after* \texttt{sEIP} (in the caller's stack frame).
 \textbf{Exploit Construction:}
 \begin{itemize}
     \item[\textbf{1.}] Send 40 bytes of padding (to fill \texttt{name} and \texttt{description}).
@@ -1590,8 +1590,8 @@ The program is compiled for the x86 architecture (32 bit) and for an environment
 2.a) Describe all the steps and assumptions required to successfully exploit the vulnerability. Include also any assumption on how you must call and run the program.
 2.b) Make sure that you show how the exploit will appear in the process memory with respect to the stack layout right before and after the execution of the vulnerable line during the program exploitation showing: Direction of growth and high-low addresses; The name of each allocated variable; The content of relevant registers (i.e., EBP, ESP); The functions stack frames. Show also the content of the caller frame.
 \begin{itemize}
-    \item[\textbf{3.}] [1 points] Consider ONLY the correctly implemented â€œStack Canaryâ€ mitigation technique (i.e, randomly generated and non-guessable). Is it effective to prevent your exploit at point 2? Motivate your answer.
-    \item[\textbf{4.}] [2 points] Consider ONLY the correctly implemented â€œNXâ€ mitigation technique. A friend of yours managed to interact with the program to read the content of the file â€œ./flagâ€ without executing any shellcode, or recurring to ret2libc. The interaction was remote, she did not have access to the local machine. If this is possible, please explain all the steps and assumptions required for a successful exploitation.
+    \item[\textbf{3.}] [1 points] Consider ONLY the correctly implemented â€œStack Canaryâ€ mitigation technique (i.e, randomly generated and non-guessable). Is it effective to prevent your exploit at point 2? Motivate your answer.
+    \item[\textbf{4.}] [2 points] Consider ONLY the correctly implemented â€œNXâ€ mitigation technique. A friend of yours managed to interact with the program to read the content of the file â€œ./flagâ€ without executing any shellcode, or recurring to ret2libc. The interaction was remote, she did not have access to the local machine. If this is possible, please explain all the steps and assumptions required for a successful exploitation.
 \end{itemize}
 
 \subsubsection*{Solution}
@@ -1650,21 +1650,21 @@ Consider the provided C program containing a struct \texttt{pippo} with members 
 The program is compiled for x86 (32 bit), cdecl calling convention, with no mitigations.
 
 [1 point] 1. The program is affected by typical buffer overflow and format string vulnerabilities. Complete the following table, focusing on a vulnerability per row.
-[2 points] 2. Focus only on the stack-based buffer overflow(s) you found. Write an exploit for this vulnerability that must execute the following shellcode: \x20\x30\x40\x50\x60\x70\x80\xff.
-[2 points] 3. To solve the problem, the senior developer decides to compile the program with a correctly implemented â€œStack Canaryâ€ mitigation technique. Is it effective to prevent your exploit?
-[1 point] 4. Driven by desperation, the developer compiles with only the â€œNXâ€ mitigation techniques. Is it possible to get a shell using one of the techniques you know? How? Provide all the necessary details.
+[2 points] 2. Focus only on the stack-based buffer overflow(s) you found. Write an exploit for this vulnerability that must execute the following shellcode: \textbackslash{}x20\textbackslash{}x30\textbackslash{}x40\textbackslash{}x50\textbackslash{}x60\textbackslash{}x70\textbackslash{}x80\textbackslash{}xff.
+[2 points] 3. To solve the problem, the senior developer decides to compile the program with a correctly implemented â€œStack Canaryâ€ mitigation technique. Is it effective to prevent your exploit?
+[1 point] 4. Driven by desperation, the developer compiles with only the â€œNXâ€ mitigation techniques. Is it possible to get a shell using one of the techniques you know? How? Provide all the necessary details.
 
 \subsubsection*{Solution}
-### 1. Vulnerability Analysis
+\#\#\# 1. Vulnerability Analysis
 \textbf{Step-by-Step Reasoning:}
 \begin{itemize}
-    \item \textbf{Buffer Overflow (Lines 25-30):} Inside the \texttt{while} loop, characters are read using \texttt{fgetc} and stored into \texttt{p.file\_content[p.index]}. The loop increments \texttt{p.index} infinitely as long as there is no newline (\texttt{\n}) or \texttt{EOF}. The array \texttt{file\_content} only holds 64 bytes. If the file contains more than 64 characters without a newline, it will write past the bounds of \texttt{file\_content}, corrupting adjacent memory on the stack (including the saved EBP and EIP).
+    \item \textbf{Buffer Overflow (Lines 25-30):} Inside the \texttt{while} loop, characters are read using \texttt{fgetc} and stored into \texttt{p.file\_content[p.index]}. The loop increments \texttt{p.index} infinitely as long as there is no newline (\texttt{\textbackslash{}n}) or \texttt{EOF}. The array \texttt{file\_content} only holds 64 bytes. If the file contains more than 64 characters without a newline, it will write past the bounds of \texttt{file\_content}, corrupting adjacent memory on the stack (including the saved EBP and EIP).
     \item *Fix:* Check bounds during the loop: \texttt{if (p.index >= 63) break;}.
     \item \textbf{Format String Vulnerability (Line 37):} \texttt{printf(p.file\_content);} passes user-controlled string directly as the format string parameter. If the file contains format specifiers like \texttt{\%x} or \texttt{\%n}, \texttt{printf} will read/write memory it shouldn't.
     \item *Fix:* Use a static format string: \texttt{printf("\%s", p.file\_content);}.
 
 \end{itemize}
-### 2. Exploit for the Buffer Overflow
+\#\#\# 2. Exploit for the Buffer Overflow
 \textbf{Step-by-Step Reasoning:}
 Because there are no mitigations (like Stack Canaries or NX/ASLR), the stack is executable, and addresses are predictable.
 \begin{itemize}
@@ -1674,14 +1674,14 @@ Because there are no mitigations (like Stack Canaries or NX/ASLR), the stack is 
     \item The payload will be written into a file, which is then read back by \texttt{open\_whatever}.
     \item[\textbf{3.}] \textbf{Payload Structure:}
     \item Starts with \texttt{"flag"} (to pass the \texttt{strncmp} check on line 36).
-    \item Followed by a NOP sled (e.g., \texttt{\x90} bytes) to provide a landing pad for execution.
-    \item Followed by the provided shellcode: \texttt{\x20\x30\x40\x50\x60\x70\x80\xff}.
+    \item Followed by a NOP sled (e.g., \texttt{\textbackslash{}x90} bytes) to provide a landing pad for execution.
+    \item Followed by the provided shellcode: \texttt{\textbackslash{}x20\textbackslash{}x30\textbackslash{}x40\textbackslash{}x50\textbackslash{}x60\textbackslash{}x70\textbackslash{}x80\textbackslash{}xff}.
     \item Padding to reach the exact offset of \texttt{sEIP} (e.g., filling the 64 bytes of \texttt{file\_content} + padding for sEBP).
     \item Overwriting \texttt{sEIP} with the memory address pointing back to the NOP sled inside \texttt{file\_content}.
-    \item \textbf{Crucial Constraint:} The payload \textbf{must not} contain any newline (\texttt{\n} or \texttt{\x0a}) characters, as that would prematurely terminate the \texttt{fgetc} reading loop on line 25.
+    \item \textbf{Crucial Constraint:} The payload \textbf{must not} contain any newline (\texttt{\textbackslash{}n} or \texttt{\textbackslash{}x0a}) characters, as that would prematurely terminate the \texttt{fgetc} reading loop on line 25.
 
 \end{itemize}
-### 3. Impact of Stack Canaries
+\#\#\# 3. Impact of Stack Canaries
 \textbf{Step-by-Step Reasoning:}
 A Stack Canary places a random, non-guessable value between local variables and the saved control data (sEBP, sEIP). Before the function returns, it checks if the canary has been altered.
 \begin{itemize}
@@ -1689,7 +1689,7 @@ A Stack Canary places a random, non-guessable value between local variables and 
     \item \textbf{Alternative Exploitation:} The \textbf{Format String Vulnerability} at line 37 is still present! We can craft a payload starting with \texttt{"flag"}, avoiding newlines, containing \texttt{\%n} format specifiers. By exploiting the format string, we can perform an arbitrary memory write to overwrite the Global Offset Table (GOT) entry for a subsequent function (like \texttt{exit} or \texttt{printf} itself) to point to our shellcode, bypassing the stack canary entirely because we are writing directly to memory without overflowing the stack linearly.
 
 \end{itemize}
-### 4. Impact of NX (No-Execute)
+\#\#\# 4. Impact of NX (No-Execute)
 \textbf{Step-by-Step Reasoning:}
 NX (Data Execution Prevention) marks the stack as non-executable. Even if we hijack \texttt{sEIP} and jump to our shellcode, the CPU will raise a fault and crash instead of executing it.
 \begin{itemize}
@@ -1711,7 +1711,7 @@ Step-by-Step Solution:
 
     \item[\textbf{2.}] Exploit Construction:
     \item We use the format string vulnerability to hijack the execution flow. The shellcode is placed in \texttt{company.buffer}. We use format string tokens to overwrite a return address or GOT entry to point to the shellcode.
-    \item Constraint: The payload must end with '!' to exit the while loop, and must NOT contain '!' in the middle. A '\n' is needed to trigger the specific switch case executing the vulnerable printf.
+    \item Constraint: The payload must end with '!' to exit the while loop, and must NOT contain '!' in the middle. A '\textbackslash{}n' is needed to trigger the specific switch case executing the vulnerable printf.
     \item Memory Layout: \texttt{buffer} is at lower addresses, \texttt{isMichael} follows it. The EBP and saved EIP are at higher addresses on the stack.
 
     \item[\textbf{3.}] NX (No-eXecute) Mitigation:
@@ -1805,7 +1805,7 @@ TicketUno.it is a popular Italian ticketing platform... 4.1 Answer the following
     \item[\textbf{4.2}] The exploit leverages an SQL injection vulnerability on the event\_name variable. \texttt{event\_name = "not\_a\_valid\_suffix' UNION ALL SELECT booking\_ref, booking\_ref, booking\_ref FROM bookings WHERE user\_id = (SELECT user\_id FROM users WHERE username='Law'); -- "}
 
 \end{itemize}
-### Improved Step-by-Step Explanation:
+\#\#\# Improved Step-by-Step Explanation:
 For 4.1:
 \begin{itemize}
     \item SQL Injection: Line 7 builds the query \texttt{q = "SELECT ... WHERE event\_name LIKE '\%" + event\_name + "\%';"}. Since \texttt{event\_name} comes directly from the request arguments without sanitization or prepared statements, it's vulnerable to SQLi. Line 19 uses a prepared statement, so it's safe.
@@ -1827,7 +1827,7 @@ PosteItaliche.it is a popular Italian web platform... 1. [1 point] For each SQL 
     \item[\textbf{5.}] The attack is a CSRF attack where the attacker embedded a script to run 2 requests into the page of italicheposte.it: a GET request and a POST request. With the GET request.
 
 \end{itemize}
-### Improved Step-by-Step Explanation:
+\#\#\# Improved Step-by-Step Explanation:
 For 1: Line 31-32 construct an \texttt{INSERT} query via string concatenation: \texttt{"INSERT INTO emails VALUES ('" + sender\_email + "', '" + recipient\_mail + "', '" + text + "');"}. \texttt{recipient\_mail} and \texttt{text} are derived directly from user input without SQL sanitization, making them vulnerable to SQL Injection.
 For 2: XSS is not present because the application correctly uses \texttt{xss\_sanitize()} on \texttt{recipient\_mail} and \texttt{text} before reflecting them, and other inputs like \texttt{error} or \texttt{success} messages are statically defined in the code.
 For 3: The CSRF protection mechanism is fundamentally flawed. \texttt{set\_csrf} seeds the PRNG using the current timestamp in seconds: \texttt{random.seed(int(get\_time()))}. This makes the generated \texttt{csrf\_token} entirely predictable. An attacker can determine the server's time, generate the exact same token, and construct a valid CSRF payload to trick a victim into submitting an unauthorized request to \texttt{send\_mail}.
@@ -1887,7 +1887,7 @@ Code snippet provided for a web application handling user profiles and image upl
     \item Cross-site request forgery (CSRF)
 
 \end{itemize}
-[1.5 points] 2. One user managed to create a web page on Threatâ€™s domain that shows the message â€œAlert: You have been hacked!â€. Can you reproduce the exploit? Explain all the steps you would take to reproduce the exploit, including the final code you would write and why it works.
+[1.5 points] 2. One user managed to create a web page on Threatâ€™s domain that shows the message â€œAlert: You have been hacked!â€. Can you reproduce the exploit? Explain all the steps you would take to reproduce the exploit, including the final code you would write and why it works.
 
 [1.5 points] 3. Some students are reporting issues with their profile image. Every now and then, their image becomes a black and white flag with a skull on top. Moreover, the image is not static and the flag is waving! It looks like the new image is a gif, instead of a jpeg. We never programmed something like this to happen, some attacker must be tampering with Threats.
 \begin{itemize}
@@ -1897,7 +1897,7 @@ Code snippet provided for a web application handling user profiles and image upl
 \end{itemize}
 
 \subsubsection*{Solution}
-### Question 1: Vulnerability Assessment Table
+\#\#\# Question 1: Vulnerability Assessment Table
 
 | Vulnerability Class | Is there a vulnerability? How to exploit? | Simplest procedure to remove it |
 | :--- | :--- | :--- |
@@ -1905,7 +1905,7 @@ Code snippet provided for a web application handling user profiles and image upl
 | \textbf{Cross-site scripting (XSS)} | \textbf{Yes (Reflected XSS).} At line 19: \texttt{return "No user handle \"" + handle + "\" was found."} The application takes the \texttt{handle} parameter from the URL query string (line 12) and reflects it directly into the HTML response without sanitization. An attacker can craft a malicious URL containing a script in the \texttt{handle} parameter. | Use escaping functions or templating engines. |
 | \textbf{Cross-site request forgery (CSRF)} | \textbf{Yes.} The \texttt{/upload\_image} route (line 26) handles state-changing POST requests but lacks CSRF protection (like an anti-CSRF token). An attacker can create a malicious website containing a hidden form that submits a request to \texttt{/upload\_image}. If a logged-in victim visits this evil site, their browser will automatically include their session cookie, and the attacker can change the victim's profile picture. | Implement Anti-CSRF tokens. |
 
-### Question 2: Reproducing the Reflected XSS Exploit
+\#\#\# Question 2: Reproducing the Reflected XSS Exploit
 
 \textbf{Goal:} Execute \texttt{alert("Alert: You have been hacked!")} in the victim's browser.
 
@@ -1922,7 +1922,7 @@ Code snippet provided for a web application handling user profiles and image upl
 
 \textbf{Why it works:} The server reflects the payload into the page source because \texttt{<SCRipt>} escapes the filter block. The victim's browser parses the HTML, executes the injected JavaScript, and displays the alert box.
 
-### Question 3: The Waving Flag (GIF) Exploit
+\#\#\# Question 3: The Waving Flag (GIF) Exploit
 
 \textbf{1. Identify Vulnerabilities:}
 \begin{itemize}
@@ -1980,7 +1980,7 @@ StoryShelf.com application... Fill out the following table... Can you reproduce 
 \textbf{Step 1: SQL Injection (SQLi)}
 \begin{itemize}
     \item \textbf{Vulnerability}: Line 10 (\texttt{check\_query = "SELECT * FROM BOOKS WHERE title='" + book\_name + "\%';"}). The input \texttt{book\_name} is concatenated directly into the query.
-    \item \textbf{Exploitation}: This is a Blind SQL Injection. Since the application only checks \texttt{if len(result) != 1:} and returns an abort if true, an attacker cannot see direct database output. They must use boolean-based inference (e.g., injecting \texttt{book' AND (SELECT substring(password,1,1) FROM users)='A'#}) to slowly extract data byte-by-byte based on whether the page loads normally or returns a 403 error.
+    \item \textbf{Exploitation}: This is a Blind SQL Injection. Since the application only checks \texttt{if len(result) != 1:} and returns an abort if true, an attacker cannot see direct database output. They must use boolean-based inference (e.g., injecting \texttt{book' AND (SELECT substring(password,1,1) FROM users)='A'\#}) to slowly extract data byte-by-byte based on whether the page loads normally or returns a 403 error.
     \item \textbf{Fix}: Replace concatenation with parameterized queries.
 
 \end{itemize}
@@ -2074,16 +2074,16 @@ Let's analyze the code against standard web vulnerabilities:
 \begin{itemize}
     \item \textbf{SQL Injection (SQLi):} Look at how user inputs are concatenated into SQL queries.
 \end{itemize}
-In \texttt{send()}, line 18: \texttt{check\_r = "SELECT user\_id FROM users WHERE username = '" + receiver + "';"}. The \texttt{receiver} variable is directly taken from \texttt{request["receiver"]} and appended to the string. This is a classic SQL injection flaw. An attacker can input \texttt{' OR '1'='1} to alter the query logic.
-How to fix: Use parameterized queries (prepared statements), just as the \texttt{login} function correctly does on line 38 (\texttt{db\_execute\_query\_with\_statement}).
+In \texttt{send()}, line 18: \texttt{check_r = "SELECT user_id FROM users WHERE username = '" + receiver + "';"}. The \texttt{receiver} variable is directly taken from \texttt{request["receiver"]} and appended to the string. This is a classic SQL injection flaw. An attacker can input \texttt{' OR '1'='1} to alter the query logic.
+How to fix: Use parameterized queries (prepared statements), just as the \texttt{login} function correctly does on line 38 (\texttt{db_execute_query_with_statement}).
 \begin{itemize}
     \item \textbf{Cross-Site Scripting (XSS):} Look for places where user input is reflected in the HTML without sanitization.
 \end{itemize}
-In \texttt{send()}, line 21: \texttt{return render\_template("home.html", error="Receiver" + xss\_sanitize(receiver) + " not found!")}. The developer explicitly used \texttt{xss\_sanitize()} here. So XSS is mitigated.
+In \texttt{send()}, line 21: \texttt{return render_template("home.html", error="Receiver" + xss_sanitize(receiver) + " not found!")}. The developer explicitly used \texttt{xss_sanitize()} here. So XSS is mitigated.
 \begin{itemize}
     \item \textbf{Cross-Site Request Forgery (CSRF):} Look at state-changing actions (like transferring money) and how they are triggered.
 \end{itemize}
-The \texttt{/send} endpoint is a \texttt{GET} request. It checks \texttt{is\_session\_valid(session)} but it has no CSRF token. If an authenticated user clicks a malicious link, their browser will automatically include their valid session cookie, executing the transfer without their consent.
+The \texttt{/send} endpoint is a \texttt{GET} request. It checks \texttt{is_session_valid(session)} but it has no CSRF token. If an authenticated user clicks a malicious link, their browser will automatically include their valid session cookie, executing the transfer without their consent.
 How to fix: Use \texttt{POST} for state-changing actions and require an unpredictable, user-specific CSRF token in the request body that the server validates before executing the transaction.
 
 \textbf{Step 2: Reproducing the CSRF Attack.}
@@ -2093,15 +2093,15 @@ Attacker constructs: \texttt{https://westerosbank.com/send?amount=1000\&receiver
 The attacker can embed this in an \texttt{<img>} tag on a malicious site or a forum like 4chan: \texttt{<img src="https://westerosbank.com/send?amount=1000\&receiver=Law" width="0" height="0">}. When the victim's browser tries to load the "image", it makes the GET request. If the victim is logged into WesterosBank, their cookies are sent, and the bank processes the valid transfer.
 
 \textbf{Step 3: Exploiting the SQL Injection to Steal Passwords (Blind SQLi).}
-The vulnerability is on line 18: \texttt{SELECT user\_id FROM users WHERE username = '<receiver>'}.
+The vulnerability is on line 18: \texttt{SELECT user_id FROM users WHERE username = '<receiver>'}.
 If the query returns a row, the code proceeds to update balances. If it returns no row, it throws a "Receiver not found" error (line 21).
 This boolean outcome (Error vs. Success/Different Error) creates a side-channel for a \textbf{Blind Boolean SQL Injection}. We can ask the database true/false questions and infer the answers based on the application's response.
 To steal a password, we can inject a condition into the \texttt{WHERE} clause that tests the characters of the victim's password one by one.
-Payload for \texttt{receiver}: \texttt{nonexistent\_user' OR username='target\_victim' AND password LIKE 'a\%}
+Payload for \texttt{receiver}: \texttt{nonexistent_user' OR username='target_victim' AND password LIKE 'a\%}
 The resulting query becomes:
-\texttt{SELECT user\_id FROM users WHERE username = 'nonexistent\_user' OR username='target\_victim' AND password LIKE 'a\%';}
+\texttt{SELECT user_id FROM users WHERE username = 'nonexistent_user' OR username='target_victim' AND password LIKE 'a\%';}
 \begin{itemize}
-    \item If the victim's password starts with 'a', the condition is TRUE. The query returns a user\_id, and the application proceeds (we'll likely get a different error later, or a success message if we set \texttt{amount} correctly, but definitely *not* the "Receiver not found" error).
+    \item If the victim's password starts with 'a', the condition is TRUE. The query returns a user_id, and the application proceeds (we'll likely get a different error later, or a success message if we set \texttt{amount} correctly, but definitely *not* the "Receiver not found" error).
     \item If the password does not start with 'a', the condition is FALSE. The query returns empty, and the application shows "Receiver not found".
 \end{itemize}
 By automating this process, iterating through characters (\texttt{a\%}, \texttt{b\%}, \texttt{c\%}...) and then expanding (\texttt{aa\%}, \texttt{ab\%}...), an attacker can extract the entire password character by character without ever seeing the database output directly.
@@ -2109,12 +2109,12 @@ By automating this process, iterating through characters (\texttt{a\%}, \texttt{
 \subsection{Exercise 4 - Web Vulnerabilities}
 \subsubsection*{Problem}
 ChatterChaos is a web service for group chatting. Users can view and post messages in channels of personal interest. The relevant code of the application is reported below.
-Assume the following: The session is correctly handled; is\_session\_valid correctly checks if the user is logged in; db\_execute\_query\_with\_statement correctly executes queries with prepared statements; render\_template does not perform any sanitization of the input; The DBMS does not support stacked queries; The DBMS is case-sensitive; The username is checked with the function blacklist available in the code; is\_numeric returns true if the string contains only numbers.
+Assume the following: The session is correctly handled; is_session_valid correctly checks if the user is logged in; db_execute_query_with_statement correctly executes queries with prepared statements; render_template does not perform any sanitization of the input; The DBMS does not support stacked queries; The DBMS is case-sensitive; The username is checked with the function blacklist available in the code; is_numeric returns true if the string contains only numbers.
 
 \begin{itemize}
     \item[\textbf{1.}] [3 points] Fill out the following table by answering the questions for each class of vulnerabilities (SQL Injection, XSS, CSRF).
     \item[\textbf{2.}] [1.5 points] After visiting a streaming website, you notice that somebody posted several messages on many channels with your username. These messages advertise a cryptocurrency service that you donâ€™t even know. Can you reproduce the exploit? Explain all the steps you would take to reproduce the exploit, including the final code you would write.
-    \item[\textbf{3.}] [1.5 points] The channel dedicated to animal discussion has been hacked. Every time you visit the page of the channel, a popup appears saying, â€œWhoâ€™s the king of the jungle!!!â€. Explain all the steps you would take to reproduce the exploit. The final code does not need to be syntactically correct, but it has to point where is the vulnerability and the idea of the exploit.
+    \item[\textbf{3.}] [1.5 points] The channel dedicated to animal discussion has been hacked. Every time you visit the page of the channel, a popup appears saying, â€œWhoâ€™s the king of the jungle!!!â€. Explain all the steps you would take to reproduce the exploit. The final code does not need to be syntactically correct, but it has to point where is the vulnerability and the idea of the exploit.
 \end{itemize}
 
 \subsubsection*{Solution}
@@ -2122,17 +2122,17 @@ Assume the following: The session is correctly handled; is\_session\_valid corre
 
 \textbf{Question 1: Vulnerability Table}
 \begin{itemize}
-    \item \textbf{SQL Injection (SQLi)}: \textbf{No}. The code relies exclusively on parameterized queries (\texttt{db\_execute\_query\_with\_statement}), safely separating SQL logic from user data.
+    \item \textbf{SQL Injection (SQLi)}: \textbf{No}. The code relies exclusively on parameterized queries (\texttt{db_execute_query_with_statement}), safely separating SQL logic from user data.
     \item \textbf{Cross-Site Scripting (XSS)}: \textbf{Yes (Stored XSS)}. On lines 82-83, the user's input for \texttt{color} is injected directly into the \texttt{style} HTML attribute without context-aware escaping. The \texttt{blacklist} function filters angle brackets, but breaking out of an attribute context does not require them. *Fix*: Implement strict whitelisting for allowed colors and use proper HTML escaping.
-    \item \textbf{Cross-Site Request Forgery (CSRF)}: \textbf{Yes}. The \texttt{post\_message} function performs a state-changing action (posting a message) but only verifies session cookies. It lacks anti-CSRF tokens to verify that the request originated intentionally from the legitimate application interface. *Fix*: Implement synchronizer CSRF tokens.
+    \item \textbf{Cross-Site Request Forgery (CSRF)}: \textbf{Yes}. The \texttt{post_message} function performs a state-changing action (posting a message) but only verifies session cookies. It lacks anti-CSRF tokens to verify that the request originated intentionally from the legitimate application interface. *Fix*: Implement synchronizer CSRF tokens.
 
 \end{itemize}
 \textbf{Question 2: Reproducing the CSRF Exploit}
 *Mechanism*: The attacker hosts a malicious web page (e.g., on a streaming site). When the authenticated ChatterChaos user visits this page, it automatically triggers a cross-origin \texttt{POST} request to the ChatterChaos server. The victim's browser automatically attaches their session cookies, making the request valid.
 *Exploit Code*: The attacker embeds a hidden, auto-submitting form on their site:
 \texttt{}`html
-<form method="POST" action="http://chatterchaos.com/post\_message">
-<input type="hidden" name="channel\_id" value="100">
+<form method="POST" action="http://chatterchaos.com/post_message">
+<input type="hidden" name="channel_id" value="100">
 <input type="hidden" name="message" value="You want some easy money! Visit easycrypto.com!">
 <input type="submit" onload="this.click()">
 </form>
@@ -2159,43 +2159,43 @@ Review the provided Python Flask application code managing an AI chat platform.
 \begin{itemize}
     \item[\textbf{1.}] Fill out the table by identifying if SQL Injection, Cross-Site Scripting (XSS), and Cross-Site Request Forgery (CSRF) vulnerabilities exist, how they could be exploited, and the simplest procedure to remove them.
     \item[\textbf{2.}] You suddenly notice that somebody logged in to your account since all the chats have been deleted. Can you explain how somebody could have obtained your password? Explain all the steps you would take to reproduce the exploit, including the final code you would write.
-    \item[\textbf{3.}] Your friend sent you a link to one of her public chats. After opening a link, a popup appears saying, â€œAI will take over the world!!!â€. Explain all the steps you would take to reproduce the exploit, including the final code you would write.
+    \item[\textbf{3.}] Your friend sent you a link to one of her public chats. After opening a link, a popup appears saying, â€œAI will take over the world!!!â€. Explain all the steps you would take to reproduce the exploit, including the final code you would write.
 \end{itemize}
 
 \subsubsection*{Solution}
-### 1. Vulnerability Identification and Mitigation
+\#\#\# 1. Vulnerability Identification and Mitigation
 \textbf{Step-by-Step Reasoning:}
 \begin{itemize}
     \item \textbf{SQL Injection (SQLi):}
-    \item *Presence:* Yes, present at lines 1-5 inside \texttt{load\_history}.
-    \item *Exploitation:* The \texttt{chat\_id} variable is directly concatenated into the SQL query string (\texttt{"SELECT * FROM chats WHERE user\_id = " + user\_id + " AND chat\_id = " + chat\_id}). An attacker can inject malicious SQL clauses (like \texttt{UNION ALL}) via the \texttt{chat\_id} parameter to read arbitrary data from the database.
+    \item *Presence:* Yes, present at lines 1-5 inside \texttt{load_history}.
+    \item *Exploitation:* The \texttt{chat_id} variable is directly concatenated into the SQL query string (\texttt{"SELECT * FROM chats WHERE user_id = " + user_id + " AND chat_id = " + chat_id}). An attacker can inject malicious SQL clauses (like \texttt{UNION ALL}) via the \texttt{chat_id} parameter to read arbitrary data from the database.
     \item *Mitigation:* Use Prepared Statements (Parameterized Queries) for all database interactions. The DB driver handles escaping automatically.
     \item \textbf{Cross-Site Scripting (XSS):}
     \item *Presence:* Yes, Stored XSS is present.
-    \item *Exploitation:* At line 28, the \texttt{prompt} and \texttt{completion} are inserted into the database without sanitization. Later, in \texttt{view\_public\_chat} (line 41), the template renders this history. If the template engine doesn't automatically escape variables (or if explicitly told not to), malicious JavaScript stored in the prompt will execute in the victim's browser when they view the chat.
-    \item *Mitigation:* Apply the provided \texttt{xss\_sanitize()} function to the data *before* inserting it into the database, or ensure the template engine automatically HTML-escapes all output variables (Context-Aware Output Encoding).
+    \item *Exploitation:* At line 28, the \texttt{prompt} and \texttt{completion} are inserted into the database without sanitization. Later, in \texttt{view_public_chat} (line 41), the template renders this history. If the template engine doesn't automatically escape variables (or if explicitly told not to), malicious JavaScript stored in the prompt will execute in the victim's browser when they view the chat.
+    \item *Mitigation:* Apply the provided \texttt{xss_sanitize()} function to the data *before* inserting it into the database, or ensure the template engine automatically HTML-escapes all output variables (Context-Aware Output Encoding).
     \item \textbf{Cross-Site Request Forgery (CSRF):}
     \item *Presence:* Yes, CSRF is present on the \texttt{/ask} endpoint (lines 12-29).
-    \item *Exploitation:* The endpoint is a \texttt{GET} request and relies only on the session cookie. An attacker can craft a malicious website containing an invisible \texttt{<img>} or \texttt{<iframe>} pointing to \texttt{http://ChatAI.com/ask?chat\_id=1\&prompt=MaliciousPrompt}. When an authenticated user visits the attacker's site, their browser automatically sends the request with their session cookies, silently performing actions on their behalf.
+    \item *Exploitation:* The endpoint is a \texttt{GET} request and relies only on the session cookie. An attacker can craft a malicious website containing an invisible \texttt{<img>} or \texttt{<iframe>} pointing to \texttt{http://ChatAI.com/ask?chat_id=1\&prompt=MaliciousPrompt}. When an authenticated user visits the attacker's site, their browser automatically sends the request with their session cookies, silently performing actions on their behalf.
     \item *Mitigation:* Implement Anti-CSRF Tokens. Generate a unique, unpredictable token for the user's session, include it in all forms/requests, and verify it on the server-side. Additionally, state-changing actions should use \texttt{POST} instead of \texttt{GET}.
 
 \end{itemize}
-### 2. Exploiting SQL Injection to Steal Passwords
+\#\#\# 2. Exploiting SQL Injection to Steal Passwords
 \textbf{Step-by-Step Reasoning:}
 The attacker needs to extract data from the \texttt{users} table. Since the query \texttt{SELECT * FROM chats ...} returns results that are likely displayed, a UNION-based SQL injection is appropriate.
 \begin{itemize}
-    \item The original query structure is: \texttt{SELECT * FROM chats WHERE user\_id = X AND chat\_id = [INPUT]}.
+    \item The original query structure is: \texttt{SELECT * FROM chats WHERE user_id = X AND chat_id = [INPUT]}.
     \item We can inject a \texttt{UNION} clause to append results from the \texttt{users} table.
-    \item We set \texttt{chat\_id} to a value that makes the first half of the query return nothing (e.g., \texttt{-1}), so only our injected results are returned.
-    \item \textbf{Exploit Payload:} We set \texttt{chat\_id} to: \texttt{-1 UNION ALL SELECT password, password FROM users WHERE username = 'my\_target\_username'--}
+    \item We set \texttt{chat_id} to a value that makes the first half of the query return nothing (e.g., \texttt{-1}), so only our injected results are returned.
+    \item \textbf{Exploit Payload:} We set \texttt{chat_id} to: \texttt{-1 UNION ALL SELECT password, password FROM users WHERE username = 'my_target_username'--}
     \item This makes the final executed query look like:
 \end{itemize}
-\texttt{SELECT * FROM chats WHERE user\_id = 1 AND chat\_id = -1 UNION ALL SELECT password, password FROM users WHERE username = 'my\_target\_username'--}
+\texttt{SELECT * FROM chats WHERE user_id = 1 AND chat_id = -1 UNION ALL SELECT password, password FROM users WHERE username = 'my_target_username'--}
 \begin{itemize}
     \item The application will execute the query and display the password hashes/plaintext on the page where it normally displays chat history.
 
 \end{itemize}
-### 3. Exploiting Stored XSS via Public Chats
+\#\#\# 3. Exploiting Stored XSS via Public Chats
 \textbf{Step-by-Step Reasoning:}
 The goal is to execute JavaScript in the victim's browser when they visit a public chat link.
 \begin{itemize}
@@ -2205,7 +2205,7 @@ The goal is to execute JavaScript in the victim's browser when they visit a publ
 \texttt{<SCRIPT>alert("AI will take over the world!!!");</SCRIPT>}
 \begin{itemize}
     \item \textbf{Step 3:} The vulnerable backend (line 28) stores this exact string into the \texttt{history} table in the database.
-    \item \textbf{Step 4:} The attacker makes the chat public and sends the URL (\texttt{/view\_public\_chat?chat\_id=...}) to a friend.
+    \item \textbf{Step 4:} The attacker makes the chat public and sends the URL (\texttt{/view_public_chat?chat_id=...}) to a friend.
     \item \textbf{Step 5:} The friend opens the URL. The backend retrieves the unsanitized prompt from the DB and inserts it into the HTML DOM. The victim's browser parses the \texttt{<SCRIPT>} tag and executes the arbitrary JavaScript alert.
 \end{itemize}
 
@@ -2218,7 +2218,7 @@ Step-by-Step Solution:
 
 \begin{itemize}
     \item[\textbf{1.}] Vulnerability Identification:
-    \item SQL Injection: Present on line 21 during the \texttt{INSERT INTO tickets} query. User input (seat and concert\_id) is concatenated directly into the query string. Fix: Use prepared statements.
+    \item SQL Injection: Present on line 21 during the \texttt{INSERT INTO tickets} query. User input (seat and concert_id) is concatenated directly into the query string. Fix: Use prepared statements.
     \item XSS: Not explicitly present in this specific Python snippet, but typically occurs if inputs like 'band' or 'seat' are reflected without sanitization.
     \item CSRF: The \texttt{buy} function relies solely on session cookies and lacks an anti-CSRF token. Fix: Implement randomized CSRF tokens for state-changing requests.
 
@@ -2226,7 +2226,7 @@ Step-by-Step Solution:
     \item The attacker hosts a malicious HTML page containing an auto-submitting form:
 \end{itemize}
 `<form action="http://stagepass.com/buy" method="POST">
-<input type="hidden" name="concert\_id" value="ATTACKER\_CONCERT">
+<input type="hidden" name="concert_id" value="ATTACKER_CONCERT">
 <input type="hidden" name="seat" value="A1">
 </form>
 <script>document.forms[0].submit();</script>`
@@ -2235,11 +2235,11 @@ Step-by-Step Solution:
 
     \item[\textbf{3.}] SQLi Exploit (Two for One):
     \item Goal: Purchase one ticket for yourself and one for user 'Law' for the price of one.
-    \item Vulnerable query: \texttt{INSERT INTO tickets VALUES (user\_id, 'seat', concert\_id);}
-    \item Payload for \texttt{seat}: \texttt{A1', 1); INSERT INTO tickets VALUES (Law\_ID, 'A2}
+    \item Vulnerable query: \texttt{INSERT INTO tickets VALUES (user_id, 'seat', concert_id);}
+    \item Payload for \texttt{seat}: \texttt{A1', 1); INSERT INTO tickets VALUES (Law_ID, 'A2}
     \item Wait, the problem states the DBMS does NOT support stacked queries. So we must use a subquery or multi-row insert.
-    \item Payload for \texttt{concert\_id}: \texttt{1), (SELECT user\_id FROM users WHERE username='Law', 'A2', 1)}
-    \item The resulting query becomes: \texttt{INSERT INTO tickets VALUES (my\_id, 'seat', 1), (SELECT user\_id FROM users WHERE username='Law', 'A2', 1);} which inserts multiple rows.
+    \item Payload for \texttt{concert_id}: \texttt{1), (SELECT user_id FROM users WHERE username='Law', 'A2', 1)}
+    \item The resulting query becomes: \texttt{INSERT INTO tickets VALUES (my_id, 'seat', 1), (SELECT user_id FROM users WHERE username='Law', 'A2', 1);} which inserts multiple rows.
 \end{itemize}
 
 \subsection{Exercise 4 - Web Vulnerabilities}
@@ -2251,18 +2251,18 @@ Step-by-Step Solution:
 
 \begin{itemize}
     \item[\textbf{1.}] Vulnerabilities Identification:
-    \item SQL Injection: Line 34 \texttt{insert\_q = "INSERT INTO photos ... VALUES ('" +user\_id+ "', '"+title+ "');"}. The \texttt{title} is concatenated directly into the query. Fix: Use \texttt{db\_execute\_query\_with\_statements} (prepared statements).
+    \item SQL Injection: Line 34 \texttt{insert_q = "INSERT INTO photos ... VALUES ('" +user_id+ "', '"+title+ "');"}. The \texttt{title} is concatenated directly into the query. Fix: Use \texttt{db_execute_query_with_statements} (prepared statements).
     \item XSS (Reflected): Lines 28-30. The \texttt{title} parameter from the POST request is checked for length > 100, and if true, it is directly reflected in the error message template without sanitization. Fix: Escape the \texttt{title} variable before rendering it in the template.
-    \item CSRF: The \texttt{post\_photo} function implements a CSRF check. However, on line 15, the condition \texttt{if token in session["csrf\_tokens"].keys() or get\_time() < expiration} uses an logical \texttt{OR}. This means if *any* condition is met (like the current time being before the token expiration), it incorrectly returns True. The validation is fundamentally broken.
+    \item CSRF: The \texttt{post_photo} function implements a CSRF check. However, on line 15, the condition \texttt{if token in session["csrf_tokens"].keys() or get_time() < expiration} uses an logical \texttt{OR}. This means if *any* condition is met (like the current time being before the token expiration), it incorrectly returns True. The validation is fundamentally broken.
 
     \item[\textbf{2.}] XSS Exploit:
     \item Submit a photo with a title longer than 100 characters containing the payload: \texttt{"<script>alert('My photos should be in a museum!!!')</script>" + "A" * 100}.
     \item The server triggers the error condition on line 29 and reflects the script tag, executing it in the victim's browser.
 
     \item[\textbf{3.}] Path Traversal Exploit:
-    \item The image path is constructed as \texttt{path = "/photos/" + user\_id + "/" + title} (Line 36).
+    \item The image path is constructed as \texttt{path = "/photos/" + user_id + "/" + title} (Line 36).
     \item An attacker can exploit this by setting \texttt{title} to traverse directories and overwrite other users' photos.
-    \item Payload for \texttt{title}: \texttt{../<victim\_user\_id>/<existing\_photo\_title>}.
+    \item Payload for \texttt{title}: \texttt{../<victim_user_id>/<existing_photo_title>}.
     \item When the file is opened for writing (\texttt{"wb"}), it overwrites the victim's photo with the attacker's uploaded image (a cat).
 \end{itemize}
 
@@ -2275,7 +2275,7 @@ Step-by-Step Solution:
 
 \begin{itemize}
     \item[\textbf{1.}] Vulnerability Identification:
-    \item SQL Injection: Line 9 (INSERT) and Line 25 (SELECT). The \texttt{file.filename}, \texttt{uuid}, and \texttt{owner\_id} are concatenated directly into the query strings. Fix: Use parameterized queries (\texttt{db\_execute\_query\_with\_statements}).
+    \item SQL Injection: Line 9 (INSERT) and Line 25 (SELECT). The \texttt{file.filename}, \texttt{uuid}, and \texttt{owner_id} are concatenated directly into the query strings. Fix: Use parameterized queries (\texttt{db_execute_query_with_statements}).
     \item XSS (Stored): The \texttt{filename} is stored in the database and later reflected directly into the HTML on line 60 \texttt{<h1>{{ filename }}</h1>} without HTML escaping. Fix: Sanitize/escape the filename variable before rendering.
     \item CSRF: The \texttt{upload} function on line 01 processes a state-changing POST request using only session validation. There is no CSRF token check. Fix: Implement and validate a unique CSRF token for the upload form.
 
@@ -2287,7 +2287,7 @@ Step-by-Step Solution:
 
     \item[\textbf{3.}] SQL Injection Password Leak:
     \item Goal: Leak the admin's password via the download page.
-    \item Vulnerability: Line 25 \texttt{SELECT * FROM files WHERE uuid = '...' AND owner\_id = '...'}.
+    \item Vulnerability: Line 25 \texttt{SELECT * FROM files WHERE uuid = '...' AND owner_id = '...'}.
     \item Exploit: Provide a crafted \texttt{uuid} parameter in the GET request to perform a UNION SQL injection.
     \item Payload: \texttt{' UNION ALL SELECT 1, password, password FROM users WHERE username = 'admin'; -- }
     \item How it works: The original query returns no rows (if the fake UUID doesn't match). The UNION query executes and returns the admin's password in the columns where \texttt{filename} and \texttt{uuid} are expected. The application then displays the password on the download page.
@@ -2302,17 +2302,17 @@ Step-by-Step Solution:
 
 \begin{itemize}
     \item[\textbf{1.}] Vulnerabilities Identification:
-    \item SQL Injection: Line 23 \texttt{inquiry\_q = "INSERT INTO inquiries VALUES ... '" + text + " ');"}. The user input \texttt{text} is concatenated directly into the SQL query string. Fix: Use parameterized queries.
-    \item XSS (Stored): The \texttt{text} of the inquiry is stored in the database. When an admin views the inquiry (line 39 \texttt{view\_inquiry.html}), it is reflected into the HTML (line 61 \texttt{<p>{{ inquiry }}</p>}) without sanitization. Fix: HTML escape the output.
-    \item CSRF: Both the \texttt{add\_coupon} and \texttt{send\_inquiry} functions perform state-changing actions (database inserts) using only session validation without CSRF tokens.
+    \item SQL Injection: Line 23 \texttt{inquiry_q = "INSERT INTO inquiries VALUES ... '" + text + " ');"}. The user input \texttt{text} is concatenated directly into the SQL query string. Fix: Use parameterized queries.
+    \item XSS (Stored): The \texttt{text} of the inquiry is stored in the database. When an admin views the inquiry (line 39 \texttt{view_inquiry.html}), it is reflected into the HTML (line 61 \texttt{<p>{{ inquiry }}</p>}) without sanitization. Fix: HTML escape the output.
+    \item CSRF: Both the \texttt{add_coupon} and \texttt{send_inquiry} functions perform state-changing actions (database inserts) using only session validation without CSRF tokens.
 
     \item[\textbf{2.}] CSRF Exploit (Admin Discount):
     \item Goal: Trick an admin into creating a coupon for a 99.99\% discount.
     \item The attacker sets up a malicious website (\texttt{QuickSmart.com}).
     \item The website contains an auto-submitting form targeting the vulnerable endpoint:
 \end{itemize}
-`<form id="csrf" method="POST" action="http://QuickCart.com/add\_coupon">
-<input type="hidden" name="coupon\_code" value="HACKED99">
+`<form id="csrf" method="POST" action="http://QuickCart.com/add_coupon">
+<input type="hidden" name="coupon_code" value="HACKED99">
 <input type="hidden" name="discount" value="0.9999">
 </form>
 <script>document.getElementById('csrf').submit();</script>`
@@ -2331,14 +2331,14 @@ During a recent incident response at Async Labs... 1. Fill the following table s
 
 \subsubsection*{Solution}
 \begin{itemize}
-    \item[\textbf{1.}] Polymorphism: YES, The malware decrypts enc\_payload using XOR and executes it via execute\_payload. When spreading, mutate\_and\_spread decrypts the current payload and re-encrypts it with a supposedly fresh key before calling deploy, matching the pattern of a polymorphic mutation engine that generates a new sample per infection. Anti-Debugging: YES, IsDebuggerPresent() returns TRUE if a debugger is currently attached to the process. The malware checks this at startup and immediately exits if a debugger is detected, preventing dynamic analysis.
+    \item[\textbf{1.}] Polymorphism: YES, The malware decrypts enc_payload using XOR and executes it via execute_payload. When spreading, mutate_and_spread decrypts the current payload and re-encrypts it with a supposedly fresh key before calling deploy, matching the pattern of a polymorphic mutation engine that generates a new sample per infection. Anti-Debugging: YES, IsDebuggerPresent() returns TRUE if a debugger is currently attached to the process. The malware checks this at startup and immediately exits if a debugger is detected, preventing dynamic analysis.
 
-    \item[\textbf{2.}] Polymorphism: Incorrectly Implemented. (i) Why it is flawed: The PRNG is seeded with the fixed constant srand(42). Since rand() is deterministic, calling srand(42) always produces the same value for new\_key across every run and every machine. (ii) Defender's perspective: Since srand(42) always produces the same new\_key, all copies spread by mutate\_and\_spread are byte-for-byte identical to each other. Therefore, every copy deployed by mutate\_and\_spread always carries the same new\_enc byte sequence. A signature-based antivirus can trivially fingerprint any deployed copy, defeating the goal of polymorphism entirely.
+    \item[\textbf{2.}] Polymorphism: Incorrectly Implemented. (i) Why it is flawed: The PRNG is seeded with the fixed constant srand(42). Since rand() is deterministic, calling srand(42) always produces the same value for new_key across every run and every machine. (ii) Defender's perspective: Since srand(42) always produces the same new_key, all copies spread by mutate_and_spread are byte-for-byte identical to each other. Therefore, every copy deployed by mutate_and_spread always carries the same new_enc byte sequence. A signature-based antivirus can trivially fingerprint any deployed copy, defeating the goal of polymorphism entirely.
 
 \end{itemize}
-### Improved Step-by-Step Explanation:
-For 1: The code demonstrates polymorphism by attempting to change its payload encryption key each time it spreads (\texttt{mutate\_and\_spread} function). This is intended to evade static signature-based detection. It also implements anti-debugging by checking \texttt{IsDebuggerPresent()} early in \texttt{main()} and exiting if true, aiming to thwart dynamic analysis by security researchers.
-For 2: The polymorphic engine is fundamentally flawed because it relies on the C standard library's \texttt{rand()} function initialized with a hardcoded, static seed (\texttt{srand(42)}). Pseudorandom number generators are deterministic; given the same seed, they will produce the exact same sequence of numbers. Consequently, the \texttt{new\_key} generated will be identical every time the malware spreads. This means the "mutated" payload will always be encrypted with the same key, resulting in the exact same binary payload across all infections. A defender can simply generate a static signature for this specific encrypted payload, rendering the polymorphic feature completely useless.
+\#\#\# Improved Step-by-Step Explanation:
+For 1: The code demonstrates polymorphism by attempting to change its payload encryption key each time it spreads (\texttt{mutate_and_spread} function). This is intended to evade static signature-based detection. It also implements anti-debugging by checking \texttt{IsDebuggerPresent()} early in \texttt{main()} and exiting if true, aiming to thwart dynamic analysis by security researchers.
+For 2: The polymorphic engine is fundamentally flawed because it relies on the C standard library's \texttt{rand()} function initialized with a hardcoded, static seed (\texttt{srand(42)}). Pseudorandom number generators are deterministic; given the same seed, they will produce the exact same sequence of numbers. Consequently, the \texttt{new_key} generated will be identical every time the malware spreads. This means the "mutated" payload will always be encrypted with the same key, resulting in the exact same binary payload across all infections. A defender can simply generate a static signature for this specific encrypted payload, rendering the polymorphic feature completely useless.
 
 \subsection{Exercise 6 - Malware}
 \subsubsection*{Problem}
@@ -2350,7 +2350,7 @@ The Phantom Thieves found that the server hosting their Phantom Aficionado Websi
     \item[\textbf{2.}] Ransomware: NO. Bot: YES, Infected machine part of a botnet. Worm: NO. Rootkit: NO.
 
 \end{itemize}
-### Improved Step-by-Step Explanation:
+\#\#\# Improved Step-by-Step Explanation:
 For 1: The code does not encrypt or mutate its payload, so it lacks Polymorphism. It does not check for virtualized environments (like checking CPUID or specific registry keys), so there is no Anti-Virtualization. It does not look for attached debuggers (like calling \texttt{IsDebuggerPresent}), meaning no Anti-Debugging. It does feature Event-Triggered Code because the \texttt{while(1)} loop actively listens on a network socket and executes specific actions only when it receives corresponding command codes (1 through 5) from a remote controller.
 For 2: The malware does not encrypt files and demand payment, so it's not Ransomware. It acts as a remote-controlled agent that receives commands (e.g., start DDoS, send spam, download updates) from a Command and Control (C2) server, making it a classic Bot. It does not possess self-propagation mechanisms (like scanning networks and exploiting vulnerabilities to spread), so it is not a Worm. It does not modify the operating system kernel or employ hooking to hide its presence, meaning it is not a Rootkit.
 
@@ -2359,7 +2359,7 @@ For 2: The malware does not encrypt files and demand payment, so it's not Ransom
 Neo Tokyo 3 is a town in Japan equipped with advanced defense technologies to protect its civilians from attacks by the Angels... Gendo Ikari... has sent you a sample of the malware for analysis.
 01 int main() {
 02 int ecx;
-03 \_\_asm\_\_ (
+03 __asm__ (
 04 "mov eax, 1" // Sets the parameter of the CPUID instruction
 05 "cpuid" // Execute the CPUID instruction
 06 : "=c"(ecx) // Stores the result in the ecx variable
@@ -2368,7 +2368,7 @@ Neo Tokyo 3 is a town in Japan equipped with advanced defense technologies to pr
 09 if ((ecx >> 31) \& 0x1) // Checks if the 31th bit of ecx is 0x1
 10 exit();
 11 else
-12 malicious\_stuff(); // Call the malicious code
+12 malicious_stuff(); // Call the malicious code
 13 }
 [2 points] 1. This malware employs one evasive technique? Please explicitly state which evasive technique is being employed, and explain how it works in this particular case.
 [2 points] 2. Which type of analysis would you apply to the collected sample? Please state also why it is applicable, and how you would conduct such an analysis.
@@ -2379,15 +2379,15 @@ Neo Tokyo 3 is a town in Japan equipped with advanced defense technologies to pr
 The malware executes the \texttt{cpuid} instruction with \texttt{eax} set to \texttt{1}. As the hint explains, this queries processor features, returning the results in \texttt{ecx}.
 Line 09 checks: \texttt{if ((ecx >> 31) \& 0x1)}. This isolates the 31st bit of the \texttt{ecx} register.
 According to the hint, on physical Intel hardware, this bit is always 0. However, hypervisors (like Microsoft Hyper-V, VMware, VirtualBox) set this bit to 1 to indicate to the guest OS that it is running inside a Virtual Machine.
-If the bit is 1, the malware calls \texttt{exit()} and terminates without doing anything malicious. If it is 0, it proceeds to \texttt{malicious\_stuff()}.
+If the bit is 1, the malware calls \texttt{exit()} and terminates without doing anything malicious. If it is 0, it proceeds to \texttt{malicious_stuff()}.
 This technique is called \textbf{Anti-Virtualization (or VM Evasion)}. Security analysts usually run malware inside sandboxed Virtual Machines to observe its behavior safely. By detecting the VM and exiting, the malware hides its true malicious nature from the automated sandbox analysis.
 
 \textbf{Step 2: Choosing an Analysis Method.}
 We have two main options: Static Analysis (examining the code without running it) and Dynamic Analysis (observing its behavior while running).
 \begin{itemize}
-    \item \textbf{Static Analysis:} This is highly applicable here. The code is provided in clear assembly. It is not packed, encrypted, or heavily obfuscated. An analyst can simply open the executable in a disassembler (like IDA Pro or Ghidra), read the \texttt{cpuid} check, understand the logic, and manually analyze the \texttt{malicious\_stuff()} function to determine its intent. Furthermore, signature-based detection (creating a hash or byte sequence rule of the binary) would easily flag this specific file.
+    \item \textbf{Static Analysis:} This is highly applicable here. The code is provided in clear assembly. It is not packed, encrypted, or heavily obfuscated. An analyst can simply open the executable in a disassembler (like IDA Pro or Ghidra), read the \texttt{cpuid} check, understand the logic, and manually analyze the \texttt{malicious_stuff()} function to determine its intent. Furthermore, signature-based detection (creating a hash or byte sequence rule of the binary) would easily flag this specific file.
     \item \textbf{Dynamic Analysis:} If we want to observe it dynamically, the standard sandbox will fail because of the evasion. To make it work, we must bypass the check:
-    \item[\textbf{1.}] *Patch the binary:* Open the file in a hex editor and change the conditional jump (e.g., \texttt{jz} to \texttt{jnz}, or replace the check with \texttt{NOP}s) so it always calls \texttt{malicious\_stuff()}.
+    \item[\textbf{1.}] *Patch the binary:* Open the file in a hex editor and change the conditional jump (e.g., \texttt{jz} to \texttt{jnz}, or replace the check with \texttt{NOP}s) so it always calls \texttt{malicious_stuff()}.
     \item[\textbf{2.}] *Hardened Sandbox:* Use a specially configured hypervisor that deliberately lies and returns \texttt{0} for the 31st bit of \texttt{ecx} when \texttt{cpuid} is called.
     \item[\textbf{3.}] *Bare-Metal Analysis:* Run the malware on a dedicated physical laptop (no hypervisor) equipped with monitoring tools (like Wireshark, Process Monitor).
 
@@ -2417,7 +2417,7 @@ This technique is called \textbf{Metamorphism}. Metamorphic malware rewrites its
 \subsection{Exercise 6 - Malware}
 \subsubsection*{Problem}
 The information system of Penacony has been infected with malware. Suppose the malware has been written to work on Linux systems.
-[C Code snippet shows the use of signal(SIGTRAP, bad\_stuff), a sleep calculated based on the timestamp of 22/06/2024, and a call to raise(SIGTRAP)]
+[C Code snippet shows the use of signal(SIGTRAP, bad_stuff), a sleep calculated based on the timestamp of 22/06/2024, and a call to raise(SIGTRAP)]
 
 \begin{itemize}
     \item[\textbf{1.}] [3 points] Which stealth techniques does this malware employ? Please explain how they are implemented in this particular case. Please note: giving vague answers and naming wrong techniques will make you lose points.
@@ -2434,21 +2434,21 @@ The information system of Penacony has been infected with malware. Suppose the m
     \item *Implementation*: The malware checks the current system time against a hardcoded future timestamp (the Charmony Festival date). It calculates the difference and calls \texttt{sleep()}, remaining entirely dormant until that exact moment.
     \item *Purpose*: This evades automated dynamic analysis sandboxes, which typically only monitor program execution for a few minutes before terminating it, resulting in a false "benign" classification.
     \item[\textbf{2.}] \textbf{Anti-Debugging via Signal Manipulation}:
-    \item *Implementation*: Debuggers use the \texttt{SIGTRAP} signal to pause execution and handle breakpoints. The malware registers a custom handler for \texttt{SIGTRAP} that triggers the actual malicious payload (\texttt{bad\_stuff()}). Later, it artificially raises \texttt{SIGTRAP} on itself.
+    \item *Implementation*: Debuggers use the \texttt{SIGTRAP} signal to pause execution and handle breakpoints. The malware registers a custom handler for \texttt{SIGTRAP} that triggers the actual malicious payload (\texttt{bad_stuff()}). Later, it artificially raises \texttt{SIGTRAP} on itself.
     \item *Purpose*: If run normally, the OS delivers the signal, and the payload executes. If run inside a debugger, the debugger intercepts the \texttt{SIGTRAP} (assuming it hit a breakpoint) and suppresses it from the application. Consequently, the payload function is never called, hiding the malicious behavior from the analyst.
 
 \end{itemize}
 \textbf{Question 2: Malware Analysis Methodology}
 Given the presence of sleep-based time bombs and robust anti-debugging features, we must apply \textbf{Static Analysis} (examining the code without running it).
-*Motivation*: Attempting dynamic analysis would fail; the program would either sleep indefinitely or the debugger would swallow the trigger signal. By using static tools like disassemblers or decompilers, an analyst can inspect the full control flow graph and discover the \texttt{bad\_stuff()} payload directly.
+*Motivation*: Attempting dynamic analysis would fail; the program would either sleep indefinitely or the debugger would swallow the trigger signal. By using static tools like disassemblers or decompilers, an analyst can inspect the full control flow graph and discover the \texttt{bad_stuff()} payload directly.
 *Assumptions*: We assume the binary is not heavily obfuscated or packed in a way that defeats static disassembly.
 
 \textbf{Question 3: Variant Analysis (Polymorphism)}
 *New Technique*: \textbf{Polymorphism / Simple Packing (Code Obfuscation via XOR)}.
-*Implementation*: The new variant contains an encrypted payload. At runtime, the \texttt{main} function loops over the memory of the \texttt{init\_program} function, applying a bitwise XOR operation (\texttt{^= 0x43}) to decrypt the instructions before executing them. This defeats static signature-based detection (Antivirus).
+*Implementation*: The new variant contains an encrypted payload. At runtime, the \texttt{main} function loops over the memory of the \texttt{init_program} function, applying a bitwise XOR operation (\texttt{^= 0x43}) to decrypt the instructions before executing them. This defeats static signature-based detection (Antivirus).
 *Analysis Technique*: We must use a \textbf{Hybrid Analysis Approach}.
 \begin{itemize}
-    \item[\textbf{1.}] \textbf{Dynamic Analysis}: We execute the malware inside a controlled debugger, placing a breakpoint *after* the decryption loop finishes but *before* \texttt{init\_program()} is called.
+    \item[\textbf{1.}] \textbf{Dynamic Analysis}: We execute the malware inside a controlled debugger, placing a breakpoint *after* the decryption loop finishes but *before* \texttt{init_program()} is called.
     \item[\textbf{2.}] \textbf{Memory Dumping}: We extract the decrypted memory segment to disk.
     \item[\textbf{3.}] \textbf{Static Analysis}: We then apply static analysis to the decrypted memory dump to understand the true payload.
 \end{itemize}
@@ -2460,12 +2460,12 @@ Malware Inc. hires you to increase the efficiency of their malware. The snippet 
 AV Companies detect this malware using signature matching.
 \begin{itemize}
     \item[\textbf{1.}] [1 Point] Briefly state which kind of analysis (static or dynamic) is signature matching, how it works, and its limitations.
-    \item[\textbf{2.}] [2 Point] An AV company states they found the best signature: â€œc7 46 04 e0 b1 00 00 c7 46 08 09 0e 7b 62â€ (bytes at offset 0x17 and 0x1e). Write a metamorphic version of the malware bypassing this signature.
-    \item[\textbf{3.}] [3 Points] The AV company discovered your new technique. The new signature is â€œc7 46 08 09 0e 7b 62â€. Write a new metamorphic version defeating this. (Remember DWORD is 32-bit).
+    \item[\textbf{2.}] [2 Point] An AV company states they found the best signature: â€œc7 46 04 e0 b1 00 00 c7 46 08 09 0e 7b 62â€ (bytes at offset 0x17 and 0x1e). Write a metamorphic version of the malware bypassing this signature.
+    \item[\textbf{3.}] [3 Points] The AV company discovered your new technique. The new signature is â€œc7 46 08 09 0e 7b 62â€. Write a new metamorphic version defeating this. (Remember DWORD is 32-bit).
 \end{itemize}
 
 \subsubsection*{Solution}
-### 1. Signature Matching Analysis
+\#\#\# 1. Signature Matching Analysis
 \textbf{Step-by-Step Reasoning:}
 \begin{itemize}
     \item \textbf{Analysis Type:} Signature matching is a form of \textbf{Static Analysis}. It analyzes the file without executing it.
@@ -2473,7 +2473,7 @@ AV Companies detect this malware using signature matching.
     \item \textbf{Limitations:} It is purely reactive; it can only detect malware that is already known and analyzed. It is highly susceptible to evasion techniques like Obfuscation (encrypting or packing the payload), Polymorphism (changing the decryption routine on each infection), and Metamorphism (rewriting the entire code body to look different while maintaining the same functionality).
 
 \end{itemize}
-### 2. Defeating the First Signature (Simple Metamorphism)
+\#\#\# 2. Defeating the First Signature (Simple Metamorphism)
 \textbf{Step-by-Step Reasoning:}
 \begin{itemize}
     \item The signature is exactly the byte sequence of two adjacent instructions:
@@ -2483,7 +2483,7 @@ AV Companies detect this malware using signature matching.
 \begin{itemize}
     \item Metamorphism involves altering the code structure without changing its semantics.
     \item \textbf{Bypass:} The easiest way to break a contiguous byte signature is to inject "junk" code that does nothing, right in the middle of the targeted sequence.
-    \item \textbf{Code:} Inserting a \texttt{nop} (No Operation, byte \texttt{\x90}) instruction splits the sequence.
+    \item \textbf{Code:} Inserting a \texttt{nop} (No Operation, byte \texttt{\textbackslash{}x90}) instruction splits the sequence.
 \end{itemize}
 \texttt{}`assembly
 mov DWORD PTR [rsi+4],0xb1e0
@@ -2491,7 +2491,7 @@ nop    ; This breaks the signature!
 mov DWORD PTR [rsi+8],0x627b0e09
 \texttt{}`
 
-### 3. Defeating the Second Signature (Advanced Metamorphism)
+\#\#\# 3. Defeating the Second Signature (Advanced Metamorphism)
 \textbf{Step-by-Step Reasoning:}
 \begin{itemize}
     \item The new signature specifically targets the instruction that loads the IP address:
@@ -2525,8 +2525,8 @@ Step-by-Step Solution:
 
 \begin{itemize}
     \item[\textbf{1.}] Anti-Analysis Techniques:
-    \item Anti-Debugging: The code executes \texttt{1 / 0}, intentionally triggering a \texttt{SIGFPE} exception. Debuggers usually intercept error signals and halt, preventing the custom signal handler \texttt{sig\_handler} from running. This disrupts dynamic analysis in a debugger.
-    \item Polymorphism / Obfuscation: The payload is encrypted (\texttt{decrypt(buffer, key, bytecode\_len)}). This hides the actual malicious code from static analysis tools until it is decrypted at runtime.
+    \item Anti-Debugging: The code executes \texttt{1 / 0}, intentionally triggering a \texttt{SIGFPE} exception. Debuggers usually intercept error signals and halt, preventing the custom signal handler \texttt{sig_handler} from running. This disrupts dynamic analysis in a debugger.
+    \item Polymorphism / Obfuscation: The payload is encrypted (\texttt{decrypt(buffer, key, bytecode_len)}). This hides the actual malicious code from static analysis tools until it is decrypted at runtime.
 
     \item[\textbf{2.}] Improved Malware Distribution:
     \item Metamorphic Solution: The attacker should generate versions of the malware that are syntactically different but semantically identical (e.g., using instruction substitution, reordering, and inserting junk code). All versions can use the same key, but the decryption routine itself changes signature.
@@ -2546,11 +2546,11 @@ Step-by-Step Solution:
 
 \begin{itemize}
     \item[\textbf{1.}] Anti-Analysis Techniques Present:
-    \item Anti-Virtualization: YES. The code uses \texttt{\_\_rdtsc()} before and after executing the \texttt{cpuid} instruction. In a virtualized environment (like an analysis sandbox), \texttt{cpuid} causes a VM-Exit to the hypervisor, which takes significantly more clock cycles than a native execution. The malware measures this time difference (\texttt{r2 - r1}) to detect if it's running in a VM.
+    \item Anti-Virtualization: YES. The code uses \texttt{__rdtsc()} before and after executing the \texttt{cpuid} instruction. In a virtualized environment (like an analysis sandbox), \texttt{cpuid} causes a VM-Exit to the hypervisor, which takes significantly more clock cycles than a native execution. The malware measures this time difference (\texttt{r2 - r1}) to detect if it's running in a VM.
     \item Polymorphism / Event-Triggered / Anti-Debugging: NO. None of these are correctly implemented in the provided snippet.
 
     \item[\textbf{2.}] Fixing the Implementation:
-    \item The current implementation is flawed: \texttt{#define THRESHOLD 0}.
+    \item The current implementation is flawed: \texttt{\#define THRESHOLD 0}.
     \item Issue: \texttt{cpuid} *always* takes more than 0 clock cycles to execute, even on bare metal. Therefore, \texttt{r2 - r1 > 0} will always evaluate to true, and the malware will always exit (\texttt{exit(-1)}), never reaching the malicious payload.
     \item Improvement: The attacker must profile the execution time of \texttt{cpuid} on bare metal vs. virtualized hardware. The \texttt{THRESHOLD} should be set to a value higher than the average bare-metal cycles but lower than the typical VM-Exit cycles (e.g., \texttt{THRESHOLD 1000}). This ensures the malware only exits when it confidently detects a hypervisor.
 \end{itemize}
@@ -2573,7 +2573,7 @@ Step-by-Step Solution:
     \item Metamorphism: The malware includes a mutation engine that rewrites its own code. It modifies the assembly instructions (e.g., swapping registers, replacing instructions with equivalent ones like \texttt{xor eax, eax} vs \texttt{mov eax, 0}, inserting junk instructions) without changing the program's logic. The resulting binary is structurally different, evading signature detection without needing encryption.
 
     \item[\textbf{3.}] Malware Analysis Approach:
-    \item Since this specific snippet lacks encryption and meaningful obfuscation, Static Analysis is highly effective. You can open the binary in a disassembler (like IDA Pro or Ghidra) and directly analyze the \texttt{evil\_bytecode} array.
+    \item Since this specific snippet lacks encryption and meaningful obfuscation, Static Analysis is highly effective. You can open the binary in a disassembler (like IDA Pro or Ghidra) and directly analyze the \texttt{evil_bytecode} array.
     \item Dynamic Analysis can also be used. You must patch out the \texttt{sleep(500)} instruction to bypass the time delay, then run the binary in a debugger to observe the memory mapping (\texttt{mmap}) and the execution of the injected code.
 \end{itemize}
 
@@ -2586,11 +2586,11 @@ Step-by-Step Solution:
 
 \begin{itemize}
     \item[\textbf{1.}] Anti-Analysis Techniques Present:
-    \item Anti-Debugging: YES. The code uses \texttt{SetUnhandledExceptionFilter} to register a custom exception handler (\texttt{excep\_DebugBreak}). It then intentionally calls \texttt{DebugBreak()} to trigger a breakpoint exception. If a debugger is attached, it will intercept the exception and pause execution, preventing the custom handler from running.
-    \item Dormant Code (Time-based Evasion): YES. The code attempts to delay execution using \texttt{usleep(10)} before triggering \texttt{malicious\_actions()}.
+    \item Anti-Debugging: YES. The code uses \texttt{SetUnhandledExceptionFilter} to register a custom exception handler (\texttt{excep_DebugBreak}). It then intentionally calls \texttt{DebugBreak()} to trigger a breakpoint exception. If a debugger is attached, it will intercept the exception and pause execution, preventing the custom handler from running.
+    \item Dormant Code (Time-based Evasion): YES. The code attempts to delay execution using \texttt{usleep(10)} before triggering \texttt{malicious_actions()}.
 
     \item[\textbf{2.}] Implementation Flaws and Improvements:
-    \item Flawed Anti-Debugging: The logic relies on the \texttt{flag} variable. It initializes \texttt{flag = 1}. The exception handler sets \texttt{flag = 0}. The main function checks \texttt{if (flag) { malicious\_actions(); }}.
+    \item Flawed Anti-Debugging: The logic relies on the \texttt{flag} variable. It initializes \texttt{flag = 1}. The exception handler sets \texttt{flag = 0}. The main function checks \texttt{if (flag) { malicious_actions(); }}.
     \item The Mistake: If NO debugger is present, the handler runs, sets \texttt{flag = 0}, and the \texttt{if (flag)} evaluates to false, meaning the malware *does not execute*. If a debugger IS present, it intercepts the exception, the handler never runs, \texttt{flag} remains 1, and the malware *executes*. This is the exact opposite of intended behavior.
     \item Improvement: Change the condition to \texttt{if (!flag)} so malicious actions only run if the custom handler successfully executed.
     \item Flawed Dormant Code: \texttt{usleep(10)} sleeps for 10 microseconds. This is a microscopic delay that will instantly bypass without draining any meaningful time in a sandbox.
@@ -2612,7 +2612,7 @@ A national energy provider has rolled out 'SmartMeters' to residential homes... 
     \item[\textbf{1.3}] Weakness: Lack of Mutual Authentication. The protocol only authenticates the terminal to the meter. It does not authenticate the meter to the terminal. An attacker could install a fake meter to harvest the terminal's responses or trick the technician. Mitigation: Implement Mutual Authentication where both parties verify each other's identity, ideally using digital certificates (PKI) rather than a simple shared secret hash.
 
 \end{itemize}
-### Improved Step-by-Step Explanation:
+\#\#\# Improved Step-by-Step Explanation:
 For 1: The 'remote disconnect' feature is highly critical; mass exploitation directly impacts the national power grid, a prime target for nation-state attackers aiming for disruption. The granular power usage data acts as a proxy for physical presence, making it a valuable asset for criminals planning burglaries. Understanding these assets and their associated threats is key to prioritizing security measures.
 For 1.2: The optical port represents a local, physical attack surface, compounded by its use of an unencrypted, proprietary protocol that lacks robust security testing. The LTE interface represents a remote attack surface; despite using TLS 1.2, vulnerabilities in the TLS stack or insecure device configuration (e.g., open ports) could be exploited from anywhere on the cellular network.
 For 1.3: The proposed protocol is vulnerable to rogue devices. Because the terminal computes a response based on the meter's challenge without challenging the meter in return, the meter's identity is never verified. A malicious actor could spoof a meter, send challenges, and observe the terminal's valid responses. To fix this, the authentication must be mutual, ensuring that the terminal also challenges the meter and verifies its authenticity before proceeding.
@@ -2704,7 +2704,7 @@ The GPT-3 model, developed by OpenAI... company A.C.M.E. has instructed the mode
 Consider a dam equipped with a Supervisory Control And Data Acquisition (SCADA) system, an industrial control system used to monitor and control the dam's operations. The SCADA system collects data from various sensors (e.g., water level, flow rate, temperature) and sends it to a central control room, where operators can monitor the dam's status and make adjustments as needed. The system also controls the opening and closing of gates and valves, as well as the operation of pumps and turbines. The SCADA system is connected to the Internet for remote monitoring and control, and it uses a combination of wired and wireless communication protocols.
 [1.5 points] 1. Identify and describe two relevant assets at risk in such a scenario, along with their associated threats and threat agents. All elements must be motivated.
 [1 point] 2. Suggest at least two potential attack surfaces for the infrastructure under analysis.
-[1.5 points] 3. A friend of yours suggests using a custom challenge and response protocol to authenticate devices for â€œremote monitoring and controlâ€ that works as follows: devices involved in the communication have to share the SHA3 of a preshared secret, securely stored in each device. If the hashes match on both endpoints, the authentication is successful. Highlight the weaknesses of the proposed protocol and suggest a modification to make it working.
+[1.5 points] 3. A friend of yours suggests using a custom challenge and response protocol to authenticate devices for â€œremote monitoring and controlâ€ that works as follows: devices involved in the communication have to share the SHA3 of a preshared secret, securely stored in each device. If the hashes match on both endpoints, the authentication is successful. Highlight the weaknesses of the proposed protocol and suggest a modification to make it working.
 
 \subsubsection*{Solution}
 \textbf{Step 1: Identifying Assets, Threats, and Threat Agents.}
@@ -2730,7 +2730,7 @@ The proposed protocol just sends \texttt{SHA3(secret)} over the network.
 
 \end{itemize}
 \textbf{How to fix it:}
-To prevent replay attacks, we need *freshness*. We can introduce a \textbf{Nonce} (number used once). The control server sends a random nonce \$N\$, and the device replies with \texttt{HMAC(secret, N)}. This guarantees the response is fresh for this specific session. To ensure the device also trusts the server, we need \textbf{Mutual Authentication}: the device also sends a nonce \$M\$ to the server, and the server replies with \texttt{HMAC(secret, M)}. Finally, instead of plain hashing, using a standard construct like \textbf{HMAC} prevents length-extension attacks and properly mixes the key and the message.
+To prevent replay attacks, we need *freshness*. We can introduce a \textbf{Nonce} (number used once). The control server sends a random nonce $N$, and the device replies with \texttt{HMAC(secret, N)}. This guarantees the response is fresh for this specific session. To ensure the device also trusts the server, we need \textbf{Mutual Authentication}: the device also sends a nonce $M$ to the server, and the server replies with \texttt{HMAC(secret, M)}. Finally, instead of plain hashing, using a standard construct like \textbf{HMAC} prevents length-extension attacks and properly mixes the key and the message.
 
 \subsection{Exercise 1 - Introduction to Computer Security}
 \subsubsection*{Problem}
@@ -2804,7 +2804,7 @@ Answer the following questions, considering the security implications of drone u
 [1 point] 3. As a password recovery scheme, the company decides to implement the following mechanism: when a user asks to reset their password, an email is sent to the user with a new randomly generated password. This password is created by combining a randomly selected word (up to 9 lower case characters) from a dictionary of animal names with a randomly generated 3-digit number (e.g., "dolphin451"). Analyze the security of this password recovery scheme. Identify its potential weaknesses and suggest improvements to enhance its security.
 
 \subsubsection*{Solution}
-### 1. Identifying Assets, Threats, and Threat Agents
+\#\#\# 1. Identifying Assets, Threats, and Threat Agents
 \textbf{Step-by-Step Reasoning:}
 When identifying assets, we look for data, hardware, or systems critical to the operation or containing sensitive information.
 \begin{itemize}
@@ -2818,7 +2818,7 @@ When identifying assets, we look for data, hardware, or systems critical to the 
     \item *Threat Agent:* Criminals aiming to steal the hardware, competitors seeking to disrupt operations, or malicious actors wanting to repurpose the drones.
 
 \end{itemize}
-### 2. Vulnerabilities, Exploits, and Countermeasures
+\#\#\# 2. Vulnerabilities, Exploits, and Countermeasures
 \textbf{Step-by-Step Reasoning:}
 We analyze the scenario description for outdated technologies or insecure practices.
 \begin{itemize}
@@ -2831,7 +2831,7 @@ We analyze the scenario description for outdated technologies or insecure practi
     \item *Countermeasure:* Enforce HTTPS (TLS 1.2/1.3) to encrypt data in transit. Replace MD5 with a strong, slow hashing algorithm like Argon2, bcrypt, or at least SHA-256 with proper salting.
 
 \end{itemize}
-### 3. Password Recovery Scheme Analysis
+\#\#\# 3. Password Recovery Scheme Analysis
 \textbf{Step-by-Step Reasoning:}
 To evaluate the password strength, we calculate the entropy (the number of possible combinations).
 \begin{itemize}
@@ -2945,8 +2945,8 @@ Step-by-Step Solution:
 \end{itemize}
 
 
-\section{Introduction to Computer Security & Access Control}
-Exercises for Introduction to Computer Security & Access Control
+\section{Introduction to Computer Security \& Access Control}
+Exercises for Introduction to Computer Security \& Access Control
 
 \subsection{Exercise 1 - Introduction to Computer Security \& Access Control}
 \subsubsection*{Problem}
@@ -2970,8 +2970,8 @@ In a company, each employee works in an open space. We need to design proper pol
 \textbf{03.} Given the threat of shoulder surfing, the most important characteristic to enforce in the password policy is \textbf{length} (e.g., favoring passphrases). A longer password is much harder to memorize by simply glancing at someone typing, whereas short but complex passwords can sometimes be caught by watching the keyboard strokes. Additionally, avoiding forced frequent expiration helps prevent users from writing their passwords down on easily visible sticky notes.
 
 
-\section{Introduction to Computer Security & Auth}
-Exercises for Introduction to Computer Security & Auth
+\section{Introduction to Computer Security \& Auth}
+Exercises for Introduction to Computer Security \& Auth
 
 \subsection{Exercise 1 - Introduction to Computer Security \& Auth}
 \subsubsection*{Problem}
@@ -2987,7 +2987,7 @@ A university department uses WeBibBip, a web application for a programming cours
     \item[\textbf{1.2}] M2 is the best choice because it reduces the overall risk on more valid risk lines than the other proposed countermeasures. It reduces C1, because rate limiting makes credential guessing and brute-force attacks against student accounts less likely. It also reduces C3, because rate limiting reduces the likelihood of service disruption caused by flooded requests. M1 also reduces C1, but it only affects one line. M3 is related to uploaded files, but it does not directly reduce any of the valid risk lines identified in Question 1.1, because the table does not include a file-integrity/tampering risk. Therefore, under the limited budget, M2 gives the largest reduction of the overall risk.
 
 \end{itemize}
-### Improved Step-by-Step Explanation:
+\#\#\# Improved Step-by-Step Explanation:
 For 1.1, understanding risk components is crucial. C2 Likelihood is low because even with a stolen password, the attacker lacks the second factor for MFA. C3 Likelihood is high as the lack of rate limiting makes a flood of requests easily lead to disruption. C5 Likelihood is low because HTTPS encrypts the traffic, mitigating data sniffing. C6 Asset is invalid since grades are managed in a separate system. C7 Asset is public by design, so leakage isn't a threat. C8 Asset is managed externally, making physical damage an accepted or transferred risk out of the department's direct scope.
 For 1.2, we must look at the overall impact across all valid risks. M1 only mitigates C1. M3 doesn't mitigate any listed valid risk. M2 mitigates both C1 (by slowing down brute-force attacks) and C3 (by limiting the flood of requests). Therefore, M2 offers the highest risk reduction for the given budget.
 
@@ -3008,8 +3008,8 @@ You know that both are OTP ciphertexts, encrypted with the same key.
     \item[\textbf{2.}] [1 point] What was the key k? Explain a procedure to obtain the key
     \item[\textbf{3.}] [2 points] Suppose now that the encryption algorithm is modified as follows:
 \end{itemize}
-EAVESDROP'(m \in {0, 1}^\lambda):
-k <- {0, 1}^\lambda
+EAVESDROP'(m \in {0, 1}\textasciicircum{}\lambda):
+k <- {0, 1}\textasciicircum{}\lambda
 c := k XOR m
 return (k, c)
 Please, explain the weakness of the proposed approach.
@@ -3039,8 +3039,8 @@ This provides the secret key.
 \textbf{3.} The proposed encryption algorithm EAVESDROP' generates a random key \texttt{k}, computes the ciphertext \texttt{c = k XOR m}, but critically, it returns the pair \texttt{(k, c)}. The weakness is fundamental: by returning the key alongside the ciphertext, anyone who intercepts the message immediately possesses the key required to decrypt it. The attacker simply needs to compute \texttt{m = c XOR k}. This approach completely defeats the purpose of encryption, offering zero confidentiality.
 
 
-\section{Introduction to Computer Security & Authentication}
-Exercises for Introduction to Computer Security & Authentication
+\section{Introduction to Computer Security \& Authentication}
+Exercises for Introduction to Computer Security \& Authentication
 
 \subsection{Exercise 1 - Introduction to Computer Security \& Authentication}
 \subsubsection*{Problem}
@@ -3051,7 +3051,7 @@ Consider ad-blocking browser extensions designed to enhance web browsing by elim
 [2 points] 2. Suggest the most likely potential threats and threat agents against such infrastructure and their operating companies.
 
 \subsubsection*{Solution}
-### Question 1: Relevant Assets at Risk
+\#\#\# Question 1: Relevant Assets at Risk
 
 \begin{itemize}
     \item[\textbf{1.}] \textbf{User Privacy and Data Security:}
@@ -3063,7 +3063,7 @@ Consider ad-blocking browser extensions designed to enhance web browsing by elim
     \item *Deeper Explanation:* Extensions execute code within the browser's context. Resource exhaustion (CPU/Memory leaks) directly impacts availability. Furthermore, if the extension is a trojan (e.g., acts as an ad-blocker but secretly mines cryptocurrency or acts as a proxy for a botnet), the underlying system's integrity is breached.
 
 \end{itemize}
-### Question 2: Threats and Threat Agents
+\#\#\# Question 2: Threats and Threat Agents
 
 \begin{itemize}
     \item[\textbf{1.}] \textbf{Threat Agent: Cybercriminals}

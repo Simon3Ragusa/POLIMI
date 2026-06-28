@@ -673,8 +673,8 @@ You know that both are OTP ciphertexts, encrypted with the same key.
     \item[\textbf{2.}] [1 point] What was the key k? Explain a procedure to obtain the key
     \item[\textbf{3.}] [2 points] Suppose now that the encryption algorithm is modified as follows:
 \end{itemize}
-EAVESDROP'(m \in {0, 1}\textasciicircum{}\lambda):
-k <- {0, 1}\textasciicircum{}\lambda
+EAVESDROP'($m \in \{0, 1\}^\lambda$):
+$k \gets \{0, 1\}^\lambda$
 c := k XOR m
 return (k, c)
 Please, explain the weakness of the proposed approach.
@@ -941,7 +941,7 @@ Assume that:
 19         scanf("\%8s", data->str\_p);
 20
 21         if (num == data->r){
-22             system("/bin/sh\0");
+22             system("/bin/sh\textbackslash{}0");
 23         }
 24     }
 25
@@ -968,7 +968,7 @@ Assume that:
     \item[\textbf{2.}] [2 points] 2. Focus only on the stack-based buffer overflow(s) you found. Write an exploit for this vulnerability that must execute the following shellcode, composed of 16 bytes, which opens a shell: 0x20 0x30 0x40 0x50 0x60 0x70 0x80 0x90.
     \item[\textbf{3.}] [2 points] Focus only on the format string vulnerability you found. Assume that you were able to find this working exploit to execute a piece of shellcode saved in an environment variable.
 \end{itemize}
-"\textbackslash{}xb6\textbackslash{}x06\textbackslash{}x3a\textbackslash{}x44\textbackslash{}xb8\textbackslash{}x06\textbackslash{}x3a\textbackslash{}x44\%26543c\%4$hn\%9529c\%5$hn"'`
+"\textbackslash{}xb6\textbackslash{}x06\textbackslash{}x3a\textbackslash{}x44\textbackslash{}xb8\textbackslash{}x06\textbackslash{}x3a\textbackslash{}x44\%26543c\\%4\$hn\%9529c\%5\$hn"'`
 \begin{itemize}
     \item[\textbf{4.}] [1 points] Consider ONLY the â€œNon-executable stack (NX)â€ mitigation technique. A friend of yours suggests that there is an alternative way to exploit the vulnerability/ies you found to spawn a privileged shell in the program without executing any shellcode or calling library functions.
 \end{itemize}
@@ -981,11 +981,11 @@ Assume that:
 
 \end{itemize}
 \textbf{2. Buffer Overflow Exploit:}
-\textbf{2.a)} To exploit the buffer overflow, we provide a \texttt{num} large enough to overflow \texttt{data.buf} and reach the return address of \texttt{main} (since \texttt{data} is stored in \texttt{main}'s stack frame). We must bypass the local canary check by correctly overwriting \texttt{data.canary} with "XXX\0".
+\textbf{2.a)} To exploit the buffer overflow, we provide a \texttt{num} large enough to overflow \texttt{data.buf} and reach the return address of \texttt{main} (since \texttt{data} is stored in \texttt{main}'s stack frame). We must bypass the local canary check by correctly overwriting \texttt{data.canary} with "XXX\textbackslash{}0".
 Assumptions: We load the 16-byte shellcode into an environment variable (e.g., \texttt{SHELLCODE}), which resides at a predictable high address (e.g., \texttt{0xbffffff0}).
 \begin{itemize}
     \item \texttt{argv[1]}: A value larger than the offset to the return address (e.g., 200).
-    \item \texttt{argv[2]}: A payload structured as: 64 bytes of junk (filling \texttt{buf}), followed by 4 bytes of junk (overwriting \texttt{str\_p}), followed by "XXX\0" (overwriting \texttt{canary}), followed by padding to overwrite \texttt{main}'s saved EBP, and finally the 4-byte address of the environment variable holding the shellcode, overwriting \texttt{main}'s saved return address.
+    \item \texttt{argv[2]}: A payload structured as: 64 bytes of junk (filling \texttt{buf}), followed by 4 bytes of junk (overwriting \texttt{str\_p}), followed by "XXX\textbackslash{}0" (overwriting \texttt{canary}), followed by padding to overwrite \texttt{main}'s saved EBP, and finally the 4-byte address of the environment variable holding the shellcode, overwriting \texttt{main}'s saved return address.
 
 \end{itemize}
 \textbf{2.b) Stack Layout (High to Low Addresses):}
@@ -993,7 +993,7 @@ Assumptions: We load the 16-byte shellcode into an environment variable (e.g., \
 [ argc, argv ]
 [ Return Address of main ] -> Overwritten with Address of Shellcode
 [ Saved EBP of main ] -> Overwritten with dummy bytes
-[ data.canary (4 bytes) ] -> Overwritten with "XXX\0"
+[ data.canary (4 bytes) ] -> Overwritten with "XXX\textbackslash{}0"
 [ data.str\_p (4 bytes) ] -> Overwritten with dummy bytes
 [ data.buf (64 bytes) ] -> Overwritten with junk bytes
 [ data.r (4 bytes) ]
@@ -1006,12 +1006,12 @@ The exploit writes a 32-bit address in two 16-bit halves using \texttt{\%hn}.
 \begin{itemize}
     \item \textbf{The address where we want to write}: The payload starts with the addresses \texttt{0x443a06b6} and \texttt{0x443a06b8}. These point to the two contiguous memory half-words of the saved return address on the stack.
     \item \textbf{What to write}: The characters printed so far dictate the value written by \texttt{\%hn}. First write: 8 bytes (addresses) + 26543 = 26551 (0x67B7) written to \texttt{0x443a06b6}. Second write: 26551 + 9529 = 36080 (0x8CF0) written to \texttt{0x443a06b8}. The final combined address pointing to the shellcode is \texttt{0x8CF067B7}.
-    \item \textbf{The displacement}: The format specifiers \texttt{\%4$hn} and \texttt{\%5$hn} indicate that the addresses to write to are located at the 4th and 5th positions (words) up the stack relative to the format string's processing pointer.
+    \item \textbf{The displacement}: The format specifiers \texttt{\\%4\$hn} and \texttt{\%5\$hn} indicate that the addresses to write to are located at the 4th and 5th positions (words) up the stack relative to the format string's processing pointer.
 
 \end{itemize}
 \textbf{4. NX Mitigation Alternative:}
 \begin{itemize}
-    \item \textbf{Buffer Overflow}: We can bypass NX entirely by leveraging the program's built-in backdoor logic (\texttt{system("/bin/sh\0")}). We set \texttt{argv[2]} to start with "backdoor" and pad it to overflow \texttt{buf}. We overwrite \texttt{data.str\_p} with the address of \texttt{data.r}. Because \texttt{str} starts with "backdoor", the program executes \texttt{scanf("\%8s", data->str\_p)}. Since \texttt{data.str\_p} now points to \texttt{data.r}, our \texttt{scanf} input from stdin overwrites \texttt{data.r}. If we provide the string representation of \texttt{num}, then \texttt{num == data->r} evaluates to true, triggering the built-in \texttt{system("/bin/sh")} call without needing an executable stack or external ROP chains.
+    \item \textbf{Buffer Overflow}: We can bypass NX entirely by leveraging the program's built-in backdoor logic (\texttt{system("/bin/sh\textbackslash{}0")}). We set \texttt{argv[2]} to start with "backdoor" and pad it to overflow \texttt{buf}. We overwrite \texttt{data.str\_p} with the address of \texttt{data.r}. Because \texttt{str} starts with "backdoor", the program executes \texttt{scanf("\%8s", data->str\_p)}. Since \texttt{data.str\_p} now points to \texttt{data.r}, our \texttt{scanf} input from stdin overwrites \texttt{data.r}. If we provide the string representation of \texttt{num}, then \texttt{num == data->r} evaluates to true, triggering the built-in \texttt{system("/bin/sh")} call without needing an executable stack or external ROP chains.
     \item \textbf{Format String}: We can use the \texttt{\%n} format specifier to achieve arbitrary write capabilities. We craft \texttt{str} to output exactly \texttt{num} characters, and then use \texttt{\%n} targeting the address of \texttt{data.r}. This overwrites \texttt{data.r} with the value of \texttt{num}, satisfying the condition \texttt{num == data->r} and successfully dropping into the privileged shell.
 \end{itemize}
 
@@ -1022,7 +1022,7 @@ Assume that:
 \begin{itemize}
     \item Environment variables are located in the highest addresses.
     \item The program is compiled for the x86 architecture (32 bit) and for an environment that adopts the usual cdecl calling convention. Furthermore, assume that no compiler-level or OS-level mitigations against the exploitation of memory corruption errors are present (unless specified otherwise).
-    \item \texttt{char *strcat(char *restrict s1, const char *restrict s2)} appends a copy of the null-terminated string s2 to the end of the null-terminated string s1, then adds a terminating '\0'.
+    \item \texttt{char *strcat(char *restrict s1, const char *restrict s2)} appends a copy of the null-terminated string s2 to the end of the null-terminated string s1, then adds a terminating '\textbackslash{}0'.
 
 \end{itemize}
 [1 point] 1. The program is affected by typical buffer overflow and format string vulnerabilities. Complete the following table, focusing on a vulnerability per row.
@@ -1066,7 +1066,7 @@ Assume that:
 | :--- | :--- | :--- |
 | \texttt{sEIP} (Return Addr) | Original Return Addr | \textbf{Address of NOP sled} (Overwritten) |
 | \texttt{sEBP} | Original EBP | Overwritten by NOPs/Shellcode |
-| \texttt{data.token[0-15]} | \texttt{secret} + \texttt{\0} | \texttt{secret} + \texttt{NOPs}... |
+| \texttt{data.token[0-15]} | \texttt{secret} + \texttt{\textbackslash{}0} | \texttt{secret} + \texttt{NOPs}... |
 | \texttt{data.msg} | Address of \texttt{msg1} | Untouched (located at lower address than token) |
 | \texttt{data.msg1[0-15]} | "Token generated" | Untouched |
 | \texttt{data.secret[0-7]} | \texttt{secret} content | Untouched |
@@ -1177,7 +1177,7 @@ C program with scramble() function... The program is affected by typical buffer 
 \begin{itemize}
     \item \textbf{Goal}: Use \texttt{\%n} to overwrite a specific memory location.
     \item \textbf{Mechanism}: The attacker calculates the exact integer values needed to write the target address byte-by-byte using \texttt{\%hn} (half-word writes).
-    \item \textbf{Payload Construction}: The payload looks like \texttt{\textbackslash{}xe6\textbackslash{}xfe...\%(54260-8)c\%7$hn\%(58964-54260)c\%8$hn}. Because the \texttt{scanf} restricts input to 15 characters, this long payload must be split across the multiple iterations of the \texttt{scramble} loop. The first half is injected during one iteration, and the second half during the next, carefully aligning the stack pointers so \texttt{printf} evaluates the concatenated format string correctly to overwrite the target.
+    \item \textbf{Payload Construction}: The payload looks like \texttt{\textbackslash{}xe6\textbackslash{}xfe...\%(54260-8)c\\%7\$hn\%(58964-54260)c\\%8\$hn}. Because the \texttt{scanf} restricts input to 15 characters, this long payload must be split across the multiple iterations of the \texttt{scramble} loop. The first half is injected during one iteration, and the second half during the next, carefully aligning the stack pointers so \texttt{printf} evaluates the concatenated format string correctly to overwrite the target.
 \end{itemize}
 
 \subsection{Exercise 3 - Binary Vulnerabilities}

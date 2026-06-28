@@ -16,13 +16,15 @@
 
 \maketitle
 
+\tableofcontents
+
 \section{Introduction}
 
-Notebook
+This document contains theoretical notes on Computer Security.
 
 \section{Cryptography}
 
-Tries to guarantee
+Cryptography is the study of secure communication techniques that aim to guarantee confidentiality, integrity, and authenticity for data in transit and at rest.
 
 \begin{figure}[H] \centering \includegraphics[width=0.8\textwidth]{media/image1.png} \end{figure}
 
@@ -100,9 +102,9 @@ $$c = p \oplus k$$
 
 The key must be random, as long as the message and used only once. This system is a \textbf{perfect cipher}. The main problem is key management (huge size and huge number of keys). Furthermore, the system becomes insecure if key is stolen or reused. Additionally, generating truly random keys is challenging.
 
-Hence, \textbf{Perfectly secure != Perfectly usable}
+Hence, a perfectly secure system is not necessarily perfectly usable.
 
-Because \textbf{Perfectly secure != Perfectly usable}, modern cryptography relies on \textbf{computationally secure ciphers} instead.
+Because perfect security often conflicts with practical usability, modern cryptography relies on \textbf{computationally secure ciphers} instead.
 
 In real world scenarios, the cryptographic algorithms used are \textbf{not perfect}, mainly because the \textbf{key space is smaller than the plaintext space} ($| K | < | P |$).
 
@@ -205,11 +207,7 @@ Once the seed is fixed, the entire function is fixed. The advantage is that we d
 
 The important property is that an efficient attacker, that is, one working in polynomial time, cannot distinguish a PRF from a truly random function.
 
-So:
-
-PRF $\approx$ RF
-
-from the point of view of an efficient attacker.
+Therefore, a Pseudorandom Function (PRF) is practically indistinguishable from a Random Function (RF) from the perspective of an efficient, computationally bounded attacker.
 
 Then the \textbf{Pseudorandom Permutation (PRP)} is introduced, which solves the main problem of PRFs, namely that they are injective but not bijective.
 
@@ -344,10 +342,8 @@ Conceptual example:
 
 Pay 10 becomes Pay 90 if the attacker manages to modify the right bits.
 
-Therefore:
-
-encryption $\neq$ integrity
-Encryption alone hides the content, but does not guarantee that the message has not been modified.
+Therefore, encryption does not equate to integrity.
+Encryption alone hides the content, but it does not guarantee that the message has not been secretly modified.
 
 \paragraph*{MACs}
 
@@ -398,7 +394,7 @@ The problem arises because in CBC-MAC the final tag is also the \textbf{final st
 
 Therefore, if an attacker knows a valid pair they can use t as if it were \textbf{the new initial value} and continue the computation on other blocks.
 
-A B C TAG1, if I have A B C D TAG2, to obtain TAG2 I just need to resume the computation from TAG1.
+For instance, given a message block sequence A B C that produces TAG1, an attacker attempting to forge TAG2 for the sequence A B C D only needs to resume the computation from TAG1 rather than starting from the beginning.
 
 In this way, they can construct a valid tag for a longer message without knowing the key. This is called an \textbf{extension attack}.
 
@@ -410,9 +406,7 @@ So the extension attack does not work, because the extended message would not be
 
 \textbf{Why encrypting the tag again helps}
 
-A possible fix is to encrypt the final result once more:
-
-This way the attacker no longer directly sees the \textbf{final internal state} of the CBC-MAC.
+A possible fix is to encrypt the final result once more. This way, the attacker no longer directly observes the \textbf{final internal state} of the CBC-MAC.
 
 They only see a transformed/encrypted version of the state. Therefore, they cannot reuse the tag as a starting point to continue the chain.
 
@@ -480,9 +474,7 @@ It must be difficult to find any pair of different inputs that give the same has
 
 Here the attacker does not start from a specific message: they can freely choose both inputs.
 
-Second preimage = given a message, find me another one with the same hash
-
-Collision = find any two messages with the same hash
+To clarify the distinction: second preimage resistance means that given a specific message, it is difficult to find another message with the same hash. Collision resistance means that it is difficult to find any two arbitrary messages that produce the same hash.
 
 \begin{figure}[H] \centering \includegraphics[width=0.8\textwidth]{media/image31.png} \end{figure}
 This property is weaker in terms of attack cost, because thanks to the \textbf{birthday paradox} finding a collision requires about:
@@ -520,11 +512,7 @@ Hashes can be used to construct MACs.
 
 The standard and secure construction is called \textbf{HMAC}.
 
-The idea is to combine:
-
-Message + Secret Key
-
-in a controlled manner and calculate a tag.
+The core idea is to securely combine the message and the secret key in a controlled manner before calculating the tag.
 
 HMAC is standardized and used with hashes like SHA-2 and SHA-3.
 
@@ -538,9 +526,7 @@ For example, when acquiring a copy of a disk, its hash is noted in the official 
 
 \subsection*{Asymmetric Encryption}
 
-The problem:
-
-how do two people establish a secret key if they can only communicate over a public channel?
+A fundamental problem in symmetric cryptography is how two communicating parties can establish a shared secret key if they only have access to a public, insecure channel.
 
 The breakthrough comes with \textbf{asymmetric cryptography}, which allows to:
 \begin{itemize}
@@ -549,7 +535,7 @@ The breakthrough comes with \textbf{asymmetric cryptography}, which allows to:
 \item obtain strong authentication through digital signatures.
 \end{itemize}
 
-The main ideas are:
+To address these challenges, asymmetric cryptography introduces three main primitives:
 
 Diffie-Hellman key agreement
 
@@ -734,9 +720,7 @@ If I want to encrypt a message for Bob, I must be sure that the public key truly
 
 If an attacker manages to replace Bob's public key with their own, they can perform a \textbf{man-in-the-middle} attack.
 
-So the point is:
-
-public key $\neq$ identity
+Therefore, a public key does not inherently prove identity.
 
 A mechanism is needed that reliably binds a pk to an identity.
 
@@ -1372,16 +1356,16 @@ If input is not filtered and validated correctly, one of the most common vulnera
 
 \textbf{XSS} is a security vulnerability where malicious \textbf{client-side scripts} are injected into the web page.
 
-One of the \textbf{goal of this attack} is to steal cookied or private information
+One of the primary goals of this attack is to steal cookies or other private information.
 
-\textbf{To defend} against XSS the input must be treated as \textbf{text} and not as exectuable code. Hence the content must be filtered, validated, and possibly escaped before it is displayed to other users.
+\textbf{To defend} against XSS, user input must always be treated as \textbf{text} rather than executable code. Hence, the content must be filtered, validated, and properly escaped before being displayed to other users.
 
 There are \textbf{three main types}:
 
 \begin{enumerate}
     \item \textbf{Stored XSS}
     \begin{enumerate}
-        \item The malicious code is stored on the target server database (for example in a message forum). Later, when a victim load the web page, if it wasn't filtered adeguatelly, the code would be loaded and exectued.
+        \item The malicious code is stored on the target server's database (for example, in a message forum). Later, when a victim loads the web page, the malicious code is fetched and executed by the browser if it was not adequately filtered.
         \item \textbf{To defend} against it, filtering should be applied both before rendering data and before storing data.
     \end{enumerate}
     \item \textbf{Reflected XSS}
@@ -1442,11 +1426,11 @@ One important aspect of SQL injection attacks is that the injected payload must 
 
 See pages 224-225 to read the example of login without password or login without username and password, using \textbf{SELECT}.
 
-\textbf{To defend} against this one colud use allowlisting only alphanumeric characters in a form of Username and Password, however this would block the right functioning of the application since, for example, passwords need special characters.
+To defend against this, one might consider allowlisting only alphanumeric characters in username and password fields. However, this would interfere with the application's functionality, as passwords often require special characters.
 
-Another way is blocklist, but it still problematic since SQL provides alternative operators or expressions (for example = can be substitute with LIKE).
+Another approach is using a blocklist, but this remains problematic since SQL provides alternative operators and expressions (for instance, the '=' operator can often be substituted with 'LIKE').
 
-The \textbf{correct solution} is to avoid building SQL queries through raw string concatenation
+The \textbf{correct solution} is to entirely avoid building SQL queries through raw string concatenation.
 
 SQL injection can also be used to \textbf{extract information} from the database by using the SQL \textbf{UNION command}, which allows the result of two different queries to be concatenated. The important point is that UNION allows the attacker to ask the database for information from another table, not only from the table used by the original query.
 
@@ -1472,7 +1456,7 @@ However, even without directly observing query outputs, attackers can still \tex
 
 Attackers can exploit these timing differences to infer whether a certain condition is true or false. By repeatedly testing different values and measuring response times, they can reconstruct hidden information or determine whether an injection succeeded. In this way, attackers exploit side effects of query execution rather than direct outputs.
 
-\subsubsection{Defend!}
+\subsubsection{Defenses}
 
 To mitigate SQL injection vulnerabilities, we can have different strategies:
 
@@ -2136,5 +2120,5 @@ exfiltrate data from other machines in the same local network without
 passing through the firewall.
 
 The same problem appears when there are \textbf{unchecked communication
-paths}. Suppose a compromised machine is connected to the LAN but
+paths}. Suppose a compromised machine is connected to the LAN but also possesses a direct, unmonitored connection to the internet (such as a cellular modem). This creates a backdoor that completely bypasses the firewall.
 \end{document}

@@ -1,0 +1,255 @@
+\chapter{Malicious Software}
+\label{ch:malicious_software}
+
+\section{Introduction and Malware Categories}
+The term \textbf{malware} is a portmanteau derived from the words \textit{malicious software}. Fundamentally, it refers to any executable code or script that is intentionally written to violate a security policy. Unlike software bugs or unintentional vulnerabilities, malware is designed with malicious intent to compromise the confidentiality, integrity, or availability of a system.
+
+Rather than being a single, monolithic concept, malware encompasses several distinct categories, characterized primarily by how they spread and what features they offer to the attacker. The primary categories are:
+
+\begin{itemize}
+    \item \textbf{Viruses}: A virus is a piece of code that self-propagates by infecting executables or other files. Crucially, traditional viruses are \textit{not} standalone programs; they require a host file to operate. When the infected host program is executed, the virus code runs alongside it, allowing it to seek out and infect other files. Viruses can infect application executables, documents containing macros, and even boot loaders.
+    \item \textbf{Worms}: Unlike viruses, worms are \textit{standalone} programs that self-propagate, often autonomously across networks. They do not need to attach themselves to an existing host file. Worms typically spread by exploiting vulnerabilities in network services on target hosts or by leveraging social engineering (e.g., mail worms that trick users into executing an attachment).
+    \item \textbf{Trojan Horses}: A Trojan horse (or simply a Trojan) is a seemingly benign program that hides a hidden malicious functionality. Unlike viruses and worms, Trojans do not generally self-propagate. Their primary purpose is to deceive the user into installing them, after which they may establish a backdoor to allow remote control of the compromised system, steal information, or drop additional malware.
+\end{itemize}
+
+\section{The Malicious Code Lifecycle}
+The lifecycle of typical malicious software can be broken down into four key phases: \textbf{Reproduce}, \textbf{Infect}, \textbf{Stay Hidden}, and \textbf{Run Payload}.
+
+\subsection{Reproduction and Infection}
+During the reproduction and infection phase, the malware must strike a delicate balance between maximizing its infection rate and minimizing its chances of detection. A rapid, aggressive infection strategy may spread the malware quickly but is highly noisy and likely to be detected by network intrusion detection systems or antivirus software. 
+
+To infect other systems, malware needs to identify a suitable \textbf{propagation vector}. This vector may rely on social engineering (e.g., tricking a user into downloading an infected file) or vulnerability exploits (e.g., exploiting a buffer overflow in a remotely accessible network daemon). For viruses, this phase involves identifying suitable target files on the local file system and injecting the malicious code into them. 
+
+It is important to note that most modern malware no longer relies heavily on automated self-propagation. Contemporary threats, such as botnet implants and banking Trojans, are primarily distributed via centralized exploit kits, malvertising campaigns, or spear-phishing emails, rather than spreading autonomously from host to host.
+
+\subsection{Execution of the Payload}
+The ultimate goal of the malware is to deliver its \textbf{payload}. The payload represents the actual malicious action the software is designed to perform. Historically, payloads were often designed simply to be annoying or to demonstrate the author's technical prowess. Examples of early annoying payloads include visual glitches like the ``ping-pong'' virus or the ``Cascade'' virus, which caused characters on a DOS terminal to fall to the bottom of the screen.
+
+Today, payloads are almost exclusively designed for financial gain, espionage, or sabotage. Modern payloads include encrypting the filesystem for ransom (ransomware), installing keyloggers to steal banking credentials, or enrolling the infected machine into a botnet.
+
+\section{Computer Viruses}
+
+\subsection{A Brief History of Viruses}
+The concept of self-replicating programs dates back to the early days of computing:
+\begin{itemize}
+    \item \textbf{1971 -- Creeper}: Often considered the first self-replicating program. It was an experimental program written for the PDP-10 operating system, famously displaying the message, ``I'm the creeper, catch me if you can!''
+    \item \textbf{1981 -- Elk Cloner}: The first major outbreak of a virus in the wild. Written by a 15-year-old, it infected Apple II floppy disks and spread whenever a computer was booted from an infected disk.
+    \item \textbf{1983 -- The first documented experimental virus}: Fred Cohen conducted pioneering academic work on computer viruses. The term ``computer virus'' was actually coined by his academic advisor, Len Adleman (the ``A'' in RSA cryptography).
+\end{itemize}
+
+\subsection{Theory of Computer Viruses}
+In 1983, Fred Cohen theorized the existence of computer viruses and produced the first formal examples. From a theoretical computer science perspective, a virus is a fascinating implementation of self-modifying and self-propagating code.
+
+Cohen's research formalized the security challenges posed by such software and led to a profound theoretical conclusion: \textbf{it is impossible to build a perfect virus detector}. This is a direct consequence of the halting problem and the undecidability of program behavior.
+
+The proof sketch is as follows:
+\begin{enumerate}
+    \item Assume there exists a perfect detection program $P$ that can analyze any program and correctly output \texttt{True} if the program is a virus, and \texttt{False} otherwise.
+    \item We can construct a malicious program $V$ that uses $P$ as a subroutine to analyze itself.
+    \item $V$ operates with the following logic:
+    \begin{itemize}
+        \item If $P(V) = \texttt{True}$ (i.e., $P$ detects $V$ as a virus), $V$ immediately halts and does \textit{not} spread. Thus, $V$ did not exhibit viral behavior, meaning $P$ was wrong.
+        \item If $P(V) = \texttt{False}$ (i.e., $P$ declares $V$ is not a virus), $V$ activates its propagation routine and spreads. Thus, $V$ is a virus, and $P$ was wrong again.
+    \end{itemize}
+\end{enumerate}
+Because a perfect detector can be mathematically proven impossible, the cybersecurity industry must rely on imperfect heuristic, behavioral, and signature-based detection mechanisms.
+
+\subsection{Infection Techniques}
+Viruses have evolved various mechanisms for attaching themselves to host systems and files:
+
+\paragraph{Boot Viruses}
+These viruses target the startup sequence of a computer. They typically infect the Master Boot Record (MBR) of a hard disk (the very first sector) or the boot sector of individual partitions. Classic examples include the \textit{Brain} virus. While boot viruses became rare as operating systems matured, the interest in them has been renewed in recent years (e.g., Mebroot/Torpig) due to the rise of diskless workstations and virtual machines (e.g., the SubVirt academic proof-of-concept).
+
+\paragraph{File Infectors}
+File infectors target executable files. They can operate in several ways:
+\begin{itemize}
+    \item \textbf{Simple Overwrite Virus}: The simplest form, which blindly overwrites the beginning of the target executable with its own code. This destroys the original program, making the infection obvious as the host application will no longer function.
+    \item \textbf{Parasitic Virus}: A more sophisticated approach where the virus appends its code to the end of the executable and modifies the program's original entry point to point to the viral code. After the virus runs, it typically passes control back to the original entry point, allowing the host application to run normally.
+    \item \textbf{Cavity (or Multi-cavity) Virus}: These viruses attempt to keep the file size unchanged to avoid detection. They inject their code into unused regions (cavities or padding space) within the executable's structure.
+\end{itemize}
+
+\paragraph{Macro Viruses}
+Traditionally, data files (like documents or images) were considered safe because they contained no executable code. However, the introduction of powerful macro languages (such as VBA in Microsoft Office) changed this paradigm. Macro functionalities allow executable code to be embedded directly within data files. For example, a spreadsheet macro can modify other spreadsheets, access the user's address book, and send emails. The most successful and famous example of this was the \textbf{Melissa virus} (1999), a large-scale email macro-virus that proved difficult to eradicate.
+
+\section{Worms and the Evolution of Threats}
+
+\subsection{A Brief History of Worms}
+Worms represent a shift from local file infection to network-level self-propagation.
+\begin{itemize}
+    \item \textbf{1987 -- Christmas Worm}: A mass-mailer worm that hit IBM Mainframes, achieving 500,000 replications per hour and paralyzing many networks.
+    \item \textbf{1988 -- The Internet Worm (Morris Worm)}: Created by Robert Morris Jr., a Ph.D. student at Cornell. Comprising only 99 lines of code, it brought down a significant portion of the early Internet (ARPANET). It connected to other computers, found and used vulnerabilities (e.g., a buffer overflow in \texttt{fingerd}, weak passwords), copied itself, and ran the copy. A flaw in the code caused it to re-infect machines in an infinite loop, causing severe resource exhaustion. The fallout led to the creation of CERT (Computer Emergency Response Team).
+    \item \textbf{2000 -- ILOVEYOU}: A massive email worm relying heavily on social engineering, disguised as a love letter script (\texttt{LOVE-LETTER-FOR-YOU.txt.vbs}).
+    \item \textbf{2001 -- Code Red}: A large-scale, exploit-based worm that was completely memory resident, leaving no files on the hard drive.
+    \item \textbf{2003 -- SQL Slammer}: Known for its explosive growth rate, this worm propagated via a single UDP packet. Its small size allowed it to infect thousands of hosts in minutes.
+\end{itemize}
+
+\subsection{Modern Worms: Mass Scanners}
+The basic pattern of a worm remains the same: infect a computer and seek out new targets. However, the speed and scale have increased dramatically, moving from hours to mere minutes to compromise hundreds of thousands of hosts. This speed is achieved through advanced scanning strategies:
+\begin{itemize}
+    \item \textbf{Random Address}: Probing randomly generated IP addresses.
+    \item \textbf{Local Preference}: Weighting scans toward the local network subnet, which often has weaker internal firewalls and faster latency.
+    \item \textbf{Permutation Scanning}: Dividing the entire IP address space among infected nodes to prevent multiple worms from scanning the same targets redundantly.
+    \item \textbf{Hit List Scanning}: Pre-compiling a list of vulnerable targets before the worm is even launched, allowing the initial phase of the outbreak to be nearly instantaneous.
+    \item \textbf{Warhol Worm}: A theoretical worm combining hit-list scanning for an explosive start and permutation scanning for rapid follow-up, designed to compromise the entire vulnerable Internet in 15 minutes.
+\end{itemize}
+
+\subsection{The ``Silence on the Wires'' and the Underground Economy}
+In the early 2000s, security experts braced for continuous, massive worm outbreaks that could target critical Internet infrastructure. However, since 2004, there has been a noticeable ``silence on the wires.'' Major, self-propagating infrastructure-destroying worms largely disappeared. 
+
+Why did the worm writers seemingly vanish? The answer lies in a shift in motivation. Early hackers sought notoriety and disruption. However, modern attackers are motivated by \textbf{monetization}. If a worm brings down the Internet infrastructure, the attackers lose the very platform they need to communicate with their compromised hosts and generate profit.
+
+This shift gave rise to a sophisticated underground cybercrime economy. Attackers focus on direct monetization (abusing credit cards, premium rate numbers) and indirect monetization (information gathering, renting out botnet infrastructure). 
+
+\section{Botnets and the Cybercrime Ecosystem}
+
+\subsection{Rise of the Bots}
+The term \textit{bot} originated from IRC (Internet Relay Chat) networks, where automated scripts provided useful channel management services. However, malicious actors began abusing IRC bots to coordinate attacks, leading to the first documented Distributed Denial of Service (DDoS) ``IRCwars.''
+
+By 1999, tools like \textit{trinoo} were released, allowing for coordinated DDoS attacks from multiple compromised machines. In the early 2000s, massive DDoS attacks against high-profile websites (Amazon, CNN, eBay) garnered widespread media coverage, demonstrating the power of distributed computing turned malicious.
+
+\subsection{Botnet Architecture and Capabilities}
+A \textbf{botnet} is a network of compromised machines (bots or zombies) controlled centrally by an attacker known as the \textbf{botmaster} or botherder.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        node distance=1.5cm and 2cm,
+        every node/.style={align=center, font=\sffamily},
+        bot/.style={rectangle, draw=gray!80, thick, fill=gray!10, minimum width=2cm, minimum height=1cm, rounded corners=2pt},
+        cnc/.style={rectangle, draw=blue!80, thick, fill=blue!10, minimum width=2.5cm, minimum height=1.5cm, rounded corners=2pt},
+        attacker/.style={rectangle, draw=green!80, thick, fill=green!10, minimum width=2cm, minimum height=1cm, rounded corners=2pt},
+        victim/.style={rectangle, draw=red!80, thick, fill=red!10, minimum width=2cm, minimum height=1cm, rounded corners=2pt}
+    ]
+        % Nodes
+        \node[cnc] (cnc) {Command \& Control\\(C\&C) Server};
+        \node[attacker, above=of cnc] (attacker) {Attacker\\(Botmaster)};
+        
+        \node[bot, above left=of cnc] (bot1) {Bot};
+        \node[bot, left=of cnc] (bot2) {Bot};
+        \node[bot, below left=of cnc] (bot3) {Bot};
+        
+        \node[bot, above right=of cnc] (bot4) {Bot};
+        \node[bot, right=of cnc] (bot5) {Bot};
+        \node[bot, below right=of cnc] (bot6) {Bot};
+        
+        \node[victim, below=of cnc, yshift=-1cm] (victim) {Victim};
+        
+        % Connections
+        \draw[->, thick, green!50!black] (attacker) -- (cnc) node[midway, right] {Issues Commands};
+        
+        \draw[<->, dashed, blue!70] (cnc) -- (bot1);
+        \draw[<->, dashed, blue!70] (cnc) -- (bot2);
+        \draw[<->, dashed, blue!70] (cnc) -- (bot3);
+        \draw[<->, dashed, blue!70] (cnc) -- (bot4);
+        \draw[<->, dashed, blue!70] (cnc) -- (bot5);
+        \draw[<->, dashed, blue!70] (cnc) -- (bot6);
+        
+        \draw[->, thick, red] (bot1) -- (victim);
+        \draw[->, thick, red] (bot2) -- (victim);
+        \draw[->, thick, red] (bot3) -- (victim);
+        \draw[->, thick, red] (bot4) -- (victim);
+        \draw[->, thick, red] (bot5) -- (victim);
+        \draw[->, thick, red] (bot6) -- (victim);
+        
+    \end{tikzpicture}
+    \caption{Typical Botnet Architecture. The botmaster uses a C\&C server to issue commands to a large network of infected hosts, which then carry out coordinated attacks against a victim.}
+    \label{fig:botnet}
+\end{figure}
+
+The communication between the bots and the botmaster relies on Command and Control (C\&C) channels, which can use IRC, HTTP, P2P networks, or custom protocols. Modern bots are highly sophisticated platforms. For instance, an analysis of the \textit{Phatbot} malware revealed capabilities such as harvesting email addresses, logging keypresses, sniffing network traffic, taking screenshots, setting up SOCKS proxies for spamming, stealing Windows CD keys, downloading additional files, and even killing rival malware and AV processes. A key feature of modern bots is their ability to self-update, allowing the botmaster to change the bot's functionality entirely post-infection.
+
+\subsection{Threats Posed by Botnets}
+Botnets pose severe threats on two fronts:
+\begin{enumerate}
+    \item \textbf{For the infected host}: Complete loss of privacy and data security. The bot will harvest identity data, financial credentials, private files, and email address books.
+    \item \textbf{For the rest of the Internet}: The infected machine becomes a weapon. It will be used for spamming, participating in DDoS attacks, propagating network worms, or acting as support infrastructure for illegal activities (e.g., hosting phishing sites or drive-by-download servers).
+\end{enumerate}
+
+The cybercrime ecosystem has evolved into organized groups offering "Exploit-as-a-Service," exploit development, site infection, and victim monitoring. Since 2010, the landscape has further expanded to include high-profile targets, critical infrastructure attacks (e.g., Stuxnet), state-sponsored espionage, and the devastating rise of Ransomware (e.g., CryptoLocker, WannaCry).
+
+\section{Stealth Techniques: Obfuscation, Metamorphism, and Packing}
+As malware analysis techniques improved, malware authors developed sophisticated stealth techniques to evade detection and hinder reverse engineering.
+
+\subsection{Entry Point Obfuscation}
+Antivirus scanners historically sought malicious signatures near the entry point of an executable. Malware authors countered with \textbf{Entry Point Obfuscation} (EPO). Instead of modifying the main entry point, the virus hijacks control \textit{later} in the program's execution. This is achieved by overwriting function call instructions deep within the code or modifying import table addresses so that legitimate library calls are redirected to the malware.
+
+\subsection{Polymorphism and Metamorphism}
+To defeat signature-based detection, malware must change its appearance without altering its fundamental behavior.
+
+\paragraph{Polymorphism}
+Polymorphic malware encrypts or packs its main payload. The only visible code is a small decryption routine. With each new infection, the malware encrypts the payload using a different key, changing the bulk of the file's signature. However, the decryption routine itself remains constant (or slightly varied), which antivirus scanners can sometimes detect.
+
+\paragraph{Metamorphism}
+Metamorphic malware represents the pinnacle of obfuscation. It does not simply encrypt its payload; it rewrites its own code entirely for each infection. The \textit{syntax} of the code changes, but the \textit{semantics} (the actual behavior) are preserved. This is achieved through complex internal engines that utilize techniques like:
+\begin{itemize}
+    \item \textbf{Dead code insertion}: Inserting junk instructions (e.g., \texttt{NOP}, or paired instructions like \texttt{inc eax} followed by \texttt{dec eax}) that change the binary signature without affecting the program state.
+    \item \textbf{Instruction reordering}: Changing the sequence of independent instructions.
+    \item \textbf{Register swapping}: Systematically swapping the use of general-purpose registers throughout a function.
+\end{itemize}
+
+\subsection{Anti-virtualization and Packing}
+Modern malware often assumes it might be executed in a security researcher's sandbox or an automated antivirus analysis engine. Consequently, malware actively checks its execution environment. If it detects that it is running inside a Virtual Machine (e.g., VMware, VirtualBox) or an emulator, it may terminate itself or exhibit benign behavior (a ``dormant period'') to avoid yielding useful analysis data.
+
+Detection mechanisms rely on timing discrepancies (since virtualization adds overhead), identifying specific environment artifacts (e.g., specific MAC addresses, VM-specific drivers), or uncovering incomplete instruction set implementations in software emulators.
+
+Furthermore, \textbf{Packing} is used to compress and encrypt the malicious payload. The packer extracts the payload dynamically in memory during execution. Advanced packers include metamorphic components, anti-debugging tricks, anti-VM checks, and code virtualization (compiling the malware into a custom bytecode that is interpreted by an embedded, custom virtual machine).
+
+\section{Malware Analysis and Detection}
+
+\subsection{Defending Against Malware}
+The primary defense against worms is \textbf{patching}, as worms rely heavily on exploiting known, unpatched vulnerabilities. Beyond patching, defense relies on detecting the malware via Antivirus/Anti-malware software using several strategies:
+\begin{itemize}
+    \item \textbf{Signatures}: A database of byte-level or instruction-level patterns that uniquely identify known malware. This approach is fast but utterly useless against zero-day threats or heavily metamorphic code.
+    \item \textbf{Heuristics}: Checking for structural signs of infection without relying on specific patterns. Examples include checking if execution starts in the last section of the PE file, looking for incorrect PE header sizes, or identifying patched import address tables.
+    \item \textbf{Behavioral Detection}: Monitoring the program at runtime for known malicious actions, such as unwarranted file encryption, injecting code into other processes, or making unauthorized registry changes.
+\end{itemize}
+
+\subsection{Static and Dynamic Analysis}
+When a suspicious file is discovered, security analysts (or automated systems) employ two main analysis workflows:
+
+\begin{itemize}
+    \item \textbf{Static Analysis}: Parsing and examining the binary code \textit{without} executing it. Techniques include disassembly, decompilation, string extraction, and control-flow graph analysis.
+    \begin{itemize}
+        \item \textit{Pros}: Provides full code visibility, including dormant or unreachable logic. It is completely safe since the code is not executed.
+        \item \textit{Cons}: Heavily hindered by obfuscation, metamorphism, and packing. Analysts must manually unpack and deobfuscate the code.
+    \end{itemize}
+    \item \textbf{Dynamic Analysis}: Executing the malware in a strictly controlled environment (sandbox) to monitor its behavior. Techniques include API hooking, tracing, and network monitoring.
+    \begin{itemize}
+        \item \textit{Pros}: Bypasses obfuscation completely; regardless of how the code is packed on disk, it must unpack itself in memory to execute. It easily reveals runtime artifacts (dropped files, network C\&C connections).
+        \item \textit{Cons}: Limited code coverage (dormant branches or logic triggered only on specific dates won't execute). Carries the risk of the malware detecting the sandbox and halting its malicious activity.
+    \end{itemize}
+\end{itemize}
+
+\section{Rootkits}
+
+\subsection{Definition and Goals}
+The term \textbf{rootkit} historically comes from the Unix world, referring to a ``kit'' of modified administrative tools planted by an attacker after gaining ``root'' (administrator) access. The primary goal of a rootkit is stealth: it aims to maintain the attacker's privileged access while making files, processes, users, network connections, and directories invisible to the system administrator.
+
+\subsection{Userland vs. Kernel Space Rootkits}
+Rootkits generally operate at one of two levels:
+
+\paragraph{Userland Rootkits}
+These operate at the application layer. In Unix environments, this involves replacing standard utilities (like \texttt{ps}, \texttt{netstat}, \texttt{ls}, \texttt{sshd}) with trojaned versions that filter out the attacker's artifacts. On Windows, this involves hooking APIs in user-space to hide processes from the Task Manager or Process Explorer. Userland rootkits are generally easier to build but are often incomplete and relatively easy to detect using cross-layer examination (e.g., comparing the output of a potentially trojaned \texttt{ps} command against a known-clean static binary).
+
+\paragraph{Kernel Space Rootkits}
+These are vastly more dangerous because they operate at Ring 0, modifying the core of the operating system itself. A kernel rootkit can intercept and alter data before it ever reaches userland applications, making standard security tools fundamentally untrustworthy.
+
+The classic mechanism for a kernel rootkit is \textbf{Syscall Hijacking}. By modifying the System Call Table, an attacker intercepts requests from userland (e.g., a request to list directory contents via \texttt{sys\_getdents}). The rootkit's malicious routine executes first, queries the real operating system, filters out the malicious files from the results, and returns the sanitized list to the userland application.
+
+Other kernel techniques include Direct Kernel Object Manipulation (DKOM), detour patching of kernel functions, and modifying the Interrupt Descriptor Table (IDT).
+
+\subsection{Methods for Recognizing Rootkits}
+Because a rootkit subverts the OS, querying the OS to find the rootkit is unreliable. Detection methods include:
+\begin{itemize}
+    \item \textbf{Cross-layer examination}: Comparing the high-level API view of the system against a lower-level view (e.g., comparing the list of files reported by the Windows API against raw NTFS volume parsing). Discrepancies indicate hidden items.
+    \item \textbf{Post-mortem analysis}: Booting the system from a trusted, clean operating system (like a Live CD) and scanning the offline hard drive. Because the rootkit is not running in memory, it cannot hide its files.
+    \item \textbf{Trusted Computing Base / Tripwire}: Monitoring cryptographic hashes of critical system binaries to detect unauthorized modifications.
+\end{itemize}
+
+\subsection{Advanced Rootkit Targets}
+Rootkit technology continues to evolve, moving even lower in the hardware stack to ensure persistence. Advanced concepts include:
+\begin{itemize}
+    \item \textbf{BIOS/UEFI Rootkits}: Malware residing in the motherboard firmware, ensuring reinfection even if the hard drive is completely wiped and the OS is reinstalled.
+    \item \textbf{Firmware Rootkits}: Infecting the firmware of peripheral devices, such as Network Interface Cards (NICs) or video cards.
+    \item \textbf{Virtualization Rootkits}: A rootkit that loads itself as a hypervisor, pushing the legitimate operating system down into a virtual machine. From this position, the rootkit has absolute, invisible control over the entire OS.
+\end{itemize}

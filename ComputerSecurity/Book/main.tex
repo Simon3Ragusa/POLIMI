@@ -1,0 +1,62 @@
+\documentclass[11pt,a4paper,oneside]{book}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,calc,fit}
+\geometry{a4paper, margin=1in}
+
+\title{\textbf{Computer Security}\\ \Large A Comprehensive Study Guide}
+\author{Simone}
+\date{2026}
+
+\begin{document}
+
+\maketitle
+
+\frontmatter
+\tableofcontents
+
+\mainmatter
+
+% Chapter 1: Introduction to Computer Security
+\input{chapter_01}
+
+% Chapter 2: Introduction to Cryptography
+\input{chapter_02}
+
+% Chapter 3: Authentication
+\input{chapter_03}
+
+% Chapter 4: Access Control
+\input{chapter_04}
+
+% Chapter 5: Introduction to Software Security
+\input{chapter_05}
+
+% Chapter 6: Buffer Overflows
+\input{chapter_06}
+
+% Chapter 7: Format String Bugs
+\input{chapter_07}
+
+% Chapter 8: Web Application Security
+\input{chapter_08}
+
+% Chapter 9: Network Protocol Attacks
+\input{chapter_09}
+
+% Chapter 10: Secure Network Architectures
+\input{chapter_10}
+
+% Chapter 11: Network Security Protocols - TLS and SET
+\input{chapter_11}
+
+% Chapter 12: Malicious Software
+\input{chapter_12}
+
+\end{document}

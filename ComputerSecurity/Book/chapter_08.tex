@@ -1,0 +1,130 @@
+\chapter{Web Application Security}
+
+\section{Introduction}
+Web applications have become the dominant paradigm for software delivery, powering everything from corporate intranets to cloud-based Software as a Service (SaaS) offerings. Due to their ubiquity and the fact that they are often exposed to the public internet, they present a prime target for malicious actors.
+
+At the foundation of web applications lies HTTP (Hypertext Transfer Protocol), a stateless protocol designed for document retrieval rather than complex application state management. Emulating state and enforcing robust authentication on top of a fundamentally stateless and text-based protocol introduces numerous security challenges. 
+
+A typical web application follows a 3-tier architecture:
+\begin{enumerate}
+    \item \textbf{Presentation Tier (Client):} Usually a web browser communicating via HTTP.
+    \item \textbf{Logic Tier (Application Server):} Processes requests, implements business logic, and generates dynamic content.
+    \item \textbf{Data Tier (Database Server):} Stores and retrieves persistent data.
+\end{enumerate}
+
+\subsection{The Untrustworthy Client}
+The golden rule of web application security is that \textbf{the client is never trustworthy}. 
+Developers often build applications assuming that the client will interact with the application exactly as intended---for instance, clicking a button to generate a specific, well-formed \texttt{GET} or \texttt{POST} request. Attackers, however, operate under a different mindset. They understand that the client is fully under their control, and they can manually craft any HTTP request with arbitrary parameters, headers, and payloads, completely bypassing client-side restrictions.
+
+Because HTTP is a plain-text protocol, crafting custom requests is trivial using tools like \texttt{curl} or intercepting proxies. Consequently, relying on client-side validation (e.g., JavaScript input checks) is entirely ineffective for security. Every piece of data originating from the client---including URL parameters, form fields, headers, and cookies---must be treated as malicious and strictly validated on the server side.
+
+\section{Input Validation and Filtering}
+To defend against malicious input, applications must employ robust filtering mechanisms. Validation typically follows a sequence of techniques:
+\begin{enumerate}
+    \item \textbf{Whitelisting:} Defining a strict set of allowed characters or patterns and rejecting everything else.
+    \item \textbf{Blacklisting:} Identifying and discarding known-bad inputs or characters.
+    \item \textbf{Escaping (or Encoding):} Transforming special characters into a safe representation (e.g., HTML entities) so they are treated as data rather than executable code.
+\end{enumerate}
+
+As a fundamental principle, \textbf{whitelisting is vastly superior to blacklisting}. Attackers are endlessly creative; it is virtually impossible to anticipate and blacklist every possible malicious payload, especially when considering obfuscation techniques and evolving specifications.
+
+\subsection{The Pitfalls of Blacklisting}
+Consider the task of preventing malicious JavaScript execution (Cross-Site Scripting, or XSS) by blacklisting the \texttt{<SCRIPT>} tag. An attacker could bypass this filter using various techniques:
+\begin{itemize}
+    \item Using alternative tags like \texttt{<APPLET>}, \texttt{<IFRAME>}, or \texttt{<OBJECT>}.
+    \item Exploiting event handlers such as \texttt{<img src="x" onerror="alert(1)">} or \texttt{<svg onload="alert(1)">}.
+    \item Leveraging the \texttt{javascript:} URL schema in \texttt{href} or \texttt{src} attributes.
+    \item Utilizing HTML entities or hex encodings to obfuscate the payload (e.g., \texttt{\&\#09;}, \texttt{\%0a}).
+    \item Exploiting parser quirks in specific browsers.
+\end{itemize}
+Because the environment is so complex and constantly changing, blacklisting is doomed to fail. A robust defense relies on whitelisting and proper contextual escaping.
+
+\section{Cross-Site Scripting (XSS)}
+Cross-Site Scripting (XSS) is a widespread vulnerability that occurs when an application includes untrusted data in a web page without proper validation or escaping. This flaw allows an attacker to execute malicious client-side scripts (typically JavaScript) within the victim's browser.
+
+XSS is generally categorized into three types:
+\begin{itemize}
+    \item \textbf{Stored XSS (Persistent):} The malicious payload is permanently stored on the target server (e.g., in a database backing a forum or comment section). When a victim navigates to the affected page, the payload is served and executed.
+    \item \textbf{Reflected XSS (Non-Persistent):} The malicious payload is embedded in a crafted URL or request. The server receives the input and immediately "reflects" it back in its response. The payload is executed when the victim clicks the crafted link.
+    \item \textbf{DOM-based XSS:} The vulnerability exists entirely within the client-side code. The server may not even process the malicious payload. Instead, a vulnerable JavaScript function on the page reads data from an attacker-controllable source (like the URL fragment) and dangerously updates the Document Object Model (DOM).
+\end{itemize}
+
+\subsection{The Power of XSS and Same Origin Policy}
+A common misconception is that JavaScript executes in a secure sandbox, limiting its potential harm. In reality, XSS is devastating because it effectively bypasses the \textbf{Same Origin Policy (SOP)}.
+
+The SOP is a fundamental security mechanism implemented by browsers that restricts how a document or script loaded from one origin can interact with a resource from another origin. However, because the injected XSS payload is served from the trusted origin, it executes with the full privileges of the application. 
+
+An attacker can use XSS to:
+\begin{itemize}
+    \item Steal session cookies, leading to full account compromise (Session Hijacking).
+    \item Perform unauthorized actions on behalf of the user.
+    \item Access and exfiltrate sensitive information displayed on the page.
+    \item Perform Drive-by Downloads to infect the victim's machine.
+\end{itemize}
+
+\subsection{Content Security Policy (CSP)}
+Content Security Policy (CSP) is an added layer of security that helps mitigate XSS and data injection attacks. It is a W3C specification that allows site administrators to declare approved sources of content that the browser may load. 
+
+CSP is delivered via HTTP response headers (e.g., \texttt{Content-Security-Policy: script-src 'self' https://trusted.com}). It can restrict where scripts can be loaded from, disable inline execution, and control other resource types.
+
+While CSP is a powerful defense-in-depth mechanism, its adoption is slow due to practical challenges. Strict policies can break existing functionality, especially on legacy sites relying on inline scripts. Keeping policies updated in modern, dynamic web applications is complex, and certain browser extensions can interfere with CSP enforcement. Furthermore, research has shown that many deployed CSPs are overly permissive and easily bypassed.
+
+\section{SQL Injection}
+SQL Injection (SQLi) occurs when user-supplied input is directly concatenated into database query strings without proper sanitization or parameterization. This allows an attacker to alter the structure of the SQL query, effectively tricking the database into executing unintended commands.
+
+\subsection{Exploitation Scenarios}
+Consider a vulnerable login query:
+\begin{verbatim}
+SELECT * FROM Users WHERE username='[USER_INPUT]' AND password='[PWD_INPUT]';
+\end{verbatim}
+
+\textbf{Authentication Bypass:} An attacker can inject \texttt{admin' -- } into the username field. The resulting query becomes:
+\begin{verbatim}
+SELECT * FROM Users WHERE username='admin' -- ' AND password='...';
+\end{verbatim}
+The \texttt{--} comments out the rest of the query, successfully logging the attacker in as 'admin' without requiring a password.
+
+\textbf{Tautologies:} If the attacker doesn't know a valid username, they can inject \texttt{' OR '1'='1}:
+\begin{verbatim}
+SELECT * FROM Users WHERE username='' OR '1'='1' ...
+\end{verbatim}
+This forces the query to return all rows, frequently resulting in a successful login as the first user in the table.
+
+\textbf{Data Exfiltration via UNION:} Attackers can use the \texttt{UNION} operator to append results from entirely different tables to the original query's output, provided the column structures match.
+
+\textbf{Blind SQL Injection:} If the application does not display database errors or query results directly, attackers can still extract data. By injecting queries that ask true/false questions (e.g., "Is the first letter of the password 'A'?"), the attacker observes the application's behavior (e.g., differences in page content or response time) to infer the data character by character.
+
+\subsection{Mitigating Code Injection}
+The core conflict causing injection vulnerabilities is the mixing of data and control instructions within a single parser context (whether it's an SQL interpreter or an HTML parser).
+
+To prevent SQL injection, developers must fundamentally separate data from code using \textbf{Prepared Statements} (Parametrized Queries). With prepared statements, the query structure is defined beforehand, and user inputs are supplied strictly as data parameters. The database driver ensures that these parameters are never interpreted as executable SQL commands, completely neutralizing the vulnerability. Additional defenses include least-privilege database accounts and input validation.
+
+\section{Information Leaks and Parameter Tampering}
+Applications must handle errors gracefully without revealing sensitive internal details. Detailed debug traces and verbose error messages (Freudian slips) can leak structural information about the database, server software versions, and internal file paths, which attackers can leverage.
+
+\textbf{URL Parameter Tampering} involves manipulating parameters in the GET request or POST body to access unauthorized data. A classic example is \textbf{Directory Traversal} (or Path Traversal), where an attacker manipulates a file path parameter (e.g., \texttt{file=../../../../etc/passwd}) to access arbitrary files on the server's filesystem outside the intended web root.
+
+\section{Session Management and Authentication}
+Because HTTP is stateless, applications must implement custom session management to track authenticated users across multiple requests.
+
+\subsection{Password Security}
+Passwords must never be stored in plain text. They should be securely hashed and salted to slow down brute-force and dictionary attacks, mitigating the impact of a database breach. Additionally, account recovery mechanisms (password resets) require careful design to avoid introducing new vulnerabilities (e.g., relying solely on easily guessable security questions). Brute-forcing protection should involve account lockouts or rate limiting, though simplistic IP blocking can lead to Denial of Service (DoS) issues due to shared proxies or NATs.
+
+\subsection{Cookies and Session Hijacking}
+Sessions are typically implemented using Session IDs stored in client-side \textbf{Cookies}. When a user authenticates, the server generates a unique Session ID and sends it via a \texttt{Set-Cookie} header. The browser then automatically includes this cookie in all subsequent requests to that domain.
+
+Session IDs must be unpredictable to prevent attackers from guessing valid tokens and impersonating users. Furthermore, session stealing (hijacking) via XSS is a critical threat. To mitigate this, sensitive cookies should employ the \texttt{HttpOnly} flag, which prevents client-side JavaScript from accessing the cookie, severely limiting the impact of an XSS vulnerability on session integrity.
+
+\section{Cross-Site Request Forgery (CSRF)}
+Cross-Site Request Forgery (CSRF) is an attack that forces an authenticated user to execute unwanted, state-changing actions on a web application.
+
+The attack exploits the fact that browsers automatically include ambient credentials (like session cookies) with every request made to a domain. If a victim visits a malicious site while authenticated to their bank, the malicious site can trigger a hidden request (e.g., via an invisible form submission or an image tag) to the bank's servers, transferring funds to the attacker. Since the request includes the victim's valid session cookie, the bank processes it legitimately.
+
+\subsection{CSRF Mitigation}
+\begin{itemize}
+    \item \textbf{Anti-CSRF Tokens:} The server generates a unique, cryptographically strong random token for the user's session. This token is included as a hidden field in sensitive HTML forms. When the form is submitted, the server verifies that the submitted token matches the expected token for that session. Because an attacker cannot read the token from the target site (due to the Same Origin Policy), they cannot forge a valid request. \textbf{Note:} These tokens must not be stored in cookies alone, as that defeats the purpose.
+    \item \textbf{SameSite Cookies:} A modern defense mechanism where the \texttt{SameSite} attribute is added to the cookie declaration. By setting \texttt{SameSite=Strict} or \texttt{SameSite=Lax}, the browser restricts when cookies are sent in cross-origin requests, effectively neutralizing CSRF attacks at the browser level.
+\end{itemize}
+
+\section{Conclusion}
+Web application security is a complex field characterized by an asymmetric battle between developers and attackers. Securing modern applications requires a defense-in-depth approach, treating all client input as hostile, strictly separating code from data, and properly implementing authentication and session management.

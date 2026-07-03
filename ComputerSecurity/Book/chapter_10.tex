@@ -1,0 +1,241 @@
+\chapter{Secure Network Architectures}
+\label{ch:secure_network_architectures}
+
+\section{Introduction to Firewalls}
+
+In the context of computer security, a \textbf{firewall} is a network access control system that verifies all the packets flowing through it. Its primary purpose is to act as a barrier between a trusted, screened network and untrusted outside networks, such as the Internet. To be effective, a firewall must serve as the single enforcement point between these networks; otherwise, its policies could be bypassed.
+
+The main functions of a firewall typically include:
+\begin{itemize}
+    \item \textbf{IP Packet Filtering:} Inspecting incoming and outgoing packets and deciding whether to let them pass or drop them based on a set of predefined rules.
+    \item \textbf{Network Address Translation (NAT):} Modifying network address information in packet headers while in transit across a traffic routing device.
+\end{itemize}
+
+\textit{A side note on grammar:} In IT, the correct term is ``firewall'' (one word), not ``fire wall''. In Italian context, the word is masculine (``un firewall'', not ``una firewall''). The term originally comes from construction, referring to a wall designed to partition a building and stop the spread of fire.
+
+\subsection{Limitations of Firewalls}
+
+Firewalls are powerful tools, but they are not omnipotent. A firewall checks \textit{all} the traffic flowing through it, but \textit{only} the traffic flowing through it. Consequently, firewalls are powerless against attacks that do not cross their path.
+
+\begin{itemize}
+    \item \textbf{Insider Attacks:} If a malicious actor is already inside the local network, the perimeter firewall cannot stop them from accessing internal resources, unless the internal network itself is partitioned with additional firewalls.
+    \item \textbf{Unchecked Paths:} Firewalls cannot protect against alternate routes into the network that bypass the firewall entirely. For example, if a machine within the Local Area Network (LAN) is also connected to the Internet via a separate 4G/5G modem, it creates an unchecked path that completely bypasses the firewall's scrutiny.
+\end{itemize}
+
+\subsection{Firewalls as Attack Targets}
+
+It is important to remember that a firewall is itself a computer, meaning it can have vulnerabilities and be compromised. However, most firewalls are single-purpose machines---often embedded appliances running specialized firmware. They usually offer few or no extraneous services, which significantly reduces their attack surface compared to a general-purpose operating system.
+
+\subsection{Security Policies and Firewall Rules}
+
+A firewall can be thought of as a strict ``bouncer at the door''; it simply applies the rules it has been given. If the rules are poorly configured, the firewall provides no protection.
+
+Firewall rules are essentially the technical implementation of higher-level security policies. For instance, a security policy might state: \textit{``Clients are not allowed to download email from external servers.''} The corresponding firewall rule would block outbound connections on ports associated with POP3 or IMAP to external IP addresses.
+
+Crucially, an effective security policy must be built on a \textbf{default deny} base. This means the underlying philosophy is ``deny all, except what is explicitly permitted''. Any traffic not explicitly allowed by a rule should be dropped.
+
+\section{Firewall Taxonomy}
+
+Firewalls can be broadly classified based on their packet inspection capability, ranging from the network layer up to the application layer of the OSI model.
+
+\begin{enumerate}
+    \item \textbf{Network Layer Firewalls:}
+    \begin{itemize}
+        \item \textbf{Stateless Packet Filters:} Operate strictly at the network layer, examining each packet individually without memory of past packets.
+        \item \textbf{Stateful Packet Filters (SPF):} Operate at the network and transport layers, tracking the state of active connections.
+    \end{itemize}
+    \item \textbf{Application Layer Firewalls:}
+    \begin{itemize}
+        \item \textbf{Circuit-Level Firewalls:} Operate between the transport and application layers, relaying TCP connections.
+        \item \textbf{Application Proxies:} Operate at the application layer, understanding and inspecting the payload of specific protocols.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Stateless Packet Filters}
+
+Stateless packet filters process traffic on a strict packet-by-packet basis. They decode the IP header and parts of the TCP/UDP header, allowing rules to be based on:
+\begin{itemize}
+    \item Source and Destination IP addresses
+    \item Source and Destination ports
+    \item Protocol type (e.g., TCP, UDP, ICMP)
+    \item IP options
+\end{itemize}
+
+Because they are \textbf{stateless}, they cannot track TCP connections. Each packet is evaluated in isolation. They also do not perform full payload inspection. Stateless packet filters are often found on routers (e.g., Access Control Lists or ACLs on Cisco devices).
+
+\subsubsection{Expressiveness and Rule Structure}
+
+The expressiveness of a stateless filter is limited to the fields it can decode. Rules define a condition and an associated reaction. If a packet matches the condition, the firewall executes the reaction, which could be to \textbf{allow}, \textbf{block} (drop or reject), \textbf{log}, or rate-limit the packet.
+
+For example, using Linux \texttt{iptables} syntax:
+\begin{itemize}
+    \item \texttt{iptables -P INPUT DROP}: Sets the default policy to block all incoming packets.
+    \item \texttt{iptables -A INPUT -d 10.0.0.1 -j ALLOW}: Allows incoming packets destined for 10.0.0.1.
+    \item \texttt{iptables -A OUTPUT --dport 25 -j ALLOW}: Allows outgoing packets destined for port 25 (SMTP).
+\end{itemize}
+
+\subsubsection{The Problem with Stateless Filters}
+
+A significant vulnerability of stateless filters is handling responses. If an internal client initiates a connection to an external web server, the firewall must allow the outgoing request. However, to receive the response, the firewall must also have a rule allowing incoming traffic from the web server. In a purely stateless setup, this often requires opening a wide range of inbound high ports to the entire Internet, severely weakening security.
+
+\subsection{Stateful (Dynamic) Packet Filters}
+
+Stateful packet filters improve upon stateless ones by keeping track of the \textbf{transport layer state machine}. For TCP connections, they monitor the three-way handshake: if a \texttt{SYN} packet is seen going out, the firewall expects a \texttt{SYN-ACK} to return.
+
+By tracking the connection state in a ``state table,'' a stateful firewall can automatically allow incoming response packets that belong to an established connection \textit{without} requiring an explicit inbound allow rule. This makes the default deny rule much safer and easier to maintain.
+
+\subsubsection{Advantages and Disadvantages}
+
+\textbf{Advantages:}
+\begin{itemize}
+    \item \textbf{Safer Deny Rules:} No need to permanently open inbound ports for responses.
+    \item \textbf{Better Expressiveness:} They can log and account for connections, not just individual packets.
+    \item \textbf{Defragmentation and Reassembly:} They can reassemble fragmented packets before inspection, thwarting evasion techniques and attacks exploiting pathological fragmentation (e.g., the teardrop attack).
+    \item \textbf{NAT Integration:} Network Address Translation is typically offered as an embedded feature.
+\end{itemize}
+
+\textbf{Disadvantages:}
+\begin{itemize}
+    \item \textbf{Resource Constraints:} Performance is bounded on a \textit{per-connection} basis rather than just a per-packet basis. Maintaining state consumes memory. The maximum number of simultaneous connections is a critical performance metric, making them susceptible to state exhaustion attacks (like SYN floods).
+\end{itemize}
+
+\subsubsection{Session Handling and NAT}
+
+A \textbf{session} is an atomic, transport-layer exchange of application data between two hosts. Stateful firewalls track these sessions to perform NAT.
+
+For \textbf{TCP}, tracking is straightforward because it is a connection-oriented protocol with explicit start (\texttt{SYN}) and end (\texttt{FIN}/\texttt{RST}) flags. When an internal client initiates a TCP connection, the firewall creates a NAT slot. It translates the internal IP and port to a public IP and port, and forwards the packet. When the \texttt{SYN-ACK} returns to the public IP/port, the firewall uses the NAT table to translate it back to the internal client.
+
+\textbf{UDP}, however, is connectionless. The concept of a session does not strictly exist at the transport layer. To handle UDP over NAT, the stateful firewall must \textit{infer} a session. When an internal host sends a UDP packet, the firewall creates a NAT slot and starts a timer. If a response packet is received from the destination within a certain timeout (e.g., 2 minutes), it is considered part of the inferred ``session'' and translated back to the client.
+
+\subsubsection{Application-Layer Inspection for NAT}
+
+Some protocols embed network information (like IP addresses and ports) inside the application-layer payload. NAT breaks these protocols because it translates the headers but leaves the payload unmodified.
+
+A classic example is \textbf{FTP (File Transfer Protocol)}. FTP uses two separate connections: a command channel (port 21) and a data channel (port 20 or dynamic).
+
+\begin{itemize}
+    \item \textbf{FTP Standard (Active) Mode:} The client connects to the server's port 21. When a file transfer is requested, the client sends a \texttt{PORT} command containing its IP address and a dynamically chosen listening port. The server then initiates a new connection back to the client's specified IP and port. 
+    
+    If the client is behind a NAT firewall, the IP in the \texttt{PORT} command is a private IP. The server cannot connect to it. Furthermore, the client-side firewall would block the incoming connection anyway. To fix this, a stateful firewall must inspect the FTP application layer, intercept the \texttt{PORT} command, rewrite the private IP/port to the firewall's public IP/port, and dynamically open a hole for the incoming data connection.
+
+    \item \textbf{FTP Passive Mode:} To mitigate firewall issues, FTP Passive mode was introduced. The client sends a \texttt{PASV} command. The server responds with its IP and a dynamic port it is listening on. The \textit{client} then initiates the data connection to the server. This avoids the server needing to bypass the client's firewall, but now the server's firewall must dynamically open inbound ports based on the \texttt{PASV} response.
+\end{itemize}
+
+\section{Application Layer Firewalls}
+
+Application layer firewalls operate higher up the OSI stack, providing deeper inspection at the cost of performance and transparency.
+
+\subsection{Circuit-Level Firewalls (Legacy)}
+
+Circuit-level firewalls relay TCP connections. The client explicitly connects to a specific TCP port on the firewall, which then initiates a second connection to the target server. They are essentially TCP-level proxies. Because the client must be aware of the proxy and intentionally route traffic to it, they are \textbf{not transparent}. 
+
+A historical example is SOCKS.
+
+\subsection{Application Proxies}
+
+Application proxies operate similarly to circuit firewalls but possess an understanding of specific application-layer protocols (e.g., HTTP, SMTP). 
+
+Because they understand the protocol, they can:
+\begin{itemize}
+    \item Inspect, validate, and manipulate protocol application data (e.g., rewriting HTTP frames, filtering ActiveX objects).
+    \item Authenticate users before granting access.
+    \item Apply highly granular filtering policies.
+    \item Perform advanced logging.
+    \item Conduct content filtering or scanning (e.g., anti-virus, anti-spam).
+\end{itemize}
+
+Like circuit firewalls, they are almost never transparent to clients, requiring client configuration (like configuring an HTTP Proxy in browser settings). Furthermore, each protocol requires its own dedicated proxy server software.
+
+Application proxies can be deployed to protect internal clients (Forward Proxy) or to protect internal servers by acting as the public face of the service (\textbf{Reverse Proxy}). They are usually implemented on commercial off-the-shelf (COTS) operating systems rather than embedded firmware.
+
+\section{Architectures for Secure Networks}
+
+Firewalls enforce policies, but network architecture dictates where those policies are applied.
+
+\subsection{Dual- or Multi-Zone Architectures}
+
+The traditional perimeter defense model assumes the internal network is ``good'' and the external network is ``bad.'' However, there are scenarios where external access is necessary:
+\begin{enumerate}
+    \item External users need to access public resources (web servers, FTP servers, MX records).
+    \item Remote employees need to access the corporate network.
+\end{enumerate}
+
+Mixing publicly accessible servers with internal client workstations on the same local network is highly insecure. If a public web server is compromised, the attacker immediately gains unrestricted access to the internal network.
+
+The solution is to physically and logically separate the network into zones of varying privilege levels, using firewalls to regulate access between them.
+
+\subsection{The Demilitarized Zone (DMZ)}
+
+A \textbf{DMZ} is a semi-public zone designed to host servers that must be accessible from the Internet (e.g., web servers, public DNS, incoming SMTP servers). 
+
+\begin{itemize}
+    \item Critical or irreplaceable data should \textbf{never} reside in the DMZ.
+    \item The DMZ is considered almost as risky as the public Internet.
+\end{itemize}
+
+\subsubsection{Example: DMZ + Private Zone Architecture}
+
+Consider a network with two firewalls (or one multi-homed firewall):
+\begin{itemize}
+    \item \textbf{FW1 (External):} Sits between the Internet and the DMZ.
+    \item \textbf{FW2 (Internal):} Sits between the DMZ and the Private Network.
+\end{itemize}
+
+The DMZ hosts a Web Server and an Inbound Mail Server. The Private Network hosts Workstations, a Database, and an IMAP/Outbound Mail Server.
+
+\textbf{Example Policy Implementation:}
+\begin{enumerate}
+    \item \textbf{Default Deny:} Both FW1 and FW2 deny all traffic by default.
+    \item \textbf{Public Access to Web:} FW1 allows ANY incoming connection to the Web Server on port 443.
+    \item \textbf{Public Access to Mail:} FW1 allows ANY incoming connection to the Inbound Mail Server on port 25.
+    \item \textbf{Internal Mail Routing:} FW2 allows the Inbound Mail Server to relay emails to the internal IMAP server on port 587.
+    \item \textbf{Workstation Web Browsing:} FW2 allows Workstations to connect to the DMZ on ports 80/443. FW1 allows Workstations to connect to the Internet on ports 80/443.
+    \item \textbf{Outbound Email:} FW2 allows the Outbound Mail Server to send mail to the DMZ on port 25. FW1 allows the Outbound Mail Server to reach the Internet on port 25.
+\end{enumerate}
+
+Notice that the Database is completely inaccessible from the Internet and the DMZ, providing strong defense-in-depth.
+
+\section{Virtual Private Networks (VPNs)}
+
+While firewalls secure the perimeter, \textbf{VPNs} address the need to securely transmit data across untrusted networks.
+
+\subsection{Requirements}
+Organizations often require remote employees to work ``as if'' they were physically present in the office, accessing resources residing in the private zone. Additionally, geographically distant corporate sites must be connected. Instead of laying costly dedicated physical lines, organizations use the Internet. This necessitates ensuring Confidentiality, Integrity, and Authentication (CIA) for data transmitted over the public network.
+
+\subsection{The VPN Concept}
+The solution is a Virtual Private Network: an encrypted, authenticated overlay connection established over a public network. A VPN creates a secure ``tunnel'' between the remote client and a VPN Server located at the edge of the corporate network (often parallel to or integrated with the firewall).
+
+\subsection{Full vs. Split Tunnelling}
+
+When a client connects to a VPN, routing decisions must be made regarding their traffic.
+
+\begin{itemize}
+    \item \textbf{Full Tunnelling:} \textit{Every} packet generated by the client, regardless of destination, goes through the VPN tunnel to the corporate network.
+    \begin{itemize}
+        \item \textbf{Pros:} Provides a single point of control. All corporate security policies (web filtering, proxies) are applied to the remote client just as if they were physically in the office.
+        \item \textbf{Cons:} Inefficient. If a remote user watches a YouTube video, the traffic goes from YouTube, to the corporate network, through the VPN tunnel, and down to the client. This wastes corporate bandwidth (traffic multiplication).
+    \end{itemize}
+    \item \textbf{Split Tunnelling:} Only traffic destined for the corporate network goes through the VPN. Traffic destined for the public Internet goes directly through the client's local Internet Service Provider (ISP).
+    \begin{itemize}
+        \item \textbf{Pros:} Highly efficient. No wasted corporate bandwidth on personal browsing.
+        \item \textbf{Cons:} Reduced control. The client's Internet traffic bypasses corporate security filters, acting similarly to a standalone PC connected via a 4G modem.
+    \end{itemize}
+\end{itemize}
+
+\subsection{VPN Technologies}
+
+Many different technologies implement the core VPN concept:
+\begin{itemize}
+    \item \textbf{PPTP (Point-to-Point Tunneling Protocol):} An older, proprietary Microsoft protocol. It is a variant of PPP that adds authentication and confidentiality. It is generally considered insecure today.
+    \item \textbf{TLS-based VPNs:} Tunnels established over the Transport Layer Security protocol. Examples include SSL VPNs, SSH tunnels, and OpenVPN. They are highly flexible and operate at higher network layers.
+    \item \textbf{IPSec:} Security extensions originally designed for IPv6, backported to IPv4. It provides authentication and confidentiality directly at the \textbf{IP layer} (Network layer), making it transparent to applications.
+\end{itemize}
+
+\section{Conclusions}
+
+\begin{itemize}
+    \item Firewalls are essential network access control systems that enforce security policies. However, they can only enforce policies on the traffic they can physically inspect, and their granularity is limited to the layers of the OSI model they can decode.
+    \item Stateless packet filters are fast but limited. Stateful packet filters are safer and more expressive but consume connection-tracking resources. Application proxies offer the deepest inspection but add complexity and overhead.
+    \item Advanced network architectures, such as utilizing a DMZ, leverage firewalls to segregate resources by privilege level, protecting critical internal assets from public-facing services.
+    \item Virtual Private Networks (VPNs) complement firewalls by solving the problem of creating a trusted, authenticated, and encrypted network transport over an inherently untrusted channel like the Internet.
+\end{itemize}

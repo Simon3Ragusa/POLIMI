@@ -1,0 +1,156 @@
+\chapter{Buffer Overflows}
+
+\section{Introduction to Buffer Overflows}
+A buffer overflow is a classic and prevalent software vulnerability that occurs when a program writes more data to a block of memory, or buffer, than it was allocated to hold. Because buffers are created to contain a specific amount of data, the extra data overwrites adjacent memory locations. In languages like C and C++, which do not inherently perform bounds checking on array and pointer operations, it is left to the developer to ensure that data written to a buffer does not exceed its capacity.
+
+When a buffer overflow occurs on the call stack, it can corrupt data that is critical to the program's control flow, such as the saved return address or the saved base pointer. By carefully crafting the input that causes the overflow, an attacker can overwrite these control values to redirect the program's execution flow to arbitrary code of their choosing, often referred to as shellcode.
+
+\section{Binary Formats and Execution}
+Before delving into the mechanics of buffer overflows, it is essential to understand how high-level code is transformed into machine code and how it is structured within an executable file.
+
+\subsection{From Source to Machine Code}
+The process of transforming source code into an executable binary involves several stages:
+\begin{enumerate}
+    \item \textbf{Compiler}: Translates high-level source code (e.g., C) into assembly language, specific to the target architecture.
+    \item \textbf{Assembler}: Converts the assembly language instructions into raw machine code (object files).
+    \item \textbf{Linker}: Combines one or more object files and libraries into a single executable binary.
+\end{enumerate}
+Conversely, \textbf{disassemblers} can translate machine code back into assembly, and \textbf{decompilers} attempt to reconstruct the high-level source code from the assembly or machine code.
+
+\subsection{The ELF Binary Format}
+On Linux, the standard executable format is the Executable and Linkable Format (ELF). An ELF binary contains information about how the file is organized on disk and how it should be loaded into memory. It contains several key sections:
+\begin{itemize}
+    \item \textbf{ELF Header}: Describes the high-level structure, file type (executable or library), target machine architecture, and entry point.
+    \item \textbf{Program Headers}: Describe how the file will be loaded into memory at runtime, mapping sections into segments.
+    \item \textbf{Section Headers}: Describe the binary as it resides on disk, defining sections such as:
+    \begin{itemize}
+        \item \texttt{.text}: Contains the executable machine instructions of the program.
+        \item \texttt{.rodata}: Contains read-only data (e.g., string literals).
+        \item \texttt{.data}: Contains initialized global and static variables.
+        \item \texttt{.bss}: Contains uninitialized global and static variables (zeroed at runtime).
+    \end{itemize}
+\end{itemize}
+
+\section{Process Memory Layout in Linux}
+When a program is executed, the Linux kernel creates a virtual address space for the process. This virtual memory abstracts the physical memory, giving the process the illusion of having a contiguous, isolated memory space. The dynamic linker and loader map the segments defined in the ELF file into this virtual address space.
+
+For a 32-bit x86 architecture, the typical memory layout of a process from lower to higher addresses is:
+\begin{itemize}
+    \item \textbf{Text Segment (\texttt{.text})}: Loaded at the bottom (e.g., \texttt{0x08048000}), containing the executable code.
+    \item \textbf{Data Segment (\texttt{.data} and \texttt{.bss})}: Placed above the text segment, holding global variables.
+    \item \textbf{Heap}: Grows upwards towards higher memory addresses. It is used for dynamically allocated memory (e.g., via \texttt{malloc()}).
+    \item \textbf{Memory Mapping Segment}: Used for shared libraries and memory-mapped files.
+    \item \textbf{Stack}: Located at the top of the user space (e.g., starting just below \texttt{0xC0000000}) and grows downwards towards lower memory addresses. It stores local variables, function parameters, and control information.
+    \item \textbf{Kernel Space}: The topmost portion of the address space (from \texttt{0xC0000000} to \texttt{0xFFFFFFFF}), reserved for the kernel and inaccessible to user-mode code.
+\end{itemize}
+
+\section{The Stack and Function Calls}
+The stack is a Last-In, First-Out (LIFO) data structure fundamental to the execution of functions. It is used to manage function activation records (or stack frames). 
+
+\subsection{Registers}
+The x86 architecture relies on several CPU registers to manage the execution state and the stack:
+\begin{itemize}
+    \item \textbf{General Purpose Registers}: \texttt{EAX}, \texttt{EBX}, \texttt{ECX}, \texttt{EDX} are used for arithmetic operations and data manipulation.
+    \item \textbf{Stack Pointer (\texttt{ESP})}: Holds the memory address of the top of the stack. Since the stack grows downwards, pushing a value decrements \texttt{ESP}, and popping a value increments \texttt{ESP}.
+    \item \textbf{Base Pointer / Frame Pointer (\texttt{EBP})}: Points to the base of the current function's stack frame. It acts as a stable reference point to access local variables (at negative offsets from \texttt{EBP}) and function arguments (at positive offsets from \texttt{EBP}).
+    \item \textbf{Instruction Pointer (\texttt{EIP})}: Holds the address of the next machine instruction to be executed.
+\end{itemize}
+
+\subsection{Stack Instructions}
+\begin{itemize}
+    \item \texttt{push <value>}: Decrements \texttt{ESP} by 4 bytes (on 32-bit) and writes the value to the new address pointed to by \texttt{ESP}.
+    \item \texttt{pop <register>}: Reads the value at the address pointed to by \texttt{ESP} into the register, then increments \texttt{ESP} by 4 bytes.
+\end{itemize}
+
+\subsection{Function Prologue and Epilogue}
+When a function is called, the control flow must jump to the function's code, but it must also remember where to return once the function finishes. The \texttt{call} instruction implicitly pushes the current \texttt{EIP} (the return address) onto the stack before jumping to the target function.
+
+Upon entering the function, the \textbf{Function Prologue} executes to set up the new stack frame:
+\begin{verbatim}
+push %ebp        ; Save the caller's EBP onto the stack
+mov  %esp, %ebp  ; Set the new EBP to the current ESP (top of stack)
+sub  $0xX, %esp  ; Allocate space for local variables by decrementing ESP
+\end{verbatim}
+
+When the function completes, the \textbf{Function Epilogue} executes to tear down the stack frame and return to the caller:
+\begin{verbatim}
+leave            ; Equivalent to: mov %ebp, %esp ; pop %ebp
+ret              ; Pops the saved return address into EIP and jumps to it
+\end{verbatim}
+
+\section{Buffer Overflow Vulnerabilities}
+A buffer overflow vulnerability usually stems from the use of unsafe C library functions that copy data into a buffer without verifying if the data fits within the allocated size. Examples of such dangerous functions include \texttt{gets()}, \texttt{strcpy()}, \texttt{strcat()}, \texttt{sprintf()}, and \texttt{scanf()}.
+
+Consider a function \texttt{foo()} that allocates a local 8-byte character array \texttt{char buf[8];} and then calls \texttt{gets(buf);}. The stack frame for \texttt{foo()} will look roughly like this:
+\begin{itemize}
+    \item Higher Addresses
+    \item Function Arguments
+    \item Saved \texttt{EIP} (Return Address)
+    \item Saved \texttt{EBP}
+    \item \texttt{buf[4-7]}
+    \item \texttt{buf[0-3]} $\leftarrow$ \texttt{ESP} points near here
+    \item Lower Addresses
+\end{itemize}
+
+Because \texttt{gets()} does not stop reading until it encounters a newline or EOF, an attacker can provide an input longer than 8 bytes. The data will fill \texttt{buf}, overflow into the saved \texttt{EBP}, and critically, overwrite the saved \texttt{EIP}. When \texttt{foo()} executes the \texttt{ret} instruction, the CPU will pop the attacker's corrupted value into the \texttt{EIP} register and attempt to execute code at that arbitrary address, leading to a crash (Segmentation Fault) or, worse, arbitrary code execution.
+
+\section{Exploitation Techniques}
+If an attacker can overwrite the saved \texttt{EIP}, the next step is to point it to a memory location containing valid, malicious machine code, commonly referred to as \textbf{shellcode}.
+
+\subsection{Shellcode}
+Historically, the primary goal of an exploit is to spawn a shell (e.g., \texttt{/bin/sh}), granting the attacker command-line access to the victim's machine. The shellcode is the sequence of raw machine instructions that achieves this, typically by invoking the \texttt{execve} system call.
+
+Writing shellcode involves:
+\begin{enumerate}
+    \item Writing the desired logic in assembly or C.
+    \item Ensuring the code is position-independent (it must run regardless of where it is loaded in memory).
+    \item Eliminating all null bytes (\texttt{0x00}), as string-handling functions like \texttt{strcpy()} terminate copying upon encountering a null byte, which would truncate the shellcode.
+\end{enumerate}
+
+To execute \texttt{execve("/bin/sh", NULL, NULL)}, the shellcode must place the string \texttt{"/bin/sh"} in memory, set up pointers to it, load the system call number (\texttt{0xb} or 11) into \texttt{EAX}, put the address of the string in \texttt{EBX}, set \texttt{ECX} and \texttt{EDX} to NULL, and execute the software interrupt \texttt{int \$0x80} to transition to kernel mode.
+
+A common technique to dynamically find the address of the \texttt{"/bin/sh"} string within the shellcode is the \textbf{Jump and Call Trick}. The shellcode starts with a \texttt{jmp} instruction to a \texttt{call} instruction at the end. The \texttt{call} jumps back to the main payload, pushing the address of the instruction immediately following it onto the stack. By placing the string \texttt{"/bin/sh"} immediately after the \texttt{call}, the payload can simply \texttt{pop} the string's address from the stack into a register.
+
+\subsection{Stack Smashing and NOP Sleds}
+If the vulnerable buffer is large enough, the attacker can inject the shellcode directly into it. The payload structure typically consists of:
+\[ [\text{NOP Sled}] + [\text{Shellcode}] + [\text{Padding}] + [\text{Target Address for EIP}] \]
+
+The target address overwriting the saved \texttt{EIP} must point precisely to the start of the shellcode. However, predicting the exact address of the buffer in memory can be difficult due to environmental variations. To mitigate this precision problem, attackers use a \textbf{NOP sled}.
+
+A NOP sled is a sequence of \texttt{NOP} (\texttt{0x90} on x86) instructions prepended to the shellcode. A \texttt{NOP} instruction tells the CPU to "do nothing" and move to the next instruction. By filling a large portion of the buffer with a NOP sled, the attacker only needs to guess an address that falls \textit{anywhere} within the sled. The CPU will "slide" down the NOP instructions until it naturally reaches and executes the shellcode.
+
+\subsection{Exploiting via Environment Variables}
+When the vulnerable buffer is too small to contain the shellcode, the attacker can place the shellcode in an environment variable. Environment variables are loaded into the process's memory space at high addresses (above the stack).
+
+The attacker creates an environment variable containing a massive NOP sled followed by the shellcode. Then, they provide a small payload to the vulnerable program that simply overflows the buffer enough to overwrite the saved \texttt{EIP} with the estimated address of the environment variable.
+
+\subsection{Advanced Exploitation}
+When direct code injection on the stack is prevented by security mechanisms, attackers pivot to alternative strategies:
+\begin{itemize}
+    \item \textbf{Frame Teleporting}: Instead of overwriting \texttt{EIP}, the attacker overwrites the saved \texttt{EBP}. When the function returns, the caller's stack frame is shifted to a location controlled by the attacker.
+    \item \textbf{Return-to-libc (ret2libc)}: Instead of injecting new code, the attacker overwrites the saved \texttt{EIP} with the address of an existing function within the standard C library (libc), such as \texttt{system()}. The attacker also crafts the stack to provide the necessary arguments (like the string \texttt{"/bin/sh"}) to the called function. This is a rudimentary form of Code-Reuse Attacks, which evolved into Return-Oriented Programming (ROP).
+\end{itemize}
+
+\section{Defenses Against Buffer Overflows}
+Modern software and operating systems employ a multi-layered defense strategy to mitigate buffer overflow attacks.
+
+\subsection{Source Code Defenses}
+The most robust defense is preventing the vulnerability at the source:
+\begin{itemize}
+    \item \textbf{Safe Libraries}: Replacing unsafe functions with bounded alternatives, such as using \texttt{strncpy()} instead of \texttt{strcpy()}, or using BSD extensions like \texttt{strlcpy()} and \texttt{strlcat()}.
+    \item \textbf{Memory-Safe Languages}: Developing in languages that perform automatic bounds checking and dynamic memory management (e.g., Java, Python, Rust) eliminates classical buffer overflows by design.
+    \item \textbf{Source Code Analyzers}: Using static analysis tools during the Software Development Life Cycle (SDLC) to automatically detect potential buffer overflows.
+\end{itemize}
+
+\subsection{Compiler Level Defenses}
+Compilers can instrument the generated code to detect and block overflows at runtime:
+\begin{itemize}
+    \item \textbf{Stack Canaries (StackGuard)}: The compiler inserts a random "canary" value on the stack between the local variables and the saved control data (\texttt{EBP} and \texttt{EIP}). Before the function returns, the epilogue checks if the canary value has been altered. Since a contiguous buffer overflow must overwrite the canary to reach the saved \texttt{EIP}, the modification is detected, and the program is forcibly aborted. Canaries can be completely random, XORed with the return address, or contain terminator characters (like \texttt{\textbackslash 0}) to stop string-copying functions prematurely.
+\end{itemize}
+
+\subsection{Operating System Level Defenses}
+Operating systems enforce policies to make exploitation difficult even if a vulnerability exists:
+\begin{itemize}
+    \item \textbf{Non-Executable Stack (NX Bit / DEP)}: The OS marks the stack and heap memory segments as non-executable (Data Execution Prevention). If an attacker successfully redirects the \texttt{EIP} to their injected shellcode on the stack, the CPU will refuse to execute it and will terminate the process. This forces attackers to rely on complex code-reuse techniques like ROP.
+    \item \textbf{Address Space Layout Randomization (ASLR)}: The OS randomly shifts the memory locations of the stack, heap, and libraries every time the program is executed. This randomness makes it extremely difficult for an attacker to reliably predict the target addresses needed to overwrite the \texttt{EIP} or to locate libc functions for a ret2libc attack.
+\end{itemize}

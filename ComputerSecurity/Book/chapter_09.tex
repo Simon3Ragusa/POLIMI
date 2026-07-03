@@ -1,0 +1,153 @@
+\chapter{Network Protocol Attacks}
+
+\section{Introduction to Network Protocols and Layering}
+
+The Internet is a complex interconnection of various physical media, topologies, and administrative domains. To manage this complexity, network architectures adopt a layered approach. The two most prominent models are the ISO/OSI (Open Systems Interconnection) reference model and the TCP/IP stack.
+
+While the OSI model defines seven layers (Physical, Data Link, Network, Transport, Session, Presentation, Application), the TCP/IP model condenses these into four practical layers: Network Access (or Link), Internet, Transport, and Application. This layering allows for abstraction, meaning a protocol at a specific layer only needs to communicate with its counterpart on another machine, relying on the layers below it to handle the actual transmission.
+
+Data transmission across these layers involves \textbf{encapsulation}. As data moves down the stack from the application layer to the physical layer, each protocol adds its own header (and sometimes a trailer). For instance, an HTTP message (Application) is encapsulated in a TCP segment (Transport), which is encapsulated in an IP datagram (Internet), which is finally encapsulated in an Ethernet frame (Data Link).
+
+\subsection{Addressing Systems}
+
+Different layers employ distinct addressing structures to identify nodes and services:
+\begin{itemize}
+    \item \textbf{Data Link Layer (MAC Address):} Used primarily in Ethernet and Wi-Fi networks, the Media Access Control (MAC) address is a 48-bit globally unique identifier ``burnt'' into the Network Interface Card (NIC).
+    \item \textbf{Internet Layer (IP Address):} The Internet Protocol (IP) address uniquely identifies a host across the global network (or within a private network using RFC 1918 addresses). It is a logical address used for routing packets across different networks.
+    \item \textbf{Transport Layer (Port):} Ports identify specific services or applications running on a host. For example, port 80 typically denotes HTTP traffic, while port 443 denotes HTTPS.
+\end{itemize}
+
+\section{Taxonomy of Typical Network Attacks}
+
+Network attacks generally exploit the lack of authentication or fundamental design flaws in early protocol specifications. They can be broadly classified into three categories based on the security principles they violate:
+
+\begin{enumerate}
+    \item \textbf{Denial of Service (DoS):} Targets \textit{availability}. The goal is to render a service or resource unavailable to legitimate users.
+    \item \textbf{Sniffing:} Targets \textit{confidentiality}. It involves the unauthorized interception and reading of network packets traversing the medium.
+    \item \textbf{Spoofing:} Targets \textit{integrity and authenticity}. It involves forging network packets to masquerade as another host or service.
+\end{enumerate}
+
+\section{Denial of Service (DoS) Attacks}
+
+Denial of Service attacks aim to exhaust the resources of a target system, such as bandwidth, memory, or CPU cycles.
+
+\subsection{Killer Packets}
+Early DoS attacks relied on sending malformed packets that exploited bugs or memory errors in network stack implementations. These are often referred to as ``Killer Packets.''
+
+\begin{itemize}
+    \item \textbf{Ping of Death:} Exploited the maximum legal length of an IP packet (65,535 octets). By sending oversized, fragmented ICMP echo requests, the target's operating system would crash or freeze during the reassembly process due to buffer overflows.
+    \item \textbf{Teardrop Attack:} Exploited vulnerabilities in TCP/IP fragmentation reassembly. The attacker sends fragmented packets with overlapping offsets. When the target attempts to reconstruct the original packet, the overlapping offsets cause the kernel to hang or crash. This affected many major operating systems in the late 90s and reappeared in 2009 affecting SMB in Windows Vista.
+    \item \textbf{Land Attack:} A carefully crafted packet is sent where both the source and destination IP addresses are set to the target's IP address, and the SYN flag is set. This causes the target's TCP stack to attempt to establish a connection with itself, creating an infinite loop that locks up the system.
+\end{itemize}
+
+\subsection{SYN Flood Attack}
+
+The SYN Flood is a classic resource exhaustion attack that exploits the TCP three-way handshake.
+
+Normally, a TCP connection is established as follows:
+\begin{enumerate}
+    \item Client sends a \texttt{SYN} packet to the Server.
+    \item Server allocates memory in its queue, replies with a \texttt{SYN-ACK}, and leaves the connection in a ``half-open'' state.
+    \item Client completes the handshake with an \texttt{ACK}.
+\end{enumerate}
+
+In a SYN Flood attack, the attacker generates a high volume of \texttt{SYN} requests using \textit{spoofed} source IP addresses. The server receives these requests, allocates resources in its connection queue, and sends \texttt{SYN-ACK} packets to the spoofed addresses. Because the spoofed addresses either do not exist or are not initiating a connection, the final \texttt{ACK} is never sent back. The server's queue quickly fills up with these half-open connections, preventing legitimate clients from establishing new connections.
+
+\textbf{Mitigation: SYN Cookies.} To mitigate SYN floods, servers can use SYN cookies. Instead of allocating memory for a half-open connection upon receiving a \texttt{SYN}, the server calculates a cryptographic hash (the ``cookie'') based on the connection details and the TCP sequence number, and sends it back in the \texttt{SYN-ACK}. The server discards the state. If the client is legitimate, it will reply with an \texttt{ACK} containing the incremented sequence number. The server recalculates the hash to verify the cookie and then allocates memory for the fully established connection.
+
+\subsection{Distributed Denial of Service (DDoS)}
+
+A DDoS attack magnifies the impact of a DoS attack by coordinating multiple compromised machines to target a single victim.
+
+\textbf{Botnets:} Attackers often use botnets---networks of compromised computers (bots) infected with malware---controlled via a Command and Control (C\&C) infrastructure. The botmaster can command thousands of bots to simultaneously flood a target.
+
+\textbf{Smurf Attack:} An early form of DDoS and amplification. The attacker sends an ICMP Echo Request (\texttt{ping}) to a network's broadcast address (e.g., \texttt{1.1.1.255}), but spoofs the source IP address to be the victim's IP. All hosts on the broadcast network reply to the victim simultaneously, overwhelming its bandwidth.
+
+\textbf{Amplification Attacks:} These attacks exploit protocols that yield a response much larger than the initial request (a high Bandwidth Amplification Factor or BAF). The attacker sends a small request with a spoofed source IP (the victim's IP) to a vulnerable server (e.g., NTP, DNS, SNMP). The server sends the massive response to the victim. For instance, an NTP ``monlist'' request can result in an amplification factor of over 500x.
+
+\section{Sniffing and Local Area Network Attacks}
+
+Normally, a Network Interface Card (NIC) only processes packets destined for its own MAC address (or broadcast addresses). However, if placed in \textbf{promiscuous mode}, the NIC will pass all traffic it sees on the wire up to the operating system, allowing an attacker to ``sniff'' or eavesdrop on the network.
+
+\subsection{Hubs vs. Switches}
+In older networks using shared media (like BNC cables) or \textbf{hubs}, all traffic is broadcasted to every connected device, making sniffing trivial. Modern networks use \textbf{switches}, which selectively forward frames only to the port where the destination MAC address resides. Switches use a \textbf{CAM (Content Addressable Memory) table} to cache the mapping of MAC addresses to physical ports. While switches improve performance and offer a baseline of security against casual sniffing, they are vulnerable to specific attacks.
+
+\subsection{MAC Flooding}
+An attacker can overwhelm a switch's CAM table by generating thousands of spoofed frames with random source MAC addresses in a matter of seconds (using tools like \texttt{macof}). Once the CAM table is full, the switch cannot learn new MAC addresses and defaults to ``fail-open'' behavior---it begins broadcasting all incoming frames to all ports, effectively turning the switch into a hub and allowing the attacker to sniff all traffic.
+\textbf{Mitigation:} Port Security features can limit the number of MAC addresses allowed on a single switch port.
+
+\subsection{ARP Spoofing and Cache Poisoning}
+
+The Address Resolution Protocol (ARP) translates 32-bit IPv4 addresses into 48-bit MAC addresses. When a host needs to find the MAC address for an IP, it broadcasts an ARP Request. The owner of the IP replies with an ARP Reply.
+
+\textbf{Vulnerability:} ARP is entirely \textit{unauthenticated} and stateless. Hosts operate on a ``first come, first trusted'' basis and will aggressively cache any ARP replies they receive.
+
+An attacker can send forged, unsolicited ARP Replies (Gratuitous ARP) to a victim, falsely claiming that the attacker's MAC address is associated with a specific IP address (usually the default gateway). The victim caches this poisoned record. Consequently, all traffic destined for the gateway is sent to the attacker instead. The attacker can then sniff, modify, or drop the packets before forwarding them to the real gateway.
+
+\subsection{Spanning Tree Protocol (STP) Abuse}
+The Spanning Tree Protocol (STP, 802.1d) prevents routing loops in switched networks by electing a root node and disabling redundant links. Switches elect the root node by exchanging Bridge Protocol Data Units (BPDUs). Because BPDUs are not authenticated, an attacker can broadcast forged BPDUs with the highest priority, forcing the network to elect the attacker's machine as the root bridge. This alters the network topology, causing large volumes of traffic to flow through the attacker's machine for interception.
+
+\section{IP Spoofing and Session Hijacking}
+
+\subsection{IP Spoofing (UDP/ICMP vs. TCP)}
+The source IP address in an IP packet header is not authenticated by the protocol itself. Changing the source IP is trivial. For connectionless protocols like UDP or ICMP, the spoofed packet simply reaches the destination, and any response goes to the spoofed source. This is known as \textbf{blind spoofing} if the attacker cannot intercept the return traffic.
+
+For TCP, which is connection-oriented, spoofing is significantly harder due to the required three-way handshake and Sequence Numbers.
+
+\subsection{TCP Sequence Number Guessing}
+TCP uses sequence numbers to order packets and ensure reliable delivery. When establishing a connection, a semi-random Initial Sequence Number (ISN) is chosen. 
+
+If an attacker attempts a blind spoofing attack (where they cannot sniff the target's replies), they must accurately guess the ISN sent by the server in the \texttt{SYN-ACK} packet to successfully forge the final \texttt{ACK} and establish the connection. Furthermore, the actual spoofed host must be prevented from receiving the server's \texttt{SYN-ACK}, otherwise, it will respond with an \texttt{RST} (Reset) packet, terminating the connection.
+
+Historically (e.g., the famous Kevin Mitnick attack in 1995), operating systems used highly predictable ISN generation algorithms, making this attack feasible. Modern OSes use cryptographically secure random ISNs, making blind TCP spoofing exceedingly difficult.
+
+\subsection{TCP Session Hijacking}
+If the attacker is on the same local network or path and can sniff the traffic, they don't need to guess sequence numbers. 
+
+In a TCP Session Hijacking attack:
+\begin{enumerate}
+    \item The attacker (C) sniffs an established TCP connection between Client (A) and Server (B), observing the current sequence and acknowledgment numbers.
+    \item C disrupts A's connection (e.g., by executing a targeted DoS or SYN flood against A).
+    \item C injects a packet to B, spoofing A's IP address and using the correct next sequence number. B accepts the packet as legitimate data from A.
+\end{enumerate}
+
+\subsection{Man In The Middle (MITM)}
+A MITM attack is a broad category where the attacker inserts themselves between two communicating parties, impersonating each to the other. If an attacker successfully executes ARP spoofing to become the gateway, they achieve a physical/logical MITM position, allowing them full control to intercept, modify, or inject traffic seamlessly.
+
+\section{Application Layer Protocol Attacks}
+
+\subsection{Domain Name System (DNS) Attacks}
+DNS translates human-readable domain names (e.g., \texttt{www.google.com}) into IP addresses. It operates as a distributed, hierarchical database primarily over UDP port 53. Because standard DNS queries and responses are unauthenticated, it is highly vulnerable to spoofing.
+
+\textbf{DNS Cache Poisoning:}
+When a client asks its local, non-authoritative DNS server for a domain it doesn't know, the server performs a recursive query on behalf of the client. 
+\begin{enumerate}
+    \item The attacker forces the local DNS server to resolve a target domain.
+    \item The local server contacts the authoritative nameserver.
+    \item Before the genuine authoritative server can reply, the attacker floods the local server with forged DNS responses containing a malicious IP address.
+    \item To be accepted, the forged response must match the 16-bit \textbf{Transaction ID} (and UDP source port) of the original request. Attackers use brute force or vulnerabilities (like the Dan Kaminsky flaw discovered in 2008, which exploited predictable port allocation and requested random subdomains) to guess these parameters.
+    \item The local DNS server accepts the forged response, caches the poisoned record, and subsequently redirects all legitimate clients to the attacker's malicious site.
+\end{enumerate}
+
+\subsection{Dynamic Host Configuration Protocol (DHCP) Attacks}
+DHCP dynamically assigns IP addresses, subnet masks, default gateways, and DNS servers to clients joining a network. The process involves a \texttt{DISCOVER}, \texttt{OFFER}, \texttt{REQUEST}, and \texttt{ACK} exchange over UDP.
+
+\textbf{DHCP Poisoning (Rogue DHCP Server):}
+Since DHCP is unauthenticated, an attacker can set up a rogue DHCP server on the local network. When a new client broadcasts a \texttt{DHCP DISCOVER} message, the attacker races to send a \texttt{DHCP OFFER} before the legitimate server. If the client accepts the rogue offer, the attacker can provision the client with a malicious IP address, a rogue DNS server (facilitating phishing), and set the attacker's machine as the default gateway (facilitating a MITM attack).
+
+\section{Network Control Protocol Attacks}
+
+\subsection{Internet Control Message Protocol (ICMP)}
+ICMP is designed for sending error messages and operational information (e.g., \texttt{Echo Request/Reply} for ping, \texttt{Destination Unreachable}, \texttt{Time Exceeded}).
+
+\textbf{ICMP Redirect Attack:}
+An \texttt{ICMP Redirect} message is used by a router to inform a host that a more optimal route exists for a specific destination. An attacker can forge an ICMP Redirect packet to trick a host into routing its traffic through the attacker's machine or into a black hole (DoS). This attack relies on the fact that ICMP messages have weak authentication (they merely include the IP header and the first 8 bytes of the original datagram). The success of this attack often depends on the host OS; many modern operating systems ignore ICMP redirects by default.
+
+\subsection{Route Mangling}
+Routers use dynamic routing protocols (like RIP, OSPF, EIGRP, BGP) to learn and share network topologies. Many older protocols (RIP, OSPF) have weak or optional authentication mechanisms. Even in protocols where authentication is available (like BGP), it is historically underutilized. 
+
+An attacker who gains access to a router or can inject routing updates can ``mangle'' the routing tables. By announcing false, highly attractive routes (e.g., a very specific subnet prefix), the attacker can hijack vast amounts of Internet traffic, redirecting it for interception or causing massive, wide-scale Denial of Service (as seen in various BGP hijacking incidents).
+
+\section{Conclusion}
+
+Network protocols were largely designed with functionality and resilience in mind, often in environments where trust was assumed. The lack of strong, built-in cryptographic authentication at the lower layers (Link, Internet, Transport) exposes modern networks to a wide array of attacks. From resource exhaustion via DoS to sophisticated MITM and cache poisoning techniques, attackers exploit inherent structural weaknesses. Securing a network requires a defense-in-depth approach, implementing security controls, stateful inspection, and cryptographic protocols (like IPsec, DNSSEC, and TLS) layered on top of the foundational protocols.

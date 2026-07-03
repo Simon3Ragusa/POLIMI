@@ -1,6 +1,27 @@
 \chapter{Malicious Software}
 \label{ch:malicious_software}
 
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Chapter Summary]
+This chapter covers malicious software, focusing on its lifecycle, types, and the constant arms race between attackers and defenders. It details computer viruses, worms, botnets, and rootkits. Crucially, it explores stealth techniques such as polymorphism and metamorphism, and contrasts static and dynamic malware analysis.
+\end{tcolorbox}
+
+\begin{table}[htbp]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\textbf{Topic} & \textbf{Key Concepts} \\
+\hline
+Malware Categories & Viruses (host-dependent), Worms (standalone), Trojans (hidden malicious functionality) \\
+Stealth Techniques & Obfuscation, Polymorphism (payload encryption), Metamorphism (code rewriting), Packing, Anti-virtualization \\
+Analysis Methods & Static (examining code without execution), Dynamic (sandboxed execution) \\
+Rootkits & Userland vs. Kernel Space (e.g., Syscall Hijacking), Evasion techniques \\
+\hline
+\end{tabular}
+\caption{Overview of key concepts in malicious software.}
+\label{tab:malware_summary}
+\end{table}
+
 \section{Introduction and Malware Categories}
 The term \textbf{malware} is a portmanteau derived from the words \textit{malicious software}. Fundamentally, it refers to any executable code or script that is intentionally written to violate a security policy. Unlike software bugs or unintentional vulnerabilities, malware is designed with malicious intent to compromise the confidentiality, integrity, or availability of a system.
 
@@ -168,6 +189,11 @@ Botnets pose severe threats on two fronts:
 The cybercrime ecosystem has evolved into organized groups offering "Exploit-as-a-Service," exploit development, site infection, and victim monitoring. Since 2010, the landscape has further expanded to include high-profile targets, critical infrastructure attacks (e.g., Stuxnet), state-sponsored espionage, and the devastating rise of Ransomware (e.g., CryptoLocker, WannaCry).
 
 \section{Stealth Techniques: Obfuscation, Metamorphism, and Packing}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+Expect questions asking you to identify evasive techniques directly from assembly or pseudo-code, such as polymorphic/metamorphic behavior, packing, anti-debugging, dormant/event-triggered code, or time-bombs. You may also be asked to identify flaws in badly implemented anti-analysis techniques and explain how a defender could exploit those flaws. Another typical task is modifying assembly code to bypass signature matching (e.g., by manually applying metamorphic transformations).
+\end{tcolorbox}
+
 As malware analysis techniques improved, malware authors developed sophisticated stealth techniques to evade detection and hinder reverse engineering.
 
 \subsection{Entry Point Obfuscation}
@@ -195,6 +221,10 @@ Detection mechanisms rely on timing discrepancies (since virtualization adds ove
 Furthermore, \textbf{Packing} is used to compress and encrypt the malicious payload. The packer extracts the payload dynamically in memory during execution. Advanced packers include metamorphic components, anti-debugging tricks, anti-VM checks, and code virtualization (compiling the malware into a custom bytecode that is interpreted by an embedded, custom virtual machine).
 
 \section{Malware Analysis and Detection}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+A frequent exam scenario requires discussing whether \textbf{Static} or \textbf{Dynamic} analysis is more appropriate for a given malware sample, and detailing the key elements to observe. Furthermore, you should be ready to contrast \textbf{signature-based detection} with \textbf{heuristics}.
+\end{tcolorbox}
 
 \subsection{Defending Against Malware}
 The primary defense against worms is \textbf{patching}, as worms rely heavily on exploiting known, unpatched vulnerabilities. Beyond patching, defense relies on detecting the malware via Antivirus/Anti-malware software using several strategies:

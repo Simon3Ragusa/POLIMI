@@ -1,5 +1,29 @@
 \chapter{Introduction to Software Security}
 
+\textbf{Chapter Summary:} This chapter introduces the fundamental concepts of software security, distinguishing between bugs, vulnerabilities, and exploits. It covers the vulnerability lifecycle, disclosure policies, and the economics of exploits. It also examines UNIX process privileges (RUID, EUID, SUID) as a practical example of vulnerabilities, highlighting privilege separation and dropping. Finally, it outlines core principles of secure design and development practices.
+
+\begin{table}[hbtp]
+\centering
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\textbf{Concept} & \textbf{Description} \\
+\hline
+\textbf{Software Bug} & An unmet functional specification. \\
+\hline
+\textbf{Vulnerability} & An unmet security specification (a weakness in the system). \\
+\hline
+\textbf{Exploit} & A method or code used to leverage a vulnerability to violate security properties. \\
+\hline
+\textbf{Zero-day Attack} & An attack that occurs between the release of an exploit and the deployment of a patch. \\
+\hline
+\textbf{SUID (UNIX)} & A permission bit that changes the Effective UID of a process to the file owner's UID. \\
+\hline
+\textbf{Secure Design} & Core principles like keeping it simple, minimizing privileges, failing securely, and open design. \\
+\hline
+\end{tabular}
+\caption{Key Software Security Concepts}
+\end{table}
+
 \section{Fundamentals of Software Security}
 \subsection{Software Requirements and Security}
 Good software engineering aims to meet a specific set of requirements, which can be broadly divided into functional and non-functional categories. 
@@ -11,6 +35,11 @@ Good software engineering aims to meet a specific set of requirements, which can
 Creating inherently secure applications is a fundamental, yet often unknown, skill for a good developer or software engineer. Creating secure software is inherently difficult because security is a negative goal: it is about preventing unwanted behaviors rather than just ensuring desired ones. 
 
 \subsection{Bugs, Vulnerabilities, and Exploits}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+Questions about this topic are usually based on identifying assets at risk, associated threats, threat agents, and assessing vulnerabilities for a given scenario.
+\end{tcolorbox}
+
 Software is designed to implement specifications. When these specifications are not met, the software contains flaws.
 \begin{itemize}
     \item An unmet functional specification results in a \textbf{software bug}.
@@ -113,6 +142,11 @@ int main(int argc, const char *argv[]) {
 If this program simply reads \texttt{/etc/secret} and prints it, any user executing this SUID binary can read the secret file. If the program was intended to only parse the file and return an "OK" status but instead prints the file contents on a parsing error, an attacker could craft a malicious input or exploit a parsing bug to force the program to reveal the secret file or execute arbitrary code while retaining \texttt{root} privileges.
 
 \subsection{Exploitation and Patching}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+Exam questions often ask you to identify vulnerabilities in C source code, explain how they can be exploited, and propose fixes (e.g., dropping privileges). You may also need to suggest potential attack surfaces and countermeasures for a described scenario.
+\end{tcolorbox}
+
 The core issue is that the program holds elevated privileges (EUID = \texttt{root}) for longer than necessary, expanding the \textbf{attack surface}. Any bug in the \texttt{parse()} function or subsequent logic can be exploited with root privileges.
 
 To patch this, developers must apply the principle of privilege separation:

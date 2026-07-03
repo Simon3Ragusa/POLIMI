@@ -1,6 +1,22 @@
 \chapter{Authentication}
 \label{ch:authentication}
 
+This chapter explores the foundational concepts and mechanisms of authentication. It distinguishes authentication from identification, and details the Three Factors of Authentication: \textit{To Know} (passwords), \textit{To Have} (tokens), and \textit{To Be} (biometrics). The chapter also covers secure password handling, Single Sign-On (SSO), and modern Passwordless Authentication (Passkeys).
+
+\begin{table}[h!]
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{|l|p{3.5cm}|p{4.2cm}|p{4.2cm}|}
+        \hline
+        \textbf{Factor} & \textbf{Examples} & \textbf{Advantages} & \textbf{Disadvantages} \\ \hline
+        \textbf{To Know} & Passwords, PINs & Cheap, easy to deploy & Vulnerable to guessing/stealing, hard to remember \\ \hline
+        \textbf{To Have} & Smart cards, OTP tokens, YubiKeys & Leverages human protection of physical items & Hard to deploy logistically, can be lost or stolen \\ \hline
+        \textbf{To Be} & Fingerprints, Face geometry & High security, robust, no extra hardware & Probabilistic matching, privacy issues, cloning risk \\ \hline
+    \end{tabular}
+    \caption{Summary of the Three Authentication Factors}
+    \label{tab:auth_factors}
+\end{table}
+
 \section{Identification vs. Authentication}
 In the realm of computer security, it is crucial to distinguish between identification and authentication, as they serve different but complementary purposes.
 \begin{itemize}
@@ -27,6 +43,10 @@ Authentication can happen between any types of entities:
 \end{itemize}
 
 \section{The Three Factors of Authentication}
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+Questions often ask you to analyze the security of custom authentication schemes (e.g., biometrics, hardware protocols). You should be ready to highlight weaknesses—such as susceptibility to snooping, guessing, or cloning—and suggest appropriate improvements or multi-factor combinations.
+\end{tcolorbox}
+
 Authentication mechanisms generally rely on one or more of three primary factors:
 \begin{enumerate}
     \item \textbf{Something you \textit{know} (The ``to know'' factor):} A secret piece of information, such as a password, a PIN, or a secret handshake.
@@ -46,6 +66,10 @@ The main \textbf{advantages} of passwords are their low cost, ease of deployment
     \item \textbf{Guessed:} Attackers can guess common passwords (e.g., ``password123'') or passwords based on the user's personal information.
     \item \textbf{Cracked (enumerated):} Attackers can use brute-force or dictionary attacks against password databases to find the correct password.
 \end{itemize}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+For exams, be prepared to analyze password and PIN entropy and brute-forcing probabilities. You may be asked to calculate the success probability of a brute-force attack given a specific attacker energy budget or hash truncation constraint.
+\end{tcolorbox}
 
 \subsection{Countermeasures and the Cost of Security}
 To mitigate these risks, systems enforce password policies (countermeasures):
@@ -107,6 +131,10 @@ To minimize this risk:
     \item Implement strict access control policies on the password file.
     \item Never disclose the actual secret in password-recovery schemes (e.g., sending the plaintext password via email is a severe security flaw).
 \end{itemize}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+A typical exam scenario requires analyzing custom password recovery mechanisms. Check if secrets are transmitted in plaintext or poorly stored. Highlight these vulnerabilities and propose secure storage methods (like salted hashes) and robust exchange protocols (like challenge-response) as countermeasures.
+\end{tcolorbox}
 
 \section{The ``To Have'' Factor: Tokens and Smart Cards}
 Here, the user proves they possess a specific physical item.

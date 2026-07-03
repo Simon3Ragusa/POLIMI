@@ -1,6 +1,26 @@
 \chapter{Introduction to Computer Security}
 \label{ch:intro_security}
 
+This chapter introduces the fundamental concepts of computer security, framing it primarily as an engineering discipline focused on risk management rather than an absolute state of invulnerability.
+
+\begin{table}[htpb]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|l|p{10cm}|}
+        \hline
+        \textbf{Concept} & \textbf{Description} \\ \hline
+        \textbf{CIA Paradigm} & Confidentiality, Integrity, and Availability. \\ \hline
+        \textbf{Vulnerability} & An underlying weakness or flaw in a system. \\ \hline
+        \textbf{Exploit} & A specific technique used to leverage a vulnerability to violate the CIA constraints. \\ \hline
+        \textbf{Asset} & Anything of value to an organization (Hardware, Software, Data, Reputation). \\ \hline
+        \textbf{Threat} & A potential violation of the CIA paradigm. \\ \hline
+        \textbf{Attack} & The intentional use of an exploit to compromise a system. \\ \hline
+        \textbf{Risk} & $\text{Risk} = \text{Asset} \times \text{Vulnerabilities} \times \text{Threats}$ \\ \hline
+    \end{tabular}
+    \caption{Key Concepts in Introduction to Computer Security}
+    \label{tab:ch01_concepts}
+\end{table}
+
 \section{Introduction}
 Computer security is often perceived by the general public through the lens of dramatic media representations, but at its core, it is fundamentally an engineering problem. The discipline is driven by a few basic but profound questions: What constitutes a secure system? How do we define computer security? And, most importantly, how do we engineer systems to be secure?
 
@@ -19,6 +39,10 @@ A significant challenge in engineering secure systems is that these properties o
 Treating security as an engineering discipline means moving away from absolute statements (like ``this system is unhackable'') and towards a structured understanding of vulnerabilities, threats, and risks. No system is truly invulnerable; thus, the goal is to systematically manage and mitigate these aspects. To do so, several key concepts must be defined: vulnerabilities, exploits, assets, threats, and risks.
 
 \subsection{Vulnerabilities vs. Exploits}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+Exam questions frequently ask you to analyze vulnerabilities in a scenario, explain the corresponding exploit, and propose countermeasures or mitigations to reduce the risk.
+\end{tcolorbox}
 It is crucial to distinguish between a vulnerability and an exploit. 
 
 A \textbf{Vulnerability} is a weakness or flaw in a system that allows an attacker to violate one or more of the constraints of the CIA paradigm. It is the underlying condition that \textit{can} be abused.
@@ -94,6 +118,10 @@ if (s == 0) { // security check
 \textbf{The Exploit:} An attacker can input a number that is not zero in 32 bits but becomes zero when truncated to 16 bits. Since $2^{16} = 65536$, running the program with the argument \texttt{65536} bypasses the first check (since $65536 \neq 0$). During the assignment \texttt{s = i}, the value \texttt{65536} (which in binary is a \texttt{1} followed by sixteen \texttt{0}s) is truncated. The lower 16 bits are all zero, so \texttt{s} becomes \texttt{0}. The final check \texttt{if (s == 0)} evaluates to true, and access is granted. Here, the number \texttt{65536} is the specific exploit.
 
 \subsection{Assets, Threats, and Attacks}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+Questions about this topic are usually based on identifying assets at risk, associated threats, and threat agents for a given scenario (e.g., floor cleaning robots, tracking devices). You may also be asked to suggest potential attack surfaces for a described infrastructure.
+\end{tcolorbox}
 To understand risk, we must map out what we are trying to protect and who we are protecting it from.
 
 An \textbf{Asset} identifies what is valuable to an organization. In IT contexts, this includes:
@@ -127,6 +155,10 @@ An attacker is not necessarily a hacker (e.g., someone running a pre-packaged sc
 \end{itemize}
 
 \section{Security as Risk Management}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+You may be required to correct a Risk Analysis Table (Likelihood/Impact) for a given scenario, justify your changes, and select the best countermeasure.
+\end{tcolorbox}
 Because no system is invulnerable, security cannot be treated as an absolute state. Instead, it is an exercise in \textbf{Risk Management}. 
 
 \textbf{Risk} is defined as the statistical and economical evaluation of the exposure to damage resulting from the presence of vulnerabilities and threats. It can be conceptually modeled as:

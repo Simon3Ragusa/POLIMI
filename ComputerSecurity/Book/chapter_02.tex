@@ -1,6 +1,29 @@
 \chapter{Introduction to Cryptography}
 \label{ch:introduction_to_cryptography}
 
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!75!black,title=Chapter Summary]
+This chapter covers the foundational concepts, history, and technical primitives of cryptography, transitioning from classical ciphers to modern computationally secure protocols. Key concepts include the core goals of cryptography (Confidentiality, Integrity, Authenticity, Non-repudiation), perfect secrecy versus computational security, symmetric cryptography (AES, CTR mode, MACs, Hashes), asymmetric cryptography (Diffie-Hellman, RSA), and Public Key Infrastructure (PKI).
+\end{tcolorbox}
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{|l|p{10cm}|}
+        \hline
+        \textbf{Concept} & \textbf{Description} \\
+        \hline
+        Symmetric Cryptography & Uses a single shared key for both encryption and decryption. Fast but requires secure key exchange. Includes AES and stream ciphers (CTR). \\
+        \hline
+        Asymmetric Cryptography & Uses a public/private key pair. Slower but solves the key distribution problem. Includes RSA and Diffie-Hellman. \\
+        \hline
+        MACs \& Hashes & Provide data integrity and origin authentication. Ensure messages are not tampered with. \\
+        \hline
+        PKI \& Certificates & Binds a public key to an identity to prevent Man-in-the-Middle attacks, establishing a chain of trust via CAs. \\
+        \hline
+    \end{tabular}
+    \caption{Key Cryptographic Primitives}
+    \label{tab:crypto_primitives}
+\end{table}
+
 Cryptography, historically referred to as cryptology, is fundamentally the study of mathematical techniques and protocols designed to enable secure communication and data storage in the presence of malicious adversaries. In modern computer security, cryptography provides the foundational primitives upon which secure systems are built.
 
 \section{The Core Goals of Cryptography}
@@ -72,6 +95,10 @@ However, standard Shannon entropy can sometimes mislead when evaluating cryptogr
 H_\infty(\mathcal{X}) = -\log_2(\max_i p_i)
 \]
 Min-entropy quantifies the difficulty of guessing the \textit{most common} output. If an attacker only needs to succeed once (e.g., guessing a weak key), min-entropy accurately reflects the effort required: guessing the most common outcome of $\mathcal{X}$ is exactly as hard as guessing a purely random string of length $H_\infty(\mathcal{X})$.
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+Expect exercises calculating password or PIN entropy and success probabilities for brute-forcing attacks. You may need to estimate the success probability given an energy budget or determine the impact of hash truncation.
+\end{tcolorbox}
 
 \section{Confidentiality and Perfectly Secure Ciphers}
 
@@ -149,6 +176,10 @@ A block cipher like AES only encrypts a fixed-size block (e.g., 128 bits). To en
 
 \textbf{Counter (CTR) Mode}: To achieve true security, encryption must be non-deterministic (randomized) so that identical plaintexts yield different ciphertexts. CTR mode achieves this by turning a block cipher into a CSPRNG stream cipher. It encrypts a sequence of distinct values—typically a public Number Used Once (\textbf{Nonce}) concatenated with an incrementing counter. The block cipher's outputs create a pseudorandom stream that is XORed with the plaintext. Because a unique counter/nonce is used for every block, the encryption behaves like a One-Time Pad, and the cipher achieves security against Chosen Plaintext Attacks (CPA).
 
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+A common exam question involves identifying information leakage in poor implementations, such as using CTR mode with predictable or reused nonces. Be prepared to analyze or prove the security/integrity of custom cryptographic protocols or encryption schemes.
+\end{tcolorbox}
+
 \begin{figure}[htbp]
     \centering
     \textit{[Placeholder for a block diagram illustrating CTR Mode. A Nonce + Counter value enters an Encryption block keyed by $k$. The resulting pseudo-random block is XORed with a Plaintext block to produce a Ciphertext block. This is repeated for subsequent blocks with incremented counters.]}
@@ -167,6 +198,10 @@ Confidentiality does not imply integrity. In fact, many ciphers (especially stre
 A MAC provides data integrity and origin authentication. It consists of two functions: a generation function that takes a message and a secret key to produce a small \textbf{tag}, and a verification function that checks if the tag is valid for that message and key. 
 
 Because both the sender and the receiver must share the same secret key, MACs cannot provide non-repudiation. The receiver, possessing the key, could easily forge a valid tag themselves. A widely used method for constructing a MAC using a block cipher is the CBC-MAC. Another field-proven method is HMAC, which safely combines a message and a secret key using a cryptographic hash function.
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+You may be asked to design secure cryptographic protocols that guarantee both confidentiality and integrity (e.g., for firmware updates or a digitally controlled safe). Always consider whether the scheme prevents tampering using MACs or digital signatures.
+\end{tcolorbox}
 
 \subsection{Cryptographic Hash Functions}
 A cryptographic hash function $H$ maps arbitrary-length bitstrings to a fixed-length output called a \textbf{digest}. To be secure, it must satisfy three computationally hard problems:
@@ -215,6 +250,10 @@ A critical vulnerability in asymmetric cryptography is the Man-in-the-Middle (MI
 To thwart this, we must bind a public key to an identity using a \textbf{Digital Certificate} (most commonly standardized as ITU X.509). A certificate contains the user's identity (e.g., a domain name), their public key, the validity period, and a digital signature created by a trusted third party known as a \textbf{Certification Authority (CA)}.
 
 When a browser connects to a secure website, it receives the site's certificate. The browser verifies the CA's signature on the certificate using the CA's own public key, which is pre-installed in the browser's "Trusted Root Store." This establishes a hierarchical chain of trust. The security of the entire internet relies on the integrity of the certificates residing in this trusted storage; if a rogue CA certificate is added, the trust model collapses entirely.
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+Exam questions frequently involve analyzing PKI and certificate practices. You might be asked to compare graph-based vs. tree-based trust models, analyze setups for air-gapped devices, or discuss the implications of certificate lifetime reduction.
+\end{tcolorbox}
 
 \section{Future Directions}
 

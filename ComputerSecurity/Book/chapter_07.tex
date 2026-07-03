@@ -1,6 +1,25 @@
 \chapter{Format String Bugs}
 \label{ch:format_string_bugs}
 
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Chapter Summary]
+This chapter explores how format string functions like \texttt{printf} can be exploited when user-supplied input is directly passed as the format string. It covers the mechanisms of leaking stack memory, arbitrary memory reads, and arbitrary memory writes, culminating in full execution hijacking using staged writes.
+
+\vspace{2mm}
+\begin{center}
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\textbf{Specifier} & \textbf{Exploitation Usage} \\
+\hline
+\texttt{\%x} & Leaks raw values from the stack sequentially. \\
+\texttt{\%N\$x} & Direct parameter access to read the $N$-th parameter on the stack. \\
+\texttt{\%s} & Arbitrary read: dereferences a pointer and reads memory until a null byte. \\
+\texttt{\%n} & Arbitrary write: writes the number of characters printed so far to a pointer. \\
+\texttt{\%hn} & Staged arbitrary write: writes the counter as a 16-bit short integer. \\
+\hline
+\end{tabular}
+\end{center}
+\end{tcolorbox}
+
 \section{Introduction to Format Strings}
 In C and many other programming languages, printing functions often require a way to embed dynamically evaluated variables into text output. The solution to this problem is the \emph{format string}, a template containing text and special directives known as \emph{placeholders}. These placeholders tell the function how to format the data provided as subsequent arguments.
 
@@ -28,6 +47,10 @@ Some of the most common variable placeholders are:
 \end{itemize}
 
 \section{The Core Vulnerability}
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black,title=Exam Insight]
+A common exam task is to identify vulnerabilities in C source code. Look for functions like \texttt{printf(buf)} or \texttt{snprintf(..., buf)}, where \texttt{buf} is user-controlled. You will be asked to identify the vulnerable line, explain why it is exploitable, and propose a secure fix (e.g., rewriting it as \texttt{printf("\%s", buf)}).
+\end{tcolorbox}
 
 A format string vulnerability occurs when the format string itself is under the control of the user, rather than being hardcoded by the programmer. Consider the following seemingly harmless program:
 
@@ -125,6 +148,10 @@ Since $16,961 < 17,731$, we write the lower half first, then print additional pa
 
 \subsubsection{The Exploit Formula}
 
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black,title=Exam Insight]
+Be prepared to write full exploit payloads for Format String bugs. You may need to describe each step, clearly state your assumptions, and construct the precise payload (calculating exact padding for \texttt{\%hn} writes). Furthermore, exams often require drawing the memory stack layout right before and after the format string exploit execution.
+\end{tcolorbox}
+
 \begin{figure}[h!]
 \centering
 % Placeholder for TikZ representation of the stack during a Format String Write
@@ -164,6 +191,11 @@ With a robust arbitrary write primitive, an attacker can hijack the execution fl
 \end{itemize}
 
 \section{Countermeasures}
+
+\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black,title=Exam Insight]
+You may be asked to analyze the bypass of memory mitigations like ASLR or Stack Canaries. A standard technique discussed in exams is using a Format String vulnerability to leak memory (such as a stack canary or a libc base address) before executing a secondary exploit like a Buffer Overflow.
+\end{tcolorbox}
+
 Modern development environments deploy several countermeasures to mitigate format string vulnerabilities:
 \begin{itemize}
     \item \textbf{Compiler Warnings:} Modern compilers (\texttt{gcc}, \texttt{clang}) throw warnings (e.g., \texttt{-Wformat-security}) when a formatting function is called with a variable format string instead of a string literal.

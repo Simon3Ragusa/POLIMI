@@ -1,5 +1,23 @@
 \chapter{Web Application Security}
 
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Chapter Summary]
+This chapter explores the foundational concepts and critical vulnerabilities associated with modern web applications. Key topics include the untrustworthy nature of the client, input validation techniques (whitelisting vs. blacklisting), Cross-Site Scripting (XSS), SQL Injection (SQLi), Path Traversal, and Cross-Site Request Forgery (CSRF). Mitigations such as Prepared Statements, Content Security Policy (CSP), and robust session management are also discussed in detail.
+\end{tcolorbox}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|l|p{10cm}|}
+        \hline
+        \textbf{Vulnerability} & \textbf{Description} \\ \hline
+        XSS & Execution of malicious client-side scripts within the victim's browser. \\ \hline
+        SQL Injection & Altering database queries via unsanitized user input. \\ \hline
+        Path Traversal & Manipulating file paths to access unauthorized files. \\ \hline
+        CSRF & Forcing an authenticated user to execute unwanted actions. \\ \hline
+    \end{tabular}
+    \caption{Common Web Application Vulnerabilities}
+    \label{tab:web_vulns}
+\end{table}
+
 \section{Introduction}
 Web applications have become the dominant paradigm for software delivery, powering everything from corporate intranets to cloud-based Software as a Service (SaaS) offerings. Due to their ubiquity and the fact that they are often exposed to the public internet, they present a prime target for malicious actors.
 
@@ -40,6 +58,9 @@ Consider the task of preventing malicious JavaScript execution (Cross-Site Scrip
 Because the environment is so complex and constantly changing, blacklisting is doomed to fail. A robust defense relies on whitelisting and proper contextual escaping.
 
 \section{Cross-Site Scripting (XSS)}
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+For XSS, be prepared to identify vulnerabilities in source code, specify the vulnerable lines and variables, and explain how to fix or sanitize them. You must also know how to write the final payload/code to reproduce specific attacks such as Reflected, Stored, or DOM-based XSS.
+\end{tcolorbox}
 Cross-Site Scripting (XSS) is a widespread vulnerability that occurs when an application includes untrusted data in a web page without proper validation or escaping. This flaw allows an attacker to execute malicious client-side scripts (typically JavaScript) within the victim's browser.
 
 XSS is generally categorized into three types:
@@ -70,6 +91,9 @@ CSP is delivered via HTTP response headers (e.g., \texttt{Content-Security-Polic
 While CSP is a powerful defense-in-depth mechanism, its adoption is slow due to practical challenges. Strict policies can break existing functionality, especially on legacy sites relying on inline scripts. Keeping policies updated in modern, dynamic web applications is complex, and certain browser extensions can interfere with CSP enforcement. Furthermore, research has shown that many deployed CSPs are overly permissive and easily bypassed.
 
 \section{SQL Injection}
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+SQLi exam questions frequently require identifying vulnerabilities in source code, pointing out the vulnerable variables, and explaining fixes (e.g., Prepared Statements). Furthermore, expect to write payloads to reproduce specific attacks, particularly Blind and UNION-based SQL injections.
+\end{tcolorbox}
 SQL Injection (SQLi) occurs when user-supplied input is directly concatenated into database query strings without proper sanitization or parameterization. This allows an attacker to alter the structure of the SQL query, effectively tricking the database into executing unintended commands.
 
 \subsection{Exploitation Scenarios}
@@ -100,6 +124,9 @@ The core conflict causing injection vulnerabilities is the mixing of data and co
 To prevent SQL injection, developers must fundamentally separate data from code using \textbf{Prepared Statements} (Parametrized Queries). With prepared statements, the query structure is defined beforehand, and user inputs are supplied strictly as data parameters. The database driver ensures that these parameters are never interpreted as executable SQL commands, completely neutralizing the vulnerability. Additional defenses include least-privilege database accounts and input validation.
 
 \section{Information Leaks and Parameter Tampering}
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+Be prepared to write payloads to reproduce Path Traversal attacks (e.g., manipulating parameters to access files like \texttt{../../../../etc/passwd}).
+\end{tcolorbox}
 Applications must handle errors gracefully without revealing sensitive internal details. Detailed debug traces and verbose error messages (Freudian slips) can leak structural information about the database, server software versions, and internal file paths, which attackers can leverage.
 
 \textbf{URL Parameter Tampering} involves manipulating parameters in the GET request or POST body to access unauthorized data. A classic example is \textbf{Directory Traversal} (or Path Traversal), where an attacker manipulates a file path parameter (e.g., \texttt{file=../../../../etc/passwd}) to access arbitrary files on the server's filesystem outside the intended web root.
@@ -116,6 +143,9 @@ Sessions are typically implemented using Session IDs stored in client-side \text
 Session IDs must be unpredictable to prevent attackers from guessing valid tokens and impersonating users. Furthermore, session stealing (hijacking) via XSS is a critical threat. To mitigate this, sensitive cookies should employ the \texttt{HttpOnly} flag, which prevents client-side JavaScript from accessing the cookie, severely limiting the impact of an XSS vulnerability on session integrity.
 
 \section{Cross-Site Request Forgery (CSRF)}
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+CSRF questions often ask to identify the vulnerability in source code and provide the final payload/code to reproduce the attack (e.g., crafting an HTML form that auto-submits a forged request to the vulnerable endpoint).
+\end{tcolorbox}
 Cross-Site Request Forgery (CSRF) is an attack that forces an authenticated user to execute unwanted, state-changing actions on a web application.
 
 The attack exploits the fact that browsers automatically include ambient credentials (like session cookies) with every request made to a domain. If a victim visits a malicious site while authenticated to their bank, the malicious site can trigger a hidden request (e.g., via an invisible form submission or an image tag) to the bank's servers, transferring funds to the attacker. Since the request includes the victim's valid session cookie, the bank processes it legitimately.

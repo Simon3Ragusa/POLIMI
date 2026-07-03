@@ -1,5 +1,21 @@
 \chapter{Buffer Overflows}
 
+This chapter covers the classic \textbf{Buffer Overflow} vulnerability, explaining how it occurs and how attackers exploit it to gain arbitrary code execution. It details the process memory layout, the call stack, exploitation techniques, and defensive mitigations.
+
+\begin{table}[htpb]
+\centering
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\textbf{Concept} & \textbf{Description} \\ \hline
+Vulnerability Mechanics & Overwriting bounds via unsafe C functions (e.g., \texttt{strcpy}, \texttt{gets}). \\ \hline
+Shellcode & Position-independent machine code injected by attackers. \\ \hline
+Exploitation Techniques & Stack Smashing, NOP Sleds, Environment Variables, ret2libc. \\ \hline
+Defenses \& Mitigations & Safe libraries, Stack Canaries, NX Bit (DEP), ASLR. \\ \hline
+\end{tabular}
+\caption{Key concepts in Buffer Overflows.}
+\label{tab:ch6_summary}
+\end{table}
+
 \section{Introduction to Buffer Overflows}
 A buffer overflow is a classic and prevalent software vulnerability that occurs when a program writes more data to a block of memory, or buffer, than it was allocated to hold. Because buffers are created to contain a specific amount of data, the extra data overwrites adjacent memory locations. In languages like C and C++, which do not inherently perform bounds checking on array and pointer operations, it is left to the developer to ensure that data written to a buffer does not exceed its capacity.
 
@@ -45,6 +61,11 @@ For a 32-bit x86 architecture, the typical memory layout of a process from lower
 \end{itemize}
 
 \section{The Stack and Function Calls}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+Questions on this topic often require you to draw the process memory stack layout right before and after the execution of a vulnerable line or exploit, showing exactly where variables, \texttt{ESP}, \texttt{EBP}, and the saved \texttt{EIP} are located.
+\end{tcolorbox}
+
 The stack is a Last-In, First-Out (LIFO) data structure fundamental to the execution of functions. It is used to manage function activation records (or stack frames). 
 
 \subsection{Registers}
@@ -79,6 +100,11 @@ ret              ; Pops the saved return address into EIP and jumps to it
 \end{verbatim}
 
 \section{Buffer Overflow Vulnerabilities}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+You may be asked to identify buffer overflow vulnerabilities directly from provided C source code. Expect to pinpoint the vulnerable lines, explain if they are exploitable based on the context, and propose secure alternatives to fix the code.
+\end{tcolorbox}
+
 A buffer overflow vulnerability usually stems from the use of unsafe C library functions that copy data into a buffer without verifying if the data fits within the allocated size. Examples of such dangerous functions include \texttt{gets()}, \texttt{strcpy()}, \texttt{strcat()}, \texttt{sprintf()}, and \texttt{scanf()}.
 
 Consider a function \texttt{foo()} that allocates a local 8-byte character array \texttt{char buf[8];} and then calls \texttt{gets(buf);}. The stack frame for \texttt{foo()} will look roughly like this:
@@ -95,6 +121,11 @@ Consider a function \texttt{foo()} that allocates a local 8-byte character array
 Because \texttt{gets()} does not stop reading until it encounters a newline or EOF, an attacker can provide an input longer than 8 bytes. The data will fill \texttt{buf}, overflow into the saved \texttt{EBP}, and critically, overwrite the saved \texttt{EIP}. When \texttt{foo()} executes the \texttt{ret} instruction, the CPU will pop the attacker's corrupted value into the \texttt{EIP} register and attempt to execute code at that arbitrary address, leading to a crash (Segmentation Fault) or, worse, arbitrary code execution.
 
 \section{Exploitation Techniques}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+A common exam exercise involves writing exploits: detailing the assumptions, the steps taken, and constructing the exact payload to exploit a stack-based buffer overflow, often to execute shellcode or modify specific program variables.
+\end{tcolorbox}
+
 If an attacker can overwrite the saved \texttt{EIP}, the next step is to point it to a memory location containing valid, malicious machine code, commonly referred to as \textbf{shellcode}.
 
 \subsection{Shellcode}
@@ -132,6 +163,11 @@ When direct code injection on the stack is prevented by security mechanisms, att
 \end{itemize}
 
 \section{Defenses Against Buffer Overflows}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+Be prepared to analyze mitigations and discuss how they can be bypassed. Questions often ask about the effects of NX, ASLR, or Stack Canaries, and whether alternative techniques (e.g., ret2libc, format string exploits) can be used to circumvent these defenses.
+\end{tcolorbox}
+
 Modern software and operating systems employ a multi-layered defense strategy to mitigate buffer overflow attacks.
 
 \subsection{Source Code Defenses}

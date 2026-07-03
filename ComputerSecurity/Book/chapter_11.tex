@@ -1,6 +1,22 @@
 \chapter{Network Security Protocols: SSL/TLS and SET}
 \label{ch:network_security_protocols}
 
+\section*{Chapter Summary}
+This chapter explores the challenges of securing communications over the Internet, focusing on two major protocols: TLS (Transport Layer Security) and SET (Secure Electronic Transaction). It covers the mechanisms of the TLS handshake, its reliance on Public Key Infrastructure (PKI), and defense mechanisms against attacks like SSL Stripping (e.g., HSTS, Certificate Transparency). Furthermore, it discusses the SET protocol, its innovative use of dual signatures to separate order and payment information, and the reasons for its eventual commercial failure.
+
+\begin{table}[htpb]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|l|p{10cm}|}
+        \hline
+        \textbf{Protocol} & \textbf{Key Characteristics} \\ \hline
+        \textbf{TLS} & Evolved from SSL; provides confidentiality, integrity, and authentication; relies on PKI; vulnerable to CA compromises but mitigated by HSTS and CT. \\ \hline
+        \textbf{SET} & Protects transactions rather than just connections; uses dual signatures; failed commercially due to poor scalability and lack of user transparency. \\ \hline
+    \end{tabular}
+    \caption{Comparison of Network Security Protocols}
+    \label{tab:protocol_summary}
+\end{table}
+
 \section{Issues of Communications Security}
 When communicating over a remote network such as the Internet, several fundamental security problems arise due to the remoteness of the communicating parties and the inherent nature of Internet protocols. 
 
@@ -88,6 +104,11 @@ The TLS handshake is a multi-step process that establishes the secure channel.
         \item Is it revoked (via CRL or OCSP)?
         \item Is the Common Name (or Subject Alternative Name) in the certificate exactly matching the requested domain?
     \end{itemize}
+    
+    \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+    Questions about this topic often involve analyzing PKI and Certificate practices. You might be asked to evaluate certificate validation steps, analyze different PKI architectures, or discuss the implications of certificate lifetime reduction.
+    \end{tcolorbox}
+
     \item \textbf{Secret Transmission:} The client generates a \textit{pre-master secret}, encrypts it with the server's public key (extracted from the certificate), and sends it to the server. Only the legitimate server possessing the corresponding private key can decrypt this message.
     \item \textbf{Client Authentication (Optional):} If requested by the server, the client can also send its own certificate and prove possession of the private key by signing a piece of data (usually a hash of the previous handshake messages).
     \item \textbf{Secret Computation:} Both parties now independently compute the \textit{shared secret} (master secret) using the pre-master secret, the client's random data, and the server's random data.
@@ -125,6 +146,10 @@ In early browsers, invalid certificates resulted in a simple dialog box promptin
 \subsection{SSL Stripping}
 A classic attack is SSL Stripping. A victim attempts to connect to a website via plain HTTP (e.g., typing \texttt{bank.com} instead of \texttt{https://bank.com}). The MITM intercepts this HTTP request, establishes an HTTPS connection with the real server, but serves the victim a plain HTTP version of the site (or a fake login form posting to an HTTP endpoint). The user sees a normal page, unaware that the padlock is missing, and inputs their credentials.
 
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+Questions about this topic usually ask you to propose network mitigations (such as HTTPS/HSTS) to prevent specific attacks, or evaluate the effectiveness of these protocols in defending against MITM and eavesdropping.
+\end{tcolorbox}
+
 \section{Overcoming TLS/PKI Limitations}
 The security guarantees of TLS depend entirely on the security and trust of the root and intermediate CAs. CAs can generate certificates for any domain, and browsers inherently trust hundreds of CAs pre-installed by the OS or the browser vendor.
 
@@ -147,6 +172,11 @@ To counter these systemic PKI weaknesses and attacks like SSL stripping, several
 \end{itemize}
 
 \section{SET (Secure Electronic Transaction)}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+While SET is a legacy protocol, understanding its cryptographic protocol design (such as the dual signature) is useful for exercises that ask you to analyze or design custom secure cryptographic protocols for confidentiality and integrity.
+\end{tcolorbox}
+
 Introduced by a joint effort from the VISA and MasterCard consortium, SET aimed to protect \textit{transactions}, not just connections. 
 
 \subsection{The Approach}

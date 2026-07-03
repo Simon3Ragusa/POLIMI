@@ -1,6 +1,29 @@
 \chapter{Secure Network Architectures}
 \label{ch:secure_network_architectures}
 
+\textbf{Chapter Summary:} This chapter covers the fundamental concepts of securing network perimeters using firewalls and Virtual Private Networks (VPNs). It details firewall taxonomies (stateless, stateful, circuit-level, and application proxies), their interaction with NAT, and how network architectures like the Demilitarized Zone (DMZ) are used to isolate public-facing servers from private networks. Finally, it explores VPN technologies for secure remote access over public networks.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\textbf{Topic} & \textbf{Description} \\
+\hline
+Firewalls & Network access control systems acting as single enforcement points. \\
+\hline
+Packet Filters & Stateless filters evaluate packets individually; stateful filters track connection states. \\
+\hline
+Application Proxies & Operate at the application layer for deep payload inspection. \\
+\hline
+DMZ & Semi-public zone hosting internet-facing servers to protect internal networks. \\
+\hline
+VPN & Encrypted, authenticated overlay connections over public networks. \\
+\hline
+\end{tabular}
+\caption{Key Concepts of Secure Network Architectures}
+\label{tab:secure_networks_summary}
+\end{table}
+
 \section{Introduction to Firewalls}
 
 In the context of computer security, a \textbf{firewall} is a network access control system that verifies all the packets flowing through it. Its primary purpose is to act as a barrier between a trusted, screened network and untrusted outside networks, such as the Internet. To be effective, a firewall must serve as the single enforcement point between these networks; otherwise, its policies could be bypassed.
@@ -33,6 +56,10 @@ A firewall can be thought of as a strict ``bouncer at the door''; it simply appl
 Firewall rules are essentially the technical implementation of higher-level security policies. For instance, a security policy might state: \textit{``Clients are not allowed to download email from external servers.''} The corresponding firewall rule would block outbound connections on ports associated with POP3 or IMAP to external IP addresses.
 
 Crucially, an effective security policy must be built on a \textbf{default deny} base. This means the underlying philosophy is ``deny all, except what is explicitly permitted''. Any traffic not explicitly allowed by a rule should be dropped.
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+Expect questions where you must complete a table with stateful firewall rules based on a given network topology and specific security requirements. Remember to rely on the ``default deny'' base policy and carefully track the state of connections for inbound and outbound traffic flows.
+\end{tcolorbox}
 
 \section{Firewall Taxonomy}
 
@@ -163,6 +190,10 @@ The traditional perimeter defense model assumes the internal network is ``good''
 Mixing publicly accessible servers with internal client workstations on the same local network is highly insecure. If a public web server is compromised, the attacker immediately gains unrestricted access to the internal network.
 
 The solution is to physically and logically separate the network into zones of varying privilege levels, using firewalls to regulate access between them.
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
+You may be asked to propose network mitigations or topology changes (such as introducing a DMZ, VPN, NAT, or specific port security) to prevent specific attacks. Be prepared to evaluate the effectiveness of an attack after such network architectural changes are implemented.
+\end{tcolorbox}
 
 \subsection{The Demilitarized Zone (DMZ)}
 

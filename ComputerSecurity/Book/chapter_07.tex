@@ -30,7 +30,7 @@ Some of the most common variable placeholders are:
 
 \section{The Core Vulnerability}
 
-\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black,title=Exam Insight]
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
 A common exam task is to identify vulnerabilities in C source code, specifically Buffer Overflows and Format Strings. Look for functions like \texttt{printf(buf)} or \texttt{snprintf(..., buf)}, where \texttt{buf} is user-controlled. You will be asked to identify the exact vulnerable lines, explain whether and why they are exploitable (e.g., if the vulnerability allows arbitrary reads or writes), and propose a secure fix (e.g., rewriting it as \texttt{printf("\%s", buf)}).
 \end{tcolorbox}
 
@@ -130,7 +130,7 @@ Since $16,961 < 17,731$, we write the lower half first, then print additional pa
 
 \subsubsection{The Exploit Formula}
 
-\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black,title=Exam Insight]
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
 Be prepared to write full exploit payloads for Format String bugs. You may need to describe each step, clearly state your assumptions, and construct the precise payload (calculating exact padding for \texttt{\%hn} writes) to execute shellcode or modify variables. Furthermore, exams frequently require drawing the memory stack layout: you must accurately show the process memory right before the execution of the vulnerable line and right after the format string exploit execution.
 \end{tcolorbox}
 
@@ -158,7 +158,7 @@ With a robust arbitrary write primitive, an attacker can hijack the execution fl
 
 \section{Countermeasures}
 
-\begin{tcolorbox}[colback=red!5!white,colframe=red!75!black,title=Exam Insight]
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
 You may be asked to analyze the bypass of memory mitigations like NX, ASLR, or Stack Canaries. For instance, using a Format String vulnerability instead of a Buffer Overflow is a classic bypass for Stack Canaries. A standard technique discussed in exams is using a Format String to leak memory (such as a stack canary or a libc base address) before executing a secondary exploit like a Buffer Overflow, or leveraging \texttt{.text} to bypass NX.
 \end{tcolorbox}
 
@@ -173,7 +173,7 @@ Modern development environments deploy several countermeasures to mitigate forma
 Format string bugs are powerful memory corruption vulnerabilities. While exploiting them requires precise mathematical calculations of offsets and paddings, the resulting exploitation provides a robust, Turing Complete arbitrary read/write primitive. By mastering direct parameter access, the \texttt{\%n} specifier, and multi-stage writes with \texttt{\%hn}, an attacker gains complete control over process execution.
 
 \vspace{5mm}
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Chapter Summary]
+\section*{Chapter Summary}
 This chapter explores how format string functions like \texttt{printf} can be exploited when user-supplied input is directly passed as the format string. It covers the mechanisms of leaking stack memory, arbitrary memory reads, and arbitrary memory writes, culminating in full execution hijacking using staged writes.
 
 \vspace{2mm}
@@ -190,4 +190,3 @@ This chapter explores how format string functions like \texttt{printf} can be ex
 \hline
 \end{tabular}
 \end{center}
-\end{tcolorbox}

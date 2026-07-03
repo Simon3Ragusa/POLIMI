@@ -1,22 +1,5 @@
 \chapter{Network Protocol Attacks}
 
-This chapter covers the fundamental vulnerabilities inherent in standard network protocols, primarily stemming from the lack of built-in strong authentication.
-
-\begin{table}[ht]
-\centering
-\begin{tabular}{|l|p{10cm}|}
-\hline
-\textbf{Attack Category} & \textbf{Description \& Examples} \\
-\hline
-Denial of Service (DoS) & Targets availability via resource exhaustion (e.g., Ping of Death, SYN Flood, Smurf Attack). \\
-Sniffing & Targets confidentiality by intercepting traffic (e.g., MAC Flooding, ARP Spoofing). \\
-Spoofing \& Hijacking & Targets integrity/authenticity (e.g., IP Spoofing, TCP Session Hijacking, MITM). \\
-Application Layer & Exploits application protocols (e.g., DNS Cache Poisoning, DHCP Poisoning). \\
-Network Control & Exploits control protocols (e.g., ICMP Redirect, Route Mangling). \\
-\hline
-\end{tabular}
-\caption{Summary of Network Protocol Attacks}
-\end{table}
 
 \section{Introduction to Network Protocols and Layering}
 
@@ -38,7 +21,7 @@ Different layers employ distinct addressing structures to identify nodes and ser
 \section{Taxonomy of Typical Network Attacks}
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-For any of these attack categories, exam questions often ask you to analyze network packet captures/logs to determine the IP addresses of the attacker and the victim, and identify the attacker's main goal from traffic traces.
+For any of these attack categories, exam questions often ask you to analyze network packet captures or logs. Your main goal is to determine the IP and MAC addresses of the attacker and the victim, identify the specific type of attack taking place (e.g., ARP Spoofing, DNS Cache Poisoning, ICMP Redirect, CAM Flooding, TCP session hijacking), and articulate the attacker's main goal or the next steps in their attack chain based on the traffic traces.
 \end{tcolorbox}
 
 Network attacks generally exploit the lack of authentication or fundamental design flaws in early protocol specifications. They can be broadly classified into three categories based on the security principles they violate:
@@ -65,7 +48,7 @@ Early DoS attacks relied on sending malformed packets that exploited bugs or mem
 \subsection{SYN Flood Attack}
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-Exam questions often ask you to propose network mitigations. Be prepared to suggest and explain mitigations like SYN-cookies to prevent SYN Flood attacks.
+Exam questions often ask you to propose network mitigations or topology changes. Be prepared to suggest and explain mitigations like SYN-cookies to prevent SYN Flood attacks. You should also be able to evaluate the effectiveness of these mitigations (e.g., how SYN-cookies avoid state allocation on the server side) and understand how adding firewalls, DMZs, or VPNs changes the network's resilience against such attacks.
 \end{tcolorbox}
 
 The SYN Flood is a classic resource exhaustion attack that exploits the TCP three-way handshake.
@@ -101,7 +84,7 @@ In older networks using shared media (like BNC cables) or \textbf{hubs}, all tra
 \subsection{MAC Flooding}
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-When analyzing network packet captures (like CAM flooding/MAC flooding), you may need to identify the type of attack taking place and describe its steps. Additionally, you might be asked to propose network mitigations such as Port Security to prevent it.
+When analyzing network packet captures that involve an overwhelming number of frames with random source MAC addresses, you should identify it as CAM flooding or MAC flooding. You will need to describe its steps, primarily how it forces a switch into ``fail-open'' mode (acting like a hub) to enable sniffing. Additionally, you will be asked to propose network mitigations such as implementing Port Security to limit the number of MAC addresses per port, and explain how this mitigation prevents the table from filling up.
 \end{tcolorbox}
 
 An attacker can overwhelm a switch's CAM table by generating thousands of spoofed frames with random source MAC addresses in a matter of seconds (using tools like \texttt{macof}). Once the CAM table is full, the switch cannot learn new MAC addresses and defaults to ``fail-open'' behavior---it begins broadcasting all incoming frames to all ports, effectively turning the switch into a hub and allowing the attacker to sniff all traffic.
@@ -110,7 +93,7 @@ An attacker can overwhelm a switch's CAM table by generating thousands of spoofe
 \subsection{ARP Spoofing and Cache Poisoning}
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-ARP Spoofing/Poisoning is a frequent topic in network packet capture analysis questions. You must be able to identify it from a trace and describe its steps in detail.
+ARP Spoofing/Poisoning is a frequent topic in network packet capture analysis questions. You must be able to identify it from a trace (typically spotting gratuitous ARP replies or multiple IPs associated with one MAC) and describe its steps in detail. Be ready to determine the attacker's IP and MAC, the victim's IP, and explain the attacker's ultimate goal, which is often to establish a Man-in-the-Middle (MITM) position to intercept or modify traffic.
 \end{tcolorbox}
 
 The Address Resolution Protocol (ARP) translates 32-bit IPv4 addresses into 48-bit MAC addresses. When a host needs to find the MAC address for an IP, it broadcasts an ARP Request. The owner of the IP replies with an ARP Reply.
@@ -139,7 +122,7 @@ Historically (e.g., the famous Kevin Mitnick attack in 1995), operating systems 
 \subsection{TCP Session Hijacking}
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-Exam questions may present packet logs and ask you to identify TCP session hijacking. You will need to describe the steps the attacker takes, such as predicting sequence numbers or disrupting the original connection.
+Exam questions may present packet logs and ask you to identify TCP session hijacking. You will need to describe the steps the attacker takes in detail, such as sniffing the connection to obtain current sequence and acknowledgment numbers, disrupting the original connection (e.g., via a targeted DoS against the client), and injecting a spoofed packet to the server with the correct next sequence number to hijack the session.
 \end{tcolorbox}
 
 If the attacker is on the same local network or path and can sniff the traffic, they don't need to guess sequence numbers. 
@@ -159,7 +142,7 @@ A MITM attack is a broad category where the attacker inserts themselves between 
 \subsection{Domain Name System (DNS) Attacks}
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-DNS Cache Poisoning is often featured in packet analysis questions. Be ready to identify the attack and explain its mechanism, such as spoofing the Transaction ID and flooding the local server with forged responses.
+DNS Cache Poisoning is often featured in packet analysis questions. Be ready to identify the attack from logs (e.g., seeing a flood of DNS responses trying to guess the Transaction ID) and explain its mechanism. This includes how the attacker spoofs the Transaction ID and UDP source port, floods the local server with forged responses before the legitimate authoritative server replies, and ultimately causes the local server to cache a malicious IP record.
 \end{tcolorbox}
 
 DNS translates human-readable domain names (e.g., \texttt{www.google.com}) into IP addresses. It operates as a distributed, hierarchical database primarily over UDP port 53. Because standard DNS queries and responses are unauthenticated, it is highly vulnerable to spoofing.
@@ -185,7 +168,7 @@ Since DHCP is unauthenticated, an attacker can set up a rogue DHCP server on the
 \subsection{Internet Control Message Protocol (ICMP)}
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-Questions involving ICMP Redirect often require you to identify the attack from network logs and explain the steps taken to trick a host into routing traffic maliciously.
+Questions involving ICMP Redirect often require you to identify the attack from network logs and explain the steps taken to trick a host into routing traffic maliciously. You must be able to point out the forged ICMP Redirect packet, identify the attacker and victim IPs, and explain how this alters the victim's routing table, often redirecting their traffic through the attacker's machine or blackholing it.
 \end{tcolorbox}
 
 ICMP is designed for sending error messages and operational information (e.g., \texttt{Echo Request/Reply} for ping, \texttt{Destination Unreachable}, \texttt{Time Exceeded}).
@@ -201,7 +184,27 @@ An attacker who gains access to a router or can inject routing updates can ``man
 \section{Conclusion}
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-A common exam exercise involves writing stateful firewall rules based on a given network topology and specific security requirements, or proposing topology changes (like adding a DMZ, VPN, or NAT) to prevent specific attacks.
+A common exam exercise involves writing stateful firewall rules based on a given network topology and specific security requirements. You will be asked to complete a table with these rules, ensuring proper stateful inspection (e.g., allowing established connections). Additionally, you may need to propose topology changes (like adding a DMZ, VPN, HTTPS, or NAT) to prevent specific attacks, and evaluate how effective an attack would be after these network changes are applied.
 \end{tcolorbox}
 
 Network protocols were largely designed with functionality and resilience in mind, often in environments where trust was assumed. The lack of strong, built-in cryptographic authentication at the lower layers (Link, Internet, Transport) exposes modern networks to a wide array of attacks. From resource exhaustion via DoS to sophisticated MITM and cache poisoning techniques, attackers exploit inherent structural weaknesses. Securing a network requires a defense-in-depth approach, implementing security controls, stateful inspection, and cryptographic protocols (like IPsec, DNSSEC, and TLS) layered on top of the foundational protocols.
+
+\section*{Chapter Summary}
+
+This chapter covers the fundamental vulnerabilities inherent in standard network protocols, primarily stemming from the lack of built-in strong authentication.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\textbf{Attack Category} & \textbf{Description \& Examples} \\
+\hline
+Denial of Service (DoS) & Targets availability via resource exhaustion (e.g., Ping of Death, SYN Flood, Smurf Attack). \\
+Sniffing & Targets confidentiality by intercepting traffic (e.g., MAC Flooding, ARP Spoofing). \\
+Spoofing \& Hijacking & Targets integrity/authenticity (e.g., IP Spoofing, TCP Session Hijacking, MITM). \\
+Application Layer & Exploits application protocols (e.g., DNS Cache Poisoning, DHCP Poisoning). \\
+Network Control & Exploits control protocols (e.g., ICMP Redirect, Route Mangling). \\
+\hline
+\end{tabular}
+\caption{Summary of Network Protocol Attacks}
+\end{table}

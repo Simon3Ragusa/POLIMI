@@ -1,29 +1,5 @@
 \chapter{Introduction to Software Security}
 
-\textbf{Chapter Summary:} This chapter introduces the fundamental concepts of software security, distinguishing between bugs, vulnerabilities, and exploits. It covers the vulnerability lifecycle, disclosure policies, and the economics of exploits. It also examines UNIX process privileges (RUID, EUID, SUID) as a practical example of vulnerabilities, highlighting privilege separation and dropping. Finally, it outlines core principles of secure design and development practices.
-
-\begin{table}[hbtp]
-\centering
-\begin{tabular}{|l|p{10cm}|}
-\hline
-\textbf{Concept} & \textbf{Description} \\
-\hline
-\textbf{Software Bug} & An unmet functional specification. \\
-\hline
-\textbf{Vulnerability} & An unmet security specification (a weakness in the system). \\
-\hline
-\textbf{Exploit} & A method or code used to leverage a vulnerability to violate security properties. \\
-\hline
-\textbf{Zero-day Attack} & An attack that occurs between the release of an exploit and the deployment of a patch. \\
-\hline
-\textbf{SUID (UNIX)} & A permission bit that changes the Effective UID of a process to the file owner's UID. \\
-\hline
-\textbf{Secure Design} & Core principles like keeping it simple, minimizing privileges, failing securely, and open design. \\
-\hline
-\end{tabular}
-\caption{Key Software Security Concepts}
-\end{table}
-
 \section{Fundamentals of Software Security}
 \subsection{Software Requirements and Security}
 Good software engineering aims to meet a specific set of requirements, which can be broadly divided into functional and non-functional categories. 
@@ -37,7 +13,7 @@ Creating inherently secure applications is a fundamental, yet often unknown, ski
 \subsection{Bugs, Vulnerabilities, and Exploits}
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-Questions about this topic are usually based on identifying assets at risk, associated threats, threat agents, and assessing vulnerabilities for a given scenario.
+Questions about this topic are usually based on identifying assets at risk, associated threats, threat agents, and assessing vulnerabilities for a given scenario (e.g., floor cleaning robots, tracking devices, infrastructure). You may be asked to analyze vulnerabilities, explain potential exploits, and propose concrete countermeasures to reduce risk. Furthermore, be prepared to suggest potential attack surfaces for a described infrastructure, analyze custom authentication mechanisms to highlight weaknesses (like snooping or guessing), and correct Risk Analysis Tables (Likelihood/Impact) while justifying your changes and selecting the best countermeasures.
 \end{tcolorbox}
 
 Software is designed to implement specifications. When these specifications are not met, the software contains flaws.
@@ -144,7 +120,7 @@ If this program simply reads \texttt{/etc/secret} and prints it, any user execut
 \subsection{Exploitation and Patching}
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-Exam questions often ask you to identify vulnerabilities in C source code, explain how they can be exploited, and propose fixes (e.g., dropping privileges). You may also need to suggest potential attack surfaces and countermeasures for a described scenario.
+Exam questions often ask you to identify vulnerabilities in C source code (specifically focusing on Buffer Overflows or Format Strings), find the vulnerable lines, explain whether they are exploitable, and propose fixes (such as dropping privileges appropriately or sanitizing inputs). You may also need to describe the steps and assumptions required to write exploits, draw memory stack layouts before and after execution, and analyze the bypass or effect of mitigations like NX, ASLR, or Stack Canaries.
 \end{tcolorbox}
 
 The core issue is that the program holds elevated privileges (EUID = \texttt{root}) for longer than necessary, expanding the \textbf{attack surface}. Any bug in the \texttt{parse()} function or subsequent logic can be exploited with root privileges.
@@ -199,3 +175,27 @@ In subsequent chapters, we will explore specific examples of insecure programmin
     \item \textbf{Memory errors in desktop applications:} Buffer overflow bugs and format string bugs.
     \item \textbf{Code-injection bugs in web applications:} SQL injection (SQLi), Cross-Site Scripting (XSS), and Cross-Site Request Forgery (CSRF).
 \end{itemize}
+
+\textbf{Chapter Summary:} This chapter introduces the fundamental concepts of software security, distinguishing between bugs, vulnerabilities, and exploits. It covers the vulnerability lifecycle, disclosure policies, and the economics of exploits. It also examines UNIX process privileges (RUID, EUID, SUID) as a practical example of vulnerabilities, highlighting privilege separation and dropping. Finally, it outlines core principles of secure design and development practices.
+
+\begin{table}[hbtp]
+\centering
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\textbf{Concept} & \textbf{Description} \\
+\hline
+\textbf{Software Bug} & An unmet functional specification. \\
+\hline
+\textbf{Vulnerability} & An unmet security specification (a weakness in the system). \\
+\hline
+\textbf{Exploit} & A method or code used to leverage a vulnerability to violate security properties. \\
+\hline
+\textbf{Zero-day Attack} & An attack that occurs between the release of an exploit and the deployment of a patch. \\
+\hline
+\textbf{SUID (UNIX)} & A permission bit that changes the Effective UID of a process to the file owner's UID. \\
+\hline
+\textbf{Secure Design} & Core principles like keeping it simple, minimizing privileges, failing securely, and open design. \\
+\hline
+\end{tabular}
+\caption{Key Software Security Concepts}
+\end{table}

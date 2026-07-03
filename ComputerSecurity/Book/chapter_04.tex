@@ -1,30 +1,10 @@
 \chapter{Access Control}
 \label{ch:access_control}
 
-\begin{tcolorbox}[colback=gray!5!white,colframe=gray!75!black,title=Chapter Summary]
-This chapter explores how systems make and scale binary decisions regarding resource access using policies. It details the \textbf{Reference Monitor} as the core enforcer, \textbf{Discretionary Access Control (DAC)} where owners assign privileges (which is vulnerable to Trojan Horses), and \textbf{Mandatory Access Control (MAC)} using lattice-based models like Bell-LaPadula to enforce system-wide secrecy.
-\end{tcolorbox}
-
-\begin{table}[htpb]
-    \centering
-    \begin{tabular}{|l|p{5.5cm}|p{5.5cm}|}
-        \hline
-        \textbf{Aspect} & \textbf{DAC (Discretionary)} & \textbf{MAC (Mandatory)} \\
-        \hline
-        \textbf{Authority} & Resource owner assigns privileges & System administrator sets strict policies \\
-        \textbf{Implementations} & ACLs, Capability Lists, UNIX Triads & Lattice-Based Access Control (LBAC) \\
-        \textbf{Data Flow} & Fails to restrict data flow in memory & Enforces monotonic upward data flow \\
-        \textbf{Trojan Horse} & Highly vulnerable & Mitigated via the $\star$-property (No Write Down) \\
-        \hline
-    \end{tabular}
-    \caption{Comparison of DAC and MAC}
-    \label{tab:dac_vs_mac}
-\end{table}
-
 \section{Introduction to Access Control}
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-Questions about this topic are usually based on identifying assets, threats, and countermeasures for a given scenario (e.g., floor cleaning robots, tracking devices). You may also be asked to correct a Risk Analysis Table by evaluating Likelihood/Impact and to suggest potential attack surfaces.
+Questions about this topic are usually based on identifying assets at risk, associated threats, and threat agents for a given scenario (e.g., floor cleaning robots, tracking devices, infrastructure). You must analyze vulnerabilities, explain the exploit mechanics, and propose effective countermeasures and mitigations to reduce risk. Additionally, you may be asked to correct a Risk Analysis Table by evaluating Likelihood/Impact and justifying your changes, as well as to suggest potential attack surfaces for the described system.
 \end{tcolorbox}
 Access control is fundamentally a binary decision mechanism: whenever an entity requests access to a resource, the system must determine whether the action is \textit{allowed} or \textit{denied}. While this concept appears simple on the surface, scaling this binary decision across thousands of users and millions of resources in a modern computing environment is profoundly complex. Administrators cannot explicitly list the answers for every possible access request; instead, they must distill these permissions into robust and generalized \textit{rules}.
 
@@ -38,7 +18,7 @@ The study of access control revolves around three primary questions:
 \subsection{Authentication and Authorization}
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-Exam questions often ask you to analyze the security of custom authentication mechanisms (e.g., password recovery, biometrics, hardware protocols). Be prepared to identify weaknesses such as snooping or guessing, and suggest improvements.
+Exam questions often ask you to analyze the security of custom authentication schemes (e.g., password recovery mechanisms, biometric systems, or hardware authentication protocols). You should be prepared to critically highlight weaknesses such as susceptibility to snooping, guessing, or interception attacks. To score full points, clearly outline the vulnerability and propose specific, actionable improvements to secure the authentication process.
 \end{tcolorbox}
 
 Before access control can take place, the system must establish identities and evaluate policies. This process is split into two phases:
@@ -150,7 +130,7 @@ Despite its ubiquity, DAC has critical flaws:
 In a Trojan Horse attack, a victim runs a malicious program. Because DAC grants the running process the same privileges as the victim, the process can legitimately read the victim's secret files. However, the program then maliciously writes that data into a different file owned by the attacker. DAC fails to stop this because the write operation is legitimately authorized under the victim's privileges.
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-When analyzing vulnerabilities and proposing mitigations for a given scenario, keep in mind how flaws in access control models (like DAC's susceptibility to Trojans) can be exploited. You will need to explain the exploit mechanics and propose architectural countermeasures.
+When analyzing vulnerabilities and proposing mitigations for a given scenario, always consider how inherent flaws in access control models—like DAC's vulnerability to Trojan Horses and data flow leakage—can be exploited by an attacker. You will be expected to thoroughly explain the exploit mechanics and propose architectural countermeasures (e.g., migrating to MAC or adding strict isolation) to mitigate the threat.
 \end{tcolorbox}
 
 \section{Mandatory Access Control (MAC)}
@@ -187,3 +167,23 @@ It is critical to note that BLP is designed exclusively for confidentiality. It 
 
 \section{Conclusion}
 Access control bridges the gap between verified authentication and safe resource utilization. Discretionary Access Control (DAC) provides the highly flexible, intuitive owner-centric model that dominates consumer and commercial software. However, due to its vulnerability to information leakage and Trojan attacks, strict environments layer Mandatory Access Control (MAC) atop DAC, utilizing mathematical models like Bell-LaPadula to forcefully dictate the flow of sensitive information.
+
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!75!black,title=Chapter Summary]
+This chapter explores how systems make and scale binary decisions regarding resource access using policies. It details the \textbf{Reference Monitor} as the core enforcer, \textbf{Discretionary Access Control (DAC)} where owners assign privileges (which is vulnerable to Trojan Horses), and \textbf{Mandatory Access Control (MAC)} using lattice-based models like Bell-LaPadula to enforce system-wide secrecy.
+\end{tcolorbox}
+
+\begin{table}[htpb]
+    \centering
+    \begin{tabular}{|l|p{5.5cm}|p{5.5cm}|}
+        \hline
+        \textbf{Aspect} & \textbf{DAC (Discretionary)} & \textbf{MAC (Mandatory)} \\
+        \hline
+        \textbf{Authority} & Resource owner assigns privileges & System administrator sets strict policies \\
+        \textbf{Implementations} & ACLs, Capability Lists, UNIX Triads & Lattice-Based Access Control (LBAC) \\
+        \textbf{Data Flow} & Fails to restrict data flow in memory & Enforces monotonic upward data flow \\
+        \textbf{Trojan Horse} & Highly vulnerable & Mitigated via the $\star$-property (No Write Down) \\
+        \hline
+    \end{tabular}
+    \caption{Comparison of DAC and MAC}
+    \label{tab:dac_vs_mac}
+\end{table}

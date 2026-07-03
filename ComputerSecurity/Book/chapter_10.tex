@@ -1,29 +1,6 @@
 \chapter{Secure Network Architectures}
 \label{ch:secure_network_architectures}
 
-\textbf{Chapter Summary:} This chapter covers the fundamental concepts of securing network perimeters using firewalls and Virtual Private Networks (VPNs). It details firewall taxonomies (stateless, stateful, circuit-level, and application proxies), their interaction with NAT, and how network architectures like the Demilitarized Zone (DMZ) are used to isolate public-facing servers from private networks. Finally, it explores VPN technologies for secure remote access over public networks.
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|p{10cm}|}
-\hline
-\textbf{Topic} & \textbf{Description} \\
-\hline
-Firewalls & Network access control systems acting as single enforcement points. \\
-\hline
-Packet Filters & Stateless filters evaluate packets individually; stateful filters track connection states. \\
-\hline
-Application Proxies & Operate at the application layer for deep payload inspection. \\
-\hline
-DMZ & Semi-public zone hosting internet-facing servers to protect internal networks. \\
-\hline
-VPN & Encrypted, authenticated overlay connections over public networks. \\
-\hline
-\end{tabular}
-\caption{Key Concepts of Secure Network Architectures}
-\label{tab:secure_networks_summary}
-\end{table}
-
 \section{Introduction to Firewalls}
 
 In the context of computer security, a \textbf{firewall} is a network access control system that verifies all the packets flowing through it. Its primary purpose is to act as a barrier between a trusted, screened network and untrusted outside networks, such as the Internet. To be effective, a firewall must serve as the single enforcement point between these networks; otherwise, its policies could be bypassed.
@@ -58,7 +35,7 @@ Firewall rules are essentially the technical implementation of higher-level secu
 Crucially, an effective security policy must be built on a \textbf{default deny} base. This means the underlying philosophy is ``deny all, except what is explicitly permitted''. Any traffic not explicitly allowed by a rule should be dropped.
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-Expect questions where you must complete a table with stateful firewall rules based on a given network topology and specific security requirements. Remember to rely on the ``default deny'' base policy and carefully track the state of connections for inbound and outbound traffic flows.
+Expect questions where you must complete a table with stateful firewall rules based on a given network topology and specific security requirements. You may be provided with a network diagram showing different zones (e.g., DMZ, Internal, External). Pay close attention to whether the firewall is stateful or stateless. For stateful firewalls, you typically only need to specify the rule for the connection initiation; the return traffic for established sessions is automatically permitted by the state table. Remember to rely on the ``default deny'' base policy and carefully track the state of connections for inbound and outbound traffic flows.
 \end{tcolorbox}
 
 \section{Firewall Taxonomy}
@@ -192,7 +169,7 @@ Mixing publicly accessible servers with internal client workstations on the same
 The solution is to physically and logically separate the network into zones of varying privilege levels, using firewalls to regulate access between them.
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-You may be asked to propose network mitigations or topology changes (such as introducing a DMZ, VPN, NAT, or specific port security) to prevent specific attacks. Be prepared to evaluate the effectiveness of an attack after such network architectural changes are implemented.
+You may be asked to propose network mitigations or topology changes (such as introducing a DMZ, VPN, NAT, SYN-cookies, HTTPS, or specific port security) to prevent specific attacks. Be explicit about the attacks they prevent. For example, mention how a VPN provides confidentiality over an untrusted network, how a DMZ isolates public-facing servers from the internal LAN, or how SYN-cookies mitigate SYN flooding attacks. Be prepared to evaluate the effectiveness of an attack before and after such architectural changes, explaining precisely why the mitigation disrupts the attack chain.
 \end{tcolorbox}
 
 \subsection{The Demilitarized Zone (DMZ)}
@@ -270,3 +247,26 @@ Many different technologies implement the core VPN concept:
     \item Advanced network architectures, such as utilizing a DMZ, leverage firewalls to segregate resources by privilege level, protecting critical internal assets from public-facing services.
     \item Virtual Private Networks (VPNs) complement firewalls by solving the problem of creating a trusted, authenticated, and encrypted network transport over an inherently untrusted channel like the Internet.
 \end{itemize}
+
+\textbf{Chapter Summary:} This chapter covers the fundamental concepts of securing network perimeters using firewalls and Virtual Private Networks (VPNs). It details firewall taxonomies (stateless, stateful, circuit-level, and application proxies), their interaction with NAT, and how network architectures like the Demilitarized Zone (DMZ) are used to isolate public-facing servers from private networks. Finally, it explores VPN technologies for secure remote access over public networks.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\textbf{Topic} & \textbf{Description} \\
+\hline
+Firewalls & Network access control systems acting as single enforcement points. \\
+\hline
+Packet Filters & Stateless filters evaluate packets individually; stateful filters track connection states. \\
+\hline
+Application Proxies & Operate at the application layer for deep payload inspection. \\
+\hline
+DMZ & Semi-public zone hosting internet-facing servers to protect internal networks. \\
+\hline
+VPN & Encrypted, authenticated overlay connections over public networks. \\
+\hline
+\end{tabular}
+\caption{Key Concepts of Secure Network Architectures}
+\label{tab:secure_networks_summary}
+\end{table}

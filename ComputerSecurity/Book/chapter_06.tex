@@ -1,20 +1,6 @@
 \chapter{Buffer Overflows}
 
-This chapter covers the classic \textbf{Buffer Overflow} vulnerability, explaining how it occurs and how attackers exploit it to gain arbitrary code execution. It details the process memory layout, the call stack, exploitation techniques, and defensive mitigations.
 
-\begin{table}[htpb]
-\centering
-\begin{tabular}{|l|p{10cm}|}
-\hline
-\textbf{Concept} & \textbf{Description} \\ \hline
-Vulnerability Mechanics & Overwriting bounds via unsafe C functions (e.g., \texttt{strcpy}, \texttt{gets}). \\ \hline
-Shellcode & Position-independent machine code injected by attackers. \\ \hline
-Exploitation Techniques & Stack Smashing, NOP Sleds, Environment Variables, ret2libc. \\ \hline
-Defenses \& Mitigations & Safe libraries, Stack Canaries, NX Bit (DEP), ASLR. \\ \hline
-\end{tabular}
-\caption{Key concepts in Buffer Overflows.}
-\label{tab:ch6_summary}
-\end{table}
 
 \section{Introduction to Buffer Overflows}
 A buffer overflow is a classic and prevalent software vulnerability that occurs when a program writes more data to a block of memory, or buffer, than it was allocated to hold. Because buffers are created to contain a specific amount of data, the extra data overwrites adjacent memory locations. In languages like C and C++, which do not inherently perform bounds checking on array and pointer operations, it is left to the developer to ensure that data written to a buffer does not exceed its capacity.
@@ -63,7 +49,7 @@ For a 32-bit x86 architecture, the typical memory layout of a process from lower
 \section{The Stack and Function Calls}
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-Questions on this topic often require you to draw the process memory stack layout right before and after the execution of a vulnerable line or exploit, showing exactly where variables, \texttt{ESP}, \texttt{EBP}, and the saved \texttt{EIP} are located.
+Questions on this topic often require you to strictly and clearly draw the process memory stack layout. You must map the stack state right before and after the execution of a vulnerable line or an exploit payload. Be sure to show exactly where local variables, the Stack Pointer (\texttt{ESP}), Base Pointer (\texttt{EBP}), and the saved Return Address (\texttt{EIP}) are located, as this demonstrates a solid understanding of the stack's mechanics.
 \end{tcolorbox}
 
 The stack is a Last-In, First-Out (LIFO) data structure fundamental to the execution of functions. It is used to manage function activation records (or stack frames). 
@@ -102,7 +88,7 @@ ret              ; Pops the saved return address into EIP and jumps to it
 \section{Buffer Overflow Vulnerabilities}
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-You may be asked to identify buffer overflow vulnerabilities directly from provided C source code. Expect to pinpoint the vulnerable lines, explain if they are exploitable based on the context, and propose secure alternatives to fix the code.
+You will likely be asked to identify binary vulnerabilities (specifically Buffer Overflows and Format String bugs) directly from provided C source code. Be prepared to pinpoint the exact vulnerable lines, explain in detail why they are exploitable based on the provided context, and propose secure coding alternatives or functions (e.g., using \texttt{strncpy} instead of \texttt{strcpy}) to fix the issues.
 \end{tcolorbox}
 
 A buffer overflow vulnerability usually stems from the use of unsafe C library functions that copy data into a buffer without verifying if the data fits within the allocated size. Examples of such dangerous functions include \texttt{gets()}, \texttt{strcpy()}, \texttt{strcat()}, \texttt{sprintf()}, and \texttt{scanf()}.
@@ -123,7 +109,7 @@ Because \texttt{gets()} does not stop reading until it encounters a newline or E
 \section{Exploitation Techniques}
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-A common exam exercise involves writing exploits: detailing the assumptions, the steps taken, and constructing the exact payload to exploit a stack-based buffer overflow, often to execute shellcode or modify specific program variables.
+A common exam exercise involves practically writing exploits. You should practice describing the necessary steps and underlying assumptions, and then constructing the exact payload required to exploit a Stack-based Buffer Overflow or Format String vulnerability. Often, the goal is to execute injected shellcode or strategically overwrite specific program variables to alter the program's control flow.
 \end{tcolorbox}
 
 If an attacker can overwrite the saved \texttt{EIP}, the next step is to point it to a memory location containing valid, malicious machine code, commonly referred to as \textbf{shellcode}.
@@ -165,7 +151,7 @@ When direct code injection on the stack is prevented by security mechanisms, att
 \section{Defenses Against Buffer Overflows}
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-Be prepared to analyze mitigations and discuss how they can be bypassed. Questions often ask about the effects of NX, ASLR, or Stack Canaries, and whether alternative techniques (e.g., ret2libc, format string exploits) can be used to circumvent these defenses.
+Be prepared to deeply analyze exploit mitigations and discuss how they can be bypassed. Exam questions frequently ask you to explain the effects of specific defenses like NX (Non-Executable Stack), ASLR, or Stack Canaries. Furthermore, you will need to evaluate whether alternative exploitation techniques (such as returning to the \texttt{.text} segment, or leveraging a Format String attack instead of a standard Buffer Overflow) can be used to effectively circumvent these defensive mechanisms.
 \end{tcolorbox}
 
 Modern software and operating systems employ a multi-layered defense strategy to mitigate buffer overflow attacks.
@@ -190,3 +176,21 @@ Operating systems enforce policies to make exploitation difficult even if a vuln
     \item \textbf{Non-Executable Stack (NX Bit / DEP)}: The OS marks the stack and heap memory segments as non-executable (Data Execution Prevention). If an attacker successfully redirects the \texttt{EIP} to their injected shellcode on the stack, the CPU will refuse to execute it and will terminate the process. This forces attackers to rely on complex code-reuse techniques like ROP.
     \item \textbf{Address Space Layout Randomization (ASLR)}: The OS randomly shifts the memory locations of the stack, heap, and libraries every time the program is executed. This randomness makes it extremely difficult for an attacker to reliably predict the target addresses needed to overwrite the \texttt{EIP} or to locate libc functions for a ret2libc attack.
 \end{itemize}
+
+\section*{Chapter Summary}
+
+This chapter covers the classic \textbf{Buffer Overflow} vulnerability, explaining how it occurs and how attackers exploit it to gain arbitrary code execution. It details the process memory layout, the call stack, exploitation techniques, and defensive mitigations.
+
+\begin{table}[htpb]
+\centering
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\textbf{Concept} & \textbf{Description} \\ \hline
+Vulnerability Mechanics & Overwriting bounds via unsafe C functions (e.g., \texttt{strcpy}, \texttt{gets}). \\ \hline
+Shellcode & Position-independent machine code injected by attackers. \\ \hline
+Exploitation Techniques & Stack Smashing, NOP Sleds, Environment Variables, ret2libc. \\ \hline
+Defenses \& Mitigations & Safe libraries, Stack Canaries, NX Bit (DEP), ASLR. \\ \hline
+\end{tabular}
+\caption{Key concepts in Buffer Overflows.}
+\label{tab:ch6_summary}
+\end{table}

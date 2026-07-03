@@ -1,23 +1,5 @@
 \chapter{Web Application Security}
 
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Chapter Summary]
-This chapter explores the foundational concepts and critical vulnerabilities associated with modern web applications. Key topics include the untrustworthy nature of the client, input validation techniques (whitelisting vs. blacklisting), Cross-Site Scripting (XSS), SQL Injection (SQLi), Path Traversal, and Cross-Site Request Forgery (CSRF). Mitigations such as Prepared Statements, Content Security Policy (CSP), and robust session management are also discussed in detail.
-\end{tcolorbox}
-
-\begin{table}[h!]
-    \centering
-    \begin{tabular}{|l|p{10cm}|}
-        \hline
-        \textbf{Vulnerability} & \textbf{Description} \\ \hline
-        XSS & Execution of malicious client-side scripts within the victim's browser. \\ \hline
-        SQL Injection & Altering database queries via unsanitized user input. \\ \hline
-        Path Traversal & Manipulating file paths to access unauthorized files. \\ \hline
-        CSRF & Forcing an authenticated user to execute unwanted actions. \\ \hline
-    \end{tabular}
-    \caption{Common Web Application Vulnerabilities}
-    \label{tab:web_vulns}
-\end{table}
-
 \section{Introduction}
 Web applications have become the dominant paradigm for software delivery, powering everything from corporate intranets to cloud-based Software as a Service (SaaS) offerings. Due to their ubiquity and the fact that they are often exposed to the public internet, they present a prime target for malicious actors.
 
@@ -59,7 +41,7 @@ Because the environment is so complex and constantly changing, blacklisting is d
 
 \section{Cross-Site Scripting (XSS)}
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-For XSS, be prepared to identify vulnerabilities in source code, specify the vulnerable lines and variables, and explain how to fix or sanitize them. You must also know how to write the final payload/code to reproduce specific attacks such as Reflected, Stored, or DOM-based XSS.
+For XSS, be prepared to identify vulnerabilities in provided source code. You will typically be asked to fill out a table identifying the vulnerability type, specifying the exact vulnerable lines and variables, and explaining how to properly fix or sanitize them. Furthermore, you must know how to write the final payload/code to reproduce specific attacks, such as Reflected, Stored, or DOM-based XSS.
 \end{tcolorbox}
 Cross-Site Scripting (XSS) is a widespread vulnerability that occurs when an application includes untrusted data in a web page without proper validation or escaping. This flaw allows an attacker to execute malicious client-side scripts (typically JavaScript) within the victim's browser.
 
@@ -92,7 +74,7 @@ While CSP is a powerful defense-in-depth mechanism, its adoption is slow due to 
 
 \section{SQL Injection}
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-SQLi exam questions frequently require identifying vulnerabilities in source code, pointing out the vulnerable variables, and explaining fixes (e.g., Prepared Statements). Furthermore, expect to write payloads to reproduce specific attacks, particularly Blind and UNION-based SQL injections.
+SQLi exam questions frequently require identifying vulnerabilities in source code by filling out a structured table. You will need to point out the specific vulnerable lines and variables, and explain the appropriate fixes (e.g., implementing Prepared Statements). Additionally, expect to write the exact payloads required to reproduce specific attacks, particularly Blind and UNION-based SQL injections.
 \end{tcolorbox}
 SQL Injection (SQLi) occurs when user-supplied input is directly concatenated into database query strings without proper sanitization or parameterization. This allows an attacker to alter the structure of the SQL query, effectively tricking the database into executing unintended commands.
 
@@ -125,7 +107,7 @@ To prevent SQL injection, developers must fundamentally separate data from code 
 
 \section{Information Leaks and Parameter Tampering}
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-Be prepared to write payloads to reproduce Path Traversal attacks (e.g., manipulating parameters to access files like \texttt{../../../../etc/passwd}).
+Be prepared to write payloads to reproduce Path Traversal attacks. You may be required to demonstrate how to manipulate URL parameters to access unauthorized files on the server (e.g., using sequences like \texttt{../../../../etc/passwd}). You should clearly explain the steps to achieve the exploit.
 \end{tcolorbox}
 Applications must handle errors gracefully without revealing sensitive internal details. Detailed debug traces and verbose error messages (Freudian slips) can leak structural information about the database, server software versions, and internal file paths, which attackers can leverage.
 
@@ -144,7 +126,7 @@ Session IDs must be unpredictable to prevent attackers from guessing valid token
 
 \section{Cross-Site Request Forgery (CSRF)}
 \begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Exam Insight]
-CSRF questions often ask to identify the vulnerability in source code and provide the final payload/code to reproduce the attack (e.g., crafting an HTML form that auto-submits a forged request to the vulnerable endpoint).
+CSRF questions often ask you to identify the vulnerability within a given source code snippet (often filling out a vulnerability table with lines, variables, and fixes) and provide the final payload or code to reproduce the attack. For instance, you might need to craft a malicious HTML form that automatically submits a forged cross-site request to the vulnerable endpoint when visited by the victim.
 \end{tcolorbox}
 Cross-Site Request Forgery (CSRF) is an attack that forces an authenticated user to execute unwanted, state-changing actions on a web application.
 
@@ -158,3 +140,21 @@ The attack exploits the fact that browsers automatically include ambient credent
 
 \section{Conclusion}
 Web application security is a complex field characterized by an asymmetric battle between developers and attackers. Securing modern applications requires a defense-in-depth approach, treating all client input as hostile, strictly separating code from data, and properly implementing authentication and session management.
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Chapter Summary]
+This chapter explores the foundational concepts and critical vulnerabilities associated with modern web applications. Key topics include the untrustworthy nature of the client, input validation techniques (whitelisting vs. blacklisting), Cross-Site Scripting (XSS), SQL Injection (SQLi), Path Traversal, and Cross-Site Request Forgery (CSRF). Mitigations such as Prepared Statements, Content Security Policy (CSP), and robust session management are also discussed in detail.
+\end{tcolorbox}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|l|p{10cm}|}
+        \hline
+        \textbf{Vulnerability} & \textbf{Description} \\ \hline
+        XSS & Execution of malicious client-side scripts within the victim's browser. \\ \hline
+        SQL Injection & Altering database queries via unsanitized user input. \\ \hline
+        Path Traversal & Manipulating file paths to access unauthorized files. \\ \hline
+        CSRF & Forcing an authenticated user to execute unwanted actions. \\ \hline
+    \end{tabular}
+    \caption{Common Web Application Vulnerabilities}
+    \label{tab:web_vulns}
+\end{table}
